@@ -1,0 +1,101 @@
+{% extends "panel/base.html" %}
+{% load formato %}
+{% block title %}Inscripciones{% endblock %}
+{% block encabezado %}Inscripciones{% endblock %}
+{% block bajada %}
+  <div class="bajada">
+    {{ total }} {{ total|plural:"inscripción" }} con los filtros actuales.
+    {% if total > 300 %}Se muestran las primeras 300; la exportación las incluye todas.{% endif %}
+  </div>
+{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="{% url 'panel:exportar_inscripciones' %}?{{ querystring }}&formato=csv">↓ CSV</a>
+  <a class="boton boton--verde" href="{% url 'panel:exportar_inscripciones' %}?{{ querystring }}&formato=xlsx">↓ Exportar a Excel</a>
+{% endblock %}
+
+{% block contenido %}
+<form class="filtros-barra" method="get">
+  <div class="campo-fila">
+    <label for="q">Buscar persona</label>
+    <input class="campo" type="search" name="q" id="q" value="{{ filtros.q }}" placeholder="Apellido o DNI">
+  </div>
+  <div class="campo-fila">
+    <label for="curso">Curso</label>
+    <select class="campo campo--select" name="curso" id="curso">
+      <option value="">Todos</option>
+      {% for curso in cursos %}
+        <option value="{{ curso.pk }}" {% if filtros.curso == curso.pk|stringformat:"s" %}selected{% endif %}>{{ curso.nombre|truncatechars:34 }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo-fila">
+    <label for="estado">Estado</label>
+    <select class="campo campo--select" name="estado" id="estado">
+      <option value="">Todos</option>
+      {% for valor, etiqueta in estados %}
+        <option value="{{ valor }}" {% if filtros.estado == valor %}selected{% endif %}>{{ etiqueta }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo-fila">
+    <label for="pago">Pago</label>
+    <select class="campo campo--select" name="pago" id="pago">
+      <option value="">Todos</option>
+      {% for valor, etiqueta in pagos %}
+        <option value="{{ valor }}" {% if filtros.pago == valor %}selected{% endif %}>{{ etiqueta }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo-fila">
+    <label for="desde">Cursa desde</label>
+    <input class="campo" type="date" name="desde" id="desde" value="{{ filtros.desde }}">
+  </div>
+  <div class="campo-fila">
+    <label for="hasta">Hasta</label>
+    <input class="campo" type="date" name="hasta" id="hasta" value="{{ filtros.hasta }}">
+  </div>
+  <div class="empuje">
+    <button class="boton boton--secundario" type="submit">Filtrar</button>
+    <a class="boton boton--secundario" href="{% url 'panel:inscripciones' %}">Limpiar</a>
+  </div>
+</form>
+
+<div class="tabla-envoltorio">
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th>Participante</th><th>DNI</th><th>Curso</th><th>Fecha</th>
+        <th>Estado</th><th>Pago</th><th>Origen</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inscripcion in inscripciones %}
+        <tr>
+          <td class="principal-celda">
+            {{ inscripcion.participante.nombre_completo }}
+            <div class="apagado">{{ inscripcion.participante.empresa.razon_social|default:"Sin empresa" }}</div>
+          </td>
+          <td>{{ inscripcion.participante.dni }}</td>
+          <td>
+            <a href="{% url 'panel:comision_detalle' inscripcion.comision.pk %}">
+              {{ inscripcion.comision.curso.nombre|truncatechars:38 }}
+            </a>
+          </td>
+          <td>{{ inscripcion.comision.fecha_inicio|date:"d/m/Y" }}</td>
+          <td>{% include "panel/_estado_inscripcion.html" %}</td>
+          <td>{% include "panel/_estado_pago.html" %}</td>
+          <td class="apagado">{{ inscripcion.get_origen_display }}</td>
+          <td><a href="{% url 'panel:inscripcion_editar' inscripcion.pk %}?next={{ request.get_full_path|urlencode }}">Editar</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="8">
+          <div class="tabla-vacia">
+            <strong>No hay inscripciones con esos filtros.</strong>
+            Probá limpiándolos o ampliá el rango de fechas.
+          </div>
+        </td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "web/base.html" %}
+{% block title %}Calendario de cursos — {{ sitio.nombre }}{% endblock %}
+
+{% block contenido %}
+<section class="seccion-gris" style="border-top:0">
+  <div class="contenedor seccion-interior">
+    <div class="volanta">AGENDA DE CAPACITACIÓN</div>
+    <h1 class="seccion-titulo">Consultá las fechas disponibles</h1>
+    <p class="categoria__resumen" style="margin-top:10px">
+      Todas las capacitaciones habilitantes de {{ sitio.nombre }}, con precio, requisitos y las fechas abiertas.
+    </p>
+
+    {% include "web/_catalogo.html" with url_base="/cursos/" %}
+
+    {% if sitio.url_boleta %}
+      <p class="nota-pie">
+        Boleta de pago para cursos de Cargas Generales, Mercancías Peligrosas y Pasajeros:
+        <a href="{{ sitio.url_boleta }}" rel="noopener" target="_blank">e-SICAPRO — solicitud online</a>
+      </p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

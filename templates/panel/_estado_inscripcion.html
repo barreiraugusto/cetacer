@@ -1,0 +1,6 @@
+{% if inscripcion.estado == "confirmada" %}<span class="distintivo distintivo--verde">Confirmado</span>
+{% elif inscripcion.estado == "preinscripta" %}<span class="distintivo distintivo--ambar">Preinscripto</span>
+{% elif inscripcion.estado == "asistio" %}<span class="distintivo distintivo--azul">Asistió</span>
+{% elif inscripcion.estado == "ausente" %}<span class="distintivo distintivo--gris">Ausente</span>
+{% elif inscripcion.estado == "cancelada" %}<span class="distintivo distintivo--rojo">Cancelada</span>
+{% endif %}

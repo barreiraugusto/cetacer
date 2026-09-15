@@ -1,0 +1,66 @@
+{% extends "panel/base.html" %}
+{% block title %}Participantes{% endblock %}
+{% block encabezado %}Participantes{% endblock %}
+{% block bajada %}
+  <div class="bajada">
+    Padrón único de personas: {{ total }} registrada{{ total|pluralize:"s" }}.
+    Cada una se identifica por su DNI y conserva el historial de cursos.
+  </div>
+{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="{% url 'panel:empresas' %}">Empresas</a>
+  <a class="boton boton--secundario" href="{% url 'panel:exportar_participantes' %}?{{ querystring }}&formato=xlsx">↓ Exportar padrón</a>
+  <a class="boton boton--primario" href="{% url 'panel:participante_nuevo' %}">+ Nueva persona</a>
+{% endblock %}
+
+{% block contenido %}
+<form class="filtros-barra" method="get">
+  <div class="campo-fila">
+    <label for="q">Buscar</label>
+    <input class="campo" type="search" name="q" id="q" value="{{ q }}" placeholder="Apellido, nombre o DNI">
+  </div>
+  <div class="campo-fila">
+    <label for="empresa">Empresa</label>
+    <select class="campo campo--select" name="empresa" id="empresa">
+      <option value="">Todas</option>
+      {% for empresa in empresas %}
+        <option value="{{ empresa.pk }}" {% if empresa_sel == empresa.pk|stringformat:"s" %}selected{% endif %}>{{ empresa.razon_social }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="empuje">
+    <button class="boton boton--secundario" type="submit">Filtrar</button>
+    <a class="boton boton--secundario" href="{% url 'panel:participantes' %}">Limpiar</a>
+  </div>
+</form>
+
+<div class="tabla-envoltorio">
+  <table class="tabla">
+    <thead>
+      <tr><th>Apellido y nombre</th><th>DNI</th><th>Teléfono</th><th>Localidad</th><th>Empresa</th><th>Cursos</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for participante in participantes %}
+        <tr>
+          <td class="principal-celda">
+            <a href="{% url 'panel:participante_editar' participante.pk %}">{{ participante.nombre_completo }}</a>
+          </td>
+          <td>{{ participante.dni }}</td>
+          <td>{{ participante.telefono|default:"—" }}</td>
+          <td>{{ participante.localidad|default:"—" }}</td>
+          <td class="apagado">{{ participante.empresa.razon_social|default:"—" }}</td>
+          <td>{{ participante.total_cursos }}</td>
+          <td><a href="{% url 'panel:participante_editar' participante.pk %}">Ficha →</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7">
+          <div class="tabla-vacia">
+            <strong>No hay personas con esos filtros.</strong>
+            Las personas se crean solas al inscribirlas en una comisión.
+          </div>
+        </td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

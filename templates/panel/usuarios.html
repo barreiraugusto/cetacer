@@ -1,0 +1,86 @@
+{% extends "panel/base.html" %}
+{% block title %}Usuarios{% endblock %}
+{% block encabezado %}Usuarios y permisos{% endblock %}
+{% block bajada %}
+  <div class="bajada">
+    {{ total }} usuario{{ total|pluralize:"s" }}. Cada persona tiene un rol y el rol decide qué puede hacer.
+  </div>
+{% endblock %}
+{% block acciones %}
+  <a class="boton boton--primario" href="{% url 'panel:usuario_nuevo' %}">+ Nuevo usuario</a>
+{% endblock %}
+
+{% block contenido %}
+
+{% if sin_rol %}
+  <div class="aviso aviso--atencion">
+    <span>
+      Hay {{ sin_rol|length }} usuario(s) sin rol asignado. No pueden entrar al panel hasta que les des uno.
+    </span>
+  </div>
+{% endif %}
+
+<p class="texto-suave" style="margin-bottom:18px">
+  Los roles están ordenados de mayor a menor alcance. Quien tiene un rol de arriba
+  puede hacer todo lo de los de abajo.
+</p>
+
+<div class="apilar">
+  {% for grupo in grupos %}
+    <div class="tarjeta">
+      <div class="fila fila--separada">
+        <div>
+          <div class="tarjeta__titulo sin-margen">
+            {{ forloop.counter }}. {{ grupo.rol.label }}
+            <span class="distintivo distintivo--azul">{{ grupo.usuarios|length }}</span>
+          </div>
+          <p class="tarjeta__ayuda sin-margen">{{ grupo.descripcion }}</p>
+        </div>
+      </div>
+
+      {% if grupo.usuarios %}
+        <div class="tabla-envoltorio" style="border:0;margin-top:12px">
+          <table class="tabla">
+            <thead><tr><th>Persona</th><th>Usuario</th><th>Cargo</th><th>Correo</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+              {% for usuario in grupo.usuarios %}
+                <tr>
+                  <td class="principal-celda">
+                    <div class="fila" style="gap:9px">
+                      <div class="avatar" style="width:28px;height:28px;font-size:12px">{{ usuario.iniciales }}</div>
+                      {{ usuario.nombre_completo }}
+                    </div>
+                  </td>
+                  <td class="apagado">{{ usuario.username }}</td>
+                  <td>{{ usuario.cargo|default:"—" }}</td>
+                  <td class="apagado">{{ usuario.email|default:"—" }}</td>
+                  <td>
+                    {% if usuario.is_active %}<span class="distintivo distintivo--verde">Activo</span>
+                    {% else %}<span class="distintivo distintivo--gris">Dado de baja</span>{% endif %}
+                  </td>
+                  <td><a href="{% url 'panel:usuario_editar' usuario.pk %}">Editar</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="texto-suave" style="margin-top:10px">Nadie tiene este rol todavía.</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  {% if sin_rol %}
+    <div class="tarjeta" style="border-color:#fda29b">
+      <div class="tarjeta__titulo" style="color:var(--rojo)">Sin rol asignado</div>
+      <p class="tarjeta__ayuda">Estos usuarios existen pero no pueden usar el panel.</p>
+      {% for usuario in sin_rol %}
+        <div class="fila" style="padding:9px 0;border-bottom:1px solid var(--borde)">
+          <span>{{ usuario.nombre_completo }} <span class="apagado">({{ usuario.username }})</span></span>
+          <a class="derecha" href="{% url 'panel:usuario_editar' usuario.pk %}">Asignar rol →</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

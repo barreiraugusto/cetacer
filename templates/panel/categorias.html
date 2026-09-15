@@ -1,0 +1,33 @@
+{% extends "panel/base.html" %}
+{% block title %}Categorías{% endblock %}
+{% block encabezado %}Categorías{% endblock %}
+{% block bajada %}<div class="bajada">Los grandes títulos bajo los que se agrupan los cursos en la web.</div>{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="{% url 'panel:cursos' %}">← Cursos</a>
+  <a class="boton boton--primario" href="{% url 'panel:categoria_nueva' %}">+ Nueva categoría</a>
+{% endblock %}
+
+{% block contenido %}
+<div class="tabla-envoltorio">
+  <table class="tabla">
+    <thead><tr><th>Categoría</th><th>Resumen</th><th>Cursos</th><th>Orden</th><th>En la web</th><th></th></tr></thead>
+    <tbody>
+      {% for categoria in categorias %}
+        <tr>
+          <td class="principal-celda">{{ categoria.nombre }}</td>
+          <td class="apagado">{{ categoria.resumen|truncatechars:80 }}</td>
+          <td>{{ categoria.total }}</td>
+          <td>{{ categoria.orden }}</td>
+          <td>
+            {% if categoria.activa %}<span class="distintivo distintivo--verde">Visible</span>
+            {% else %}<span class="distintivo distintivo--gris">Oculta</span>{% endif %}
+          </td>
+          <td><a href="{% url 'panel:categoria_editar' categoria.pk %}">Editar</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6"><div class="tabla-vacia"><strong>No hay categorías.</strong> Creá la primera.</div></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

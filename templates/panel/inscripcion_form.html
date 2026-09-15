@@ -1,0 +1,54 @@
+{% extends "panel/base.html" %}
+{% block title %}Inscripción{% endblock %}
+{% block encabezado %}{{ inscripcion.participante.nombre_completo }}{% endblock %}
+{% block bajada %}
+  <div class="bajada">
+    {{ inscripcion.comision.curso.nombre }} · {{ inscripcion.comision.fecha_texto }} ·
+    DNI {{ inscripcion.participante.dni }}
+  </div>
+{% endblock %}
+
+{% block contenido %}
+<form class="tarjeta formulario" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">Estado de la inscripción</div>
+    <p class="seccion-form__ayuda">
+      «Preinscripto» es una reserva sin confirmar. «Cancelada» libera el lugar en el cupo.
+    </p>
+    {% include "panel/_campo.html" with campo=form.estado %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">Pago</div>
+    <p class="seccion-form__ayuda">
+      Cargá el número de boleta e-SICAPRO o del recibo interno para poder rastrearlo después.
+    </p>
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.pago %}
+      {% include "panel/_campo.html" with campo=form.monto %}
+      {% include "panel/_campo.html" with campo=form.comprobante %}
+    </div>
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">Documentación</div>
+    <p class="seccion-form__ayuda">
+      Sirve para saber de un vistazo quién puede cursar y a quién hay que reclamarle papeles.
+    </p>
+    {% include "panel/_campo.html" with campo=form.psicofisico_vigente %}
+    {% include "panel/_campo.html" with campo=form.documentacion_completa %}
+    {% include "panel/_campo.html" with campo=form.notas %}
+  </div>
+
+  <div class="acciones-form">
+    <button class="boton boton--primario" type="submit">Guardar</button>
+    <a class="boton boton--secundario" href="{% url 'panel:comision_detalle' inscripcion.comision.pk %}">Volver a la comisión</a>
+    <a class="boton boton--secundario derecha" href="{% url 'panel:participante_editar' inscripcion.participante.pk %}">
+      Ver ficha de la persona
+    </a>
+  </div>
+</form>
+{% endblock %}

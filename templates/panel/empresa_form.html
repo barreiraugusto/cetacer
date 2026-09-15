@@ -1,0 +1,19 @@
+{% extends "panel/base.html" %}
+{% block title %}Empresa{% endblock %}
+{% block encabezado %}{% if empresa %}{{ empresa.razon_social }}{% else %}Nueva empresa{% endif %}{% endblock %}
+
+{% block contenido %}
+<form class="tarjeta formulario" method="post">
+  {% csrf_token %}
+  <div class="grilla-campos">
+    {% for campo in form %}
+      {% if campo.name != "notas" %}{% include "panel/_campo.html" %}{% endif %}
+    {% endfor %}
+  </div>
+  {% include "panel/_campo.html" with campo=form.notas %}
+  <div class="acciones-form">
+    <button class="boton boton--primario" type="submit">Guardar</button>
+    <a class="boton boton--secundario" href="{% url 'panel:empresas' %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

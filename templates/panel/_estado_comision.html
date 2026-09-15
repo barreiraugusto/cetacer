@@ -1,0 +1,6 @@
+{% if comision.estado == "publicada" %}<span class="distintivo distintivo--verde">Publicada</span>
+{% elif comision.estado == "borrador" %}<span class="distintivo distintivo--gris">Borrador</span>
+{% elif comision.estado == "en_curso" %}<span class="distintivo distintivo--azul">En curso</span>
+{% elif comision.estado == "finalizada" %}<span class="distintivo distintivo--gris">Finalizada</span>
+{% elif comision.estado == "cancelada" %}<span class="distintivo distintivo--rojo">Cancelada</span>
+{% endif %}

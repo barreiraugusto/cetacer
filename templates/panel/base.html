@@ -1,0 +1,102 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Panel{% endblock %} — {{ sitio.nombre|default:"CETACER" }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/panel.css' %}">
+</head>
+<body>
+<div class="disposicion">
+
+  <aside class="lateral">
+    <div class="lateral__marca">
+      <a href="{% url 'panel:inicio' %}">
+        <div class="lateral__nombre">
+          {{ sitio.nombre|default:"CETACER" }}{% if sitio.aniversario %}<span class="aniversario"> {{ sitio.aniversario }}</span>{% endif %}
+        </div>
+        <div class="lateral__sub">PANEL DE ADMINISTRACIÓN</div>
+      </a>
+    </div>
+
+    <nav class="menu" aria-label="Secciones del panel">
+      <a href="{% url 'panel:inicio' %}" class="{% if seccion == 'inicio' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="tablero" %} Tablero
+      </a>
+      <a href="{% url 'panel:agenda' %}" class="{% if seccion == 'agenda' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="calendario" %} Agenda
+      </a>
+
+      <div class="menu__titulo">CAPACITACIÓN</div>
+      <a href="{% url 'panel:comisiones' %}" class="{% if seccion == 'comisiones' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="comision" %} Comisiones
+      </a>
+      <a href="{% url 'panel:cursos' %}" class="{% if seccion == 'cursos' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="libro" %} Cursos
+      </a>
+
+      <div class="menu__titulo">PERSONAS</div>
+      <a href="{% url 'panel:inscripciones' %}" class="{% if seccion == 'inscripciones' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="lista" %} Inscripciones
+      </a>
+      <a href="{% url 'panel:participantes' %}" class="{% if seccion == 'participantes' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="gente" %} Participantes
+      </a>
+
+      <div class="menu__titulo">INSTITUCIÓN</div>
+      <a href="{% url 'panel:informes' %}" class="{% if seccion == 'informes' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="grafico" %} Informes
+      </a>
+      {% if user.is_superuser or rol_actual.value == "Dirección" %}
+        <a href="{% url 'panel:usuarios' %}" class="{% if seccion == 'usuarios' %}activo{% endif %}">
+          {% include "panel/iconos.html" with icono="usuarios" %} Usuarios y permisos
+        </a>
+        <a href="{% url 'panel:configuracion' %}" class="{% if seccion == 'configuracion' %}activo{% endif %}">
+          {% include "panel/iconos.html" with icono="engranaje" %} Configuración
+        </a>
+      {% endif %}
+      <a href="{% url 'panel:ayuda' %}" class="{% if seccion == 'ayuda' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="ayuda" %} Cómo se usa
+      </a>
+      <a href="{% url 'web:inicio' %}" target="_blank">
+        {% include "panel/iconos.html" with icono="externo" %} Ver la web
+      </a>
+    </nav>
+
+    <div class="lateral__pie">
+      <div class="avatar">{{ user.iniciales }}</div>
+      <div class="lateral__pie-datos">
+        <div class="lateral__pie-nombre">{{ user.nombre_completo }}</div>
+        <div class="lateral__pie-rol">{{ rol_nombre }}</div>
+      </div>
+      <form method="post" action="{% url 'panel:logout' %}">
+        {% csrf_token %}
+        <button class="lateral__salir" type="submit">Salir</button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="principal">
+    <div class="barra-superior">
+      <div>
+        <h1>{% block encabezado %}{% endblock %}</h1>
+        {% block bajada %}{% endblock %}
+      </div>
+      <div class="barra-superior__acciones">{% block acciones %}{% endblock %}</div>
+    </div>
+
+    <div class="contenido">
+      {% if messages %}
+        {% for mensaje in messages %}
+          <div class="mensaje mensaje--{{ mensaje.tags|default:'info' }}">{{ mensaje }}</div>
+        {% endfor %}
+      {% endif %}
+      {% block contenido %}{% endblock %}
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{% comment %}Renderiza un campo de formulario con su ayuda y su error.{% endcomment %}
+{% if campo.field.widget.input_type == "checkbox" %}
+  <div class="campo-fila campo-fila--casilla">
+    {{ campo }}
+    <div>
+      <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+      {% if campo.help_text %}<div class="ayuda">{{ campo.help_text }}</div>{% endif %}
+      {% if campo.errors %}<div class="error">{{ campo.errors.0 }}</div>{% endif %}
+    </div>
+  </div>
+{% else %}
+  <div class="campo-fila">
+    <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
+    {{ campo }}
+    {% if campo.help_text %}<div class="ayuda">{{ campo.help_text }}</div>{% endif %}
+    {% if campo.errors %}<div class="error">{{ campo.errors.0 }}</div>{% endif %}
+  </div>
+{% endif %}

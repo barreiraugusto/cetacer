@@ -1,0 +1,66 @@
+{% extends "panel/base.html" %}
+{% block title %}Usuario{% endblock %}
+{% block encabezado %}{% if usuario_editado %}{{ usuario_editado.nombre_completo }}{% else %}Nuevo usuario{% endif %}{% endblock %}
+{% block bajada %}<div class="bajada">Un usuario, un rol. El rol define exactamente qué puede tocar.</div>{% endblock %}
+
+{% block contenido %}
+<div class="grilla-dos">
+  <form class="tarjeta formulario" method="post">
+    {% csrf_token %}
+
+    <div class="seccion-form">
+      <div class="seccion-form__titulo">1. Quién es</div>
+      <div class="grilla-campos">
+        {% include "panel/_campo.html" with campo=form.first_name %}
+        {% include "panel/_campo.html" with campo=form.last_name %}
+        {% include "panel/_campo.html" with campo=form.email %}
+        {% include "panel/_campo.html" with campo=form.telefono %}
+        {% include "panel/_campo.html" with campo=form.dni %}
+        {% include "panel/_campo.html" with campo=form.cargo %}
+      </div>
+    </div>
+
+    <div class="seccion-form">
+      <div class="seccion-form__titulo">2. Cómo entra</div>
+      <p class="seccion-form__ayuda">
+        El nombre de usuario no lleva espacios ni acentos. La contraseña tiene que tener
+        al menos 8 caracteres.
+      </p>
+      {% include "panel/_campo.html" with campo=form.username %}
+      <div class="grilla-campos">
+        {% include "panel/_campo.html" with campo=form.password1 %}
+        {% include "panel/_campo.html" with campo=form.password2 %}
+      </div>
+    </div>
+
+    <div class="seccion-form">
+      <div class="seccion-form__titulo">3. Qué puede hacer</div>
+      <p class="seccion-form__ayuda">Mirá la tabla de al lado antes de elegir.</p>
+      {% include "panel/_campo.html" with campo=form.rol %}
+      {% include "panel/_campo.html" with campo=form.is_active %}
+    </div>
+
+    <div class="acciones-form">
+      <button class="boton boton--primario" type="submit">Guardar usuario</button>
+      <a class="boton boton--secundario" href="{% url 'panel:usuarios' %}">Cancelar</a>
+    </div>
+  </form>
+
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">Qué significa cada rol</div>
+    <p class="tarjeta__ayuda">De mayor a menor alcance.</p>
+    {% for nombre, descripcion in descripciones %}
+      <div style="padding:12px 0;border-bottom:1px solid var(--borde)">
+        <div style="font-weight:700;color:var(--azul-profundo);font-size:14.5px">
+          {{ forloop.counter }}. {{ nombre }}
+        </div>
+        <div class="texto-suave" style="margin-top:3px;line-height:1.5">{{ descripcion }}</div>
+      </div>
+    {% endfor %}
+    <p class="texto-suave" style="margin-top:14px">
+      Para dejar a alguien sin acceso sin perder su historial, desmarcá «activo»
+      en lugar de borrar el usuario.
+    </p>
+  </div>
+</div>
+{% endblock %}

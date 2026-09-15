@@ -1,0 +1,69 @@
+{% extends "panel/base.html" %}
+{% block title %}{% if comision %}Editar comisión{% else %}Nueva comisión{% endif %}{% endblock %}
+{% block encabezado %}{% if comision %}Editar comisión{% else %}Nueva comisión{% endif %}{% endblock %}
+{% block bajada %}
+  <div class="bajada">
+    Una comisión es una fecha concreta de un curso. Al publicarla aparece sola en la web.
+  </div>
+{% endblock %}
+
+{% block contenido %}
+<form class="tarjeta formulario" method="post">
+  {% csrf_token %}
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">1. Qué curso se dicta</div>
+    <p class="seccion-form__ayuda">
+      El precio, los requisitos y la descripción salen de la ficha del curso; acá sólo elegís cuál es.
+    </p>
+    {% include "panel/_campo.html" with campo=form.curso %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">2. Cuándo y dónde</div>
+    <p class="seccion-form__ayuda">
+      Si el curso dura un solo día, dejá vacía la fecha de finalización.
+    </p>
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.fecha_inicio %}
+      {% include "panel/_campo.html" with campo=form.fecha_fin %}
+      {% include "panel/_campo.html" with campo=form.hora_inicio %}
+      {% include "panel/_campo.html" with campo=form.hora_fin %}
+    </div>
+    {% include "panel/_campo.html" with campo=form.lugar %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">3. Cupo y responsable</div>
+    <p class="seccion-form__ayuda">
+      Cuando los inscriptos llegan al cupo, la web muestra la fecha como completa y el panel
+      no deja sumar a nadie más sin ampliarlo.
+    </p>
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.cupo %}
+      {% include "panel/_campo.html" with campo=form.instructor %}
+    </div>
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">4. Publicación</div>
+    <p class="seccion-form__ayuda">
+      <strong>Borrador</strong>: sólo se ve acá adentro.
+      <strong>Publicada</strong>: aparece en la web y se puede reservar.
+      <strong>Finalizada</strong>: ya se dictó.
+    </p>
+    {% include "panel/_campo.html" with campo=form.estado %}
+    {% include "panel/_campo.html" with campo=form.observaciones %}
+  </div>
+
+  <div class="acciones-form">
+    <button class="boton boton--primario" type="submit">Guardar comisión</button>
+    <a class="boton boton--secundario" href="{% url 'panel:comisiones' %}">Cancelar</a>
+    {% if comision %}
+      <a class="boton boton--secundario derecha" href="{% url 'panel:comision_detalle' comision.pk %}">
+        Ver inscriptos ({{ comision.cantidad_inscriptos }})
+      </a>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

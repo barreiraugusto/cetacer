@@ -1,0 +1,72 @@
+{% extends "panel/base.html" %}
+{% block title %}Cursos{% endblock %}
+{% block encabezado %}Cursos{% endblock %}
+{% block bajada %}
+  <div class="bajada">El catálogo que se muestra en la web: precio, requisitos y descripción de cada curso.</div>
+{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="{% url 'panel:categorias' %}">Categorías</a>
+  <a class="boton boton--primario" href="{% url 'panel:curso_nuevo' %}">+ Nuevo curso</a>
+{% endblock %}
+
+{% block contenido %}
+<form class="filtros-barra" method="get">
+  <div class="campo-fila">
+    <label for="q">Buscar</label>
+    <input class="campo" type="search" name="q" id="q" value="{{ q }}" placeholder="Nombre o requisito">
+  </div>
+  <div class="campo-fila">
+    <label for="categoria">Categoría</label>
+    <select class="campo campo--select" name="categoria" id="categoria">
+      <option value="">Todas</option>
+      {% for categoria in categorias %}
+        <option value="{{ categoria.pk }}" {% if categoria_sel == categoria.pk|stringformat:"s" %}selected{% endif %}>{{ categoria.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="empuje">
+    <button class="boton boton--secundario" type="submit">Filtrar</button>
+    <a class="boton boton--secundario" href="{% url 'panel:cursos' %}">Limpiar</a>
+  </div>
+</form>
+
+<div class="tabla-envoltorio">
+  <table class="tabla">
+    <thead>
+      <tr><th>Curso</th><th>Categoría</th><th>Precio</th><th>Cupo sugerido</th><th>Comisiones</th><th>En la web</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for curso in cursos %}
+        <tr>
+          <td class="principal-celda">
+            <a href="{% url 'panel:curso_editar' curso.pk %}">{{ curso.nombre }}</a>
+            <div class="apagado">{{ curso.requisitos|truncatechars:70 }}</div>
+          </td>
+          <td>{{ curso.categoria.nombre }}</td>
+          <td class="principal-celda">{{ curso.precio_texto }}</td>
+          <td>{{ curso.cupo_sugerido }}</td>
+          <td>
+            {{ curso.total_comisiones }}
+            <a class="apagado" href="{% url 'panel:comision_nueva' %}?curso={{ curso.pk }}">+ agregar fecha</a>
+          </td>
+          <td>
+            {% if curso.activo %}<span class="distintivo distintivo--verde">Visible</span>
+            {% else %}<span class="distintivo distintivo--gris">Oculto</span>{% endif %}
+          </td>
+          <td>
+            <a href="{% url 'panel:curso_editar' curso.pk %}">Editar</a> ·
+            <a href="{{ curso.get_absolute_url }}" target="_blank">Ver</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7">
+          <div class="tabla-vacia">
+            <strong>No hay cursos que coincidan.</strong>
+            Creá el primero y va a aparecer solo en la web pública.
+          </div>
+        </td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

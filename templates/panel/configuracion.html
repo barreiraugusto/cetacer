@@ -1,0 +1,64 @@
+{% extends "panel/base.html" %}
+{% block title %}Configuración{% endblock %}
+{% block encabezado %}Configuración del sitio{% endblock %}
+{% block bajada %}<div class="bajada">Los textos y datos de contacto que se ven en la web pública.</div>{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="{% url 'web:inicio' %}" target="_blank">Ver la web →</a>
+{% endblock %}
+
+{% block contenido %}
+<form class="tarjeta formulario formulario--ancho" method="post">
+  {% csrf_token %}
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">Identidad</div>
+    <p class="seccion-form__ayuda">Cómo aparece la institución en el encabezado de la web.</p>
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.nombre %}
+      {% include "panel/_campo.html" with campo=form.aniversario %}
+    </div>
+    {% include "panel/_campo.html" with campo=form.descripcion_larga %}
+    {% include "panel/_campo.html" with campo=form.cintillo %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">Portada</div>
+    <p class="seccion-form__ayuda">
+      El título se parte en dos: la segunda parte se muestra en azul.
+    </p>
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.titulo_hero %}
+      {% include "panel/_campo.html" with campo=form.titulo_hero_destacado %}
+    </div>
+    {% include "panel/_campo.html" with campo=form.bajada_hero %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">Contacto</div>
+    <p class="seccion-form__ayuda">
+      El número de WhatsApp va en formato internacional, sin signos ni espacios
+      (por ejemplo 5493434695896). De ahí salen todos los botones «Pedir turno».
+    </p>
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.whatsapp %}
+      {% include "panel/_campo.html" with campo=form.whatsapp_visible %}
+      {% include "panel/_campo.html" with campo=form.telefono_principal %}
+      {% include "panel/_campo.html" with campo=form.telefonos %}
+      {% include "panel/_campo.html" with campo=form.email %}
+      {% include "panel/_campo.html" with campo=form.ciudad %}
+    </div>
+    {% include "panel/_campo.html" with campo=form.direccion %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">Enlaces y funcionamiento</div>
+    {% include "panel/_campo.html" with campo=form.facebook %}
+    {% include "panel/_campo.html" with campo=form.url_boleta %}
+    {% include "panel/_campo.html" with campo=form.inscripcion_online %}
+  </div>
+
+  <div class="acciones-form">
+    <button class="boton boton--primario" type="submit">Guardar configuración</button>
+  </div>
+</form>
+{% endblock %}

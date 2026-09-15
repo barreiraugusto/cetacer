@@ -1,0 +1,100 @@
+{% extends "panel/base.html" %}
+{% load humanize %}
+{% block title %}Informes{% endblock %}
+{% block encabezado %}Informes{% endblock %}
+{% block bajada %}<div class="bajada">Qué se dictó, cuánta gente pasó y qué se cobró en el período elegido.</div>{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="{% url 'panel:exportar_inscripciones' %}?desde={{ desde }}&hasta={{ hasta }}&formato=xlsx">
+    ↓ Exportar el detalle
+  </a>
+  <button class="boton boton--secundario no-imprimir" type="button" onclick="window.print()">Imprimir</button>
+{% endblock %}
+
+{% block contenido %}
+<form class="filtros-barra" method="get">
+  <div class="campo-fila">
+    <label for="desde">Desde</label>
+    <input class="campo" type="date" name="desde" id="desde" value="{{ desde }}">
+  </div>
+  <div class="campo-fila">
+    <label for="hasta">Hasta</label>
+    <input class="campo" type="date" name="hasta" id="hasta" value="{{ hasta }}">
+  </div>
+  <div class="empuje">
+    <button class="boton boton--secundario" type="submit">Ver período</button>
+  </div>
+</form>
+
+<div class="grilla-indicadores">
+  <div class="indicador">
+    <div class="indicador__etiqueta">COMISIONES</div>
+    <div class="indicador__valor">{{ totales.comisiones }}</div>
+    <div class="indicador__pie">Dictados en el período</div>
+  </div>
+  <div class="indicador indicador--verde">
+    <div class="indicador__etiqueta">PARTICIPANTES</div>
+    <div class="indicador__valor">{{ totales.personas }}</div>
+    <div class="indicador__pie">{{ totales.asistieron }} con asistencia registrada</div>
+  </div>
+  <div class="indicador indicador--verde">
+    <div class="indicador__etiqueta">COBRADO</div>
+    <div class="indicador__valor" style="font-size:28px">${{ totales.cobrado|floatformat:0|intcomma }}</div>
+    <div class="indicador__pie">Suma de los pagos registrados</div>
+  </div>
+  <div class="indicador indicador--ambar">
+    <div class="indicador__etiqueta">PAGOS PENDIENTES</div>
+    <div class="indicador__valor">{{ totales.pendiente_cobro }}</div>
+    <div class="indicador__pie">Inscripciones sin pago cargado</div>
+  </div>
+</div>
+
+<div class="grilla-dos">
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">Participantes por curso</div>
+    <p class="tarjeta__ayuda">Ordenado de mayor a menor demanda.</p>
+    <div class="tabla-envoltorio" style="border:0">
+      <table class="tabla">
+        <thead><tr><th>Curso</th><th>Dictados</th><th>Personas</th><th>Demanda</th><th>Cobrado</th></tr></thead>
+        <tbody>
+          {% for curso in por_curso %}
+            <tr>
+              <td class="principal-celda">
+                {{ curso.nombre }}
+                <div class="apagado">{{ curso.categoria.nombre }}</div>
+              </td>
+              <td>{{ curso.dictados }}</td>
+              <td class="principal-celda">{{ curso.personas }}</td>
+              <td style="width:150px">
+                <div class="barra"><span style="width:{{ curso.barra }}%"></span></div>
+              </td>
+              <td>${{ curso.cobrado|default:0|floatformat:0|intcomma }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5">
+              <div class="tabla-vacia">
+                <strong>No hubo cursos en ese período.</strong> Probá ampliando las fechas.
+              </div>
+            </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">Empresas que más mandan gente</div>
+    <p class="tarjeta__ayuda">Útil para las gestiones comerciales con las asociadas.</p>
+    {% for empresa in por_empresa %}
+      <div class="fila-lista">
+        <div class="fila-lista__texto">
+          <div class="fila-lista__titulo">{{ empresa.razon_social }}</div>
+          {% if empresa.socia %}<span class="distintivo distintivo--verde">Socia</span>{% endif %}
+        </div>
+        <div style="font-weight:800;color:var(--azul-profundo)">{{ empresa.personas }}</div>
+      </div>
+    {% empty %}
+      <p class="texto-suave">Ninguna empresa registró participantes en el período.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

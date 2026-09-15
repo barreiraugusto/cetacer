@@ -1,0 +1,59 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ingresar al panel — {{ sitio.nombre|default:"CETACER" }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/panel.css' %}">
+</head>
+<body>
+<div class="ingreso">
+  <div class="ingreso__lateral">
+    <div class="lateral__nombre" style="font-size:30px">
+      {{ sitio.nombre|default:"CETACER" }}{% if sitio.aniversario %}<span class="aniversario"> {{ sitio.aniversario }}</span>{% endif %}
+    </div>
+    <div class="lateral__sub" style="margin-bottom:34px">{{ sitio.descripcion_larga|default:"CÁMARA EMPRESARIA DEL TRANSPORTE AUTOMOTOR DE CARGAS DE ENTRE RÍOS" }}</div>
+    <h1>Panel de<br>capacitación.</h1>
+    <p>
+      Cursos, fechas, cupos e inscriptos en un solo lugar. Cargá las comisiones,
+      tomá las inscripciones y descargá la lista de participantes cuando la necesites.
+    </p>
+  </div>
+
+  <div class="ingreso__caja">
+    <form class="ingreso__form" method="post">
+      {% csrf_token %}
+      <h2>Ingresar</h2>
+      <p class="bajada">Usá el usuario que te dio la administración.</p>
+
+      {% if form.errors %}
+        <div class="mensaje mensaje--error">
+          Usuario o contraseña incorrectos. Revisá que no tengas activado el bloqueo de mayúsculas.
+        </div>
+      {% endif %}
+
+      <div class="campo-fila">
+        <label for="{{ form.username.id_for_label }}">Usuario</label>
+        <input class="campo" type="text" name="username" id="{{ form.username.id_for_label }}"
+               autocomplete="username" autofocus required>
+      </div>
+      <div class="campo-fila">
+        <label for="{{ form.password.id_for_label }}">Contraseña</label>
+        <input class="campo" type="password" name="password" id="{{ form.password.id_for_label }}"
+               autocomplete="current-password" required>
+      </div>
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+      <button class="boton boton--primario" type="submit" style="width:100%;margin-top:6px">Entrar</button>
+
+      <p class="texto-suave" style="margin-top:22px;text-align:center">
+        <a href="{% url 'web:inicio' %}">← Volver a la web pública</a>
+      </p>
+    </form>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+{% extends "panel/base.html" %}
+{% block title %}Cómo se usa{% endblock %}
+{% block encabezado %}Cómo se usa el panel{% endblock %}
+{% block bajada %}<div class="bajada">Las tres tareas de todos los días, explicadas paso a paso.</div>{% endblock %}
+
+{% block contenido %}
+<div class="grilla-tres">
+
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">1. Abrir una fecha de curso</div>
+    <p class="tarjeta__ayuda">Para que la gente pueda anotarse.</p>
+    <ol style="padding-left:18px;line-height:1.9;color:var(--texto)">
+      <li>Andá a <a href="{% url 'panel:comisiones' %}">Comisiones</a> y tocá <strong>Nueva comisión</strong>.</li>
+      <li>Elegí el curso, poné la fecha, el horario y el cupo.</li>
+      <li>Dejá el estado en <strong>Publicada</strong> para que se vea en la web.</li>
+      <li>Guardá. La fecha aparece sola en la página de inicio.</li>
+    </ol>
+    <p class="texto-suave" style="margin-top:12px">
+      Si todavía no está confirmada, dejala en <strong>Borrador</strong>: la ves acá
+      pero no en la web.
+    </p>
+  </div>
+
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">2. Anotar a alguien</div>
+    <p class="tarjeta__ayuda">Desde el mostrador o por teléfono.</p>
+    <ol style="padding-left:18px;line-height:1.9;color:var(--texto)">
+      <li>Entrá a la comisión desde <a href="{% url 'panel:comisiones' %}">Comisiones</a> o desde la <a href="{% url 'panel:agenda' %}">Agenda</a>.</li>
+      <li>En <strong>Inscribir a alguien</strong>, escribí el DNI.</li>
+      <li>Si ya cursó antes, se completa solo. Si es nuevo, poné apellido y nombre.</li>
+      <li>Elegí el estado del pago y tocá <strong>Inscribir</strong>.</li>
+    </ol>
+    <p class="texto-suave" style="margin-top:12px">
+      El sistema no deja pasarse del cupo. Si hace falta, ampliá el cupo desde
+      «Editar» de la comisión.
+    </p>
+  </div>
+
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">3. Descargar la lista</div>
+    <p class="tarjeta__ayuda">Para presentar o para trabajar en Excel.</p>
+    <ol style="padding-left:18px;line-height:1.9;color:var(--texto)">
+      <li>Abrí la comisión y tocá <strong>Lista en Excel</strong>.</li>
+      <li>Si la querés para hacer firmar, usá <strong>Planilla de firmas</strong>.</li>
+      <li>Para listados de varios cursos, andá a <a href="{% url 'panel:inscripciones' %}">Inscripciones</a>, filtrá y tocá <strong>Exportar a Excel</strong>.</li>
+    </ol>
+    <p class="texto-suave" style="margin-top:12px">
+      La exportación siempre respeta los filtros que tengas puestos en pantalla.
+    </p>
+  </div>
+</div>
+
+<div class="tarjeta" style="margin-top:18px">
+  <div class="tarjeta__titulo">Qué puede hacer cada rol</div>
+  <p class="tarjeta__ayuda">
+    Los roles se asignan en Usuarios y permisos, y están ordenados de mayor a menor alcance.
+  </p>
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <thead><tr><th style="width:50px">#</th><th>Rol</th><th>Qué puede hacer</th></tr></thead>
+      <tbody>
+        {% for nombre, descripcion in roles %}
+          <tr>
+            <td class="apagado">{{ forloop.counter }}</td>
+            <td class="principal-celda">{{ nombre }}</td>
+            <td>{{ descripcion }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="grilla-dos" style="margin-top:18px">
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">Palabras que vas a ver seguido</div>
+    <div class="tabla-envoltorio" style="border:0">
+      <table class="tabla">
+        <tbody>
+          <tr><td class="principal-celda">Curso</td><td>Lo que se dicta: nombre, precio y requisitos. No tiene fecha.</td></tr>
+          <tr><td class="principal-celda">Comisión</td><td>Un dictado concreto de ese curso: una fecha, un cupo y su lista.</td></tr>
+          <tr><td class="principal-celda">Participante</td><td>La persona. Se identifica por DNI y se reutiliza entre cursos.</td></tr>
+          <tr><td class="principal-celda">Inscripción</td><td>La unión entre una persona y una comisión.</td></tr>
+          <tr><td class="principal-celda">Preinscripto</td><td>Pidió lugar pero todavía no lo confirmamos.</td></tr>
+          <tr><td class="principal-celda">Confirmado</td><td>Tiene el lugar asegurado.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">Los colores de las barras</div>
+    <p class="tarjeta__ayuda">Indican cuánto del cupo está ocupado.</p>
+    <div class="apilar" style="gap:12px">
+      <div>
+        <div class="barra barra--baja"><span style="width:20%"></span></div>
+        <div class="barra-pie">Gris — hay muchos lugares libres</div>
+      </div>
+      <div>
+        <div class="barra barra--en-marcha"><span style="width:50%"></span></div>
+        <div class="barra-pie">Azul — se está llenando</div>
+      </div>
+      <div>
+        <div class="barra barra--casi"><span style="width:85%"></span></div>
+        <div class="barra-pie">Ámbar — quedan pocos lugares</div>
+      </div>
+      <div>
+        <div class="barra barra--completa"><span style="width:100%"></span></div>
+        <div class="barra-pie">Verde — cupo completo</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "panel/base.html" %}
+{% block title %}{% if curso %}Editar curso{% else %}Nuevo curso{% endif %}{% endblock %}
+{% block encabezado %}{% if curso %}{{ curso.nombre }}{% else %}Nuevo curso{% endif %}{% endblock %}
+{% block bajada %}
+  <div class="bajada">Todo lo que se cargue acá se ve en la web apenas guardás.</div>
+{% endblock %}
+
+{% block contenido %}
+<form class="tarjeta formulario" method="post">
+  {% csrf_token %}
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">1. Identificación</div>
+    <p class="seccion-form__ayuda">La categoría define bajo qué título aparece el curso en la web.</p>
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.categoria %}
+      {% include "panel/_campo.html" with campo=form.orden %}
+    </div>
+    {% include "panel/_campo.html" with campo=form.nombre %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">2. Precio</div>
+    <p class="seccion-form__ayuda">
+      Poné el número sin puntos ni signo. Si el precio se informa por WhatsApp,
+      marcá la casilla y la web va a mostrar «Consultar».
+    </p>
+    {% include "panel/_campo.html" with campo=form.precio %}
+    {% include "panel/_campo.html" with campo=form.precio_a_consultar %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">3. Cómo se dicta</div>
+    <p class="seccion-form__ayuda">
+      Estos textos aparecen en la tarjeta del curso. Las fechas concretas se cargan
+      aparte, en cada comisión.
+    </p>
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.duracion_horario %}
+      {% include "panel/_campo.html" with campo=form.cupo_sugerido %}
+      {% include "panel/_campo.html" with campo=form.cupo_texto %}
+    </div>
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">4. Contenido</div>
+    <p class="seccion-form__ayuda">
+      Los requisitos se muestran en la tarjeta; la descripción, en la ficha completa del curso.
+    </p>
+    {% include "panel/_campo.html" with campo=form.requisitos %}
+    {% include "panel/_campo.html" with campo=form.descripcion %}
+    {% include "panel/_campo.html" with campo=form.link_externo %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">5. Visibilidad</div>
+    <p class="seccion-form__ayuda">
+      Si desactivás el curso deja de verse en la web, pero se conserva el historial
+      de comisiones y participantes.
+    </p>
+    {% include "panel/_campo.html" with campo=form.activo %}
+  </div>
+
+  <div class="acciones-form">
+    <button class="boton boton--primario" type="submit">Guardar curso</button>
+    <a class="boton boton--secundario" href="{% url 'panel:cursos' %}">Cancelar</a>
+    {% if curso %}
+      <a class="boton boton--secundario derecha" href="{% url 'panel:comision_nueva' %}?curso={{ curso.pk }}">
+        + Agregar una fecha
+      </a>
+    {% endif %}
+  </div>
+</form>
+
+{% if curso %}
+  <form class="tarjeta formulario" method="post" action="{% url 'panel:curso_eliminar' curso.pk %}"
+        style="margin-top:18px;border-color:#fda29b"
+        onsubmit="return confirm('¿Eliminar «{{ curso.nombre|escapejs }}»? Esta acción no se puede deshacer.')">
+    {% csrf_token %}
+    <div class="tarjeta__titulo" style="color:var(--rojo)">Eliminar curso</div>
+    <p class="tarjeta__ayuda">
+      Sólo se puede eliminar un curso que no tenga ninguna comisión cargada.
+      Si ya se dictó alguna vez, desactivalo arriba en lugar de borrarlo.
+    </p>
+    <button class="boton boton--peligro" type="submit">Eliminar este curso</button>
+  </form>
+{% endif %}
+{% endblock %}

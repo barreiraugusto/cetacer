@@ -1,0 +1,66 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ sitio.nombre }} — Capacitación para el transporte de cargas{% endblock %}</title>
+  <meta name="description" content="{% block description %}Cursos habilitantes para la Licencia Nacional de Conducir profesional en Paraná, Entre Ríos. Fechas, requisitos y solicitud de turno.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300..800;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/web.css' %}">
+</head>
+<body>
+<a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
+
+<div class="cintillo">
+  <div class="contenedor cintillo__interior">
+    <span>{{ sitio.cintillo }}</span>
+    <a href="tel:{{ sitio.telefono_principal|cut:" "|cut:"("|cut:")"|cut:"-" }}">{{ sitio.telefono_principal }}</a>
+  </div>
+</div>
+
+<header class="encabezado">
+  <div class="contenedor encabezado__interior">
+    <div class="marca">
+      <a href="{% url 'web:inicio' %}" style="text-decoration:none">
+        <div class="marca__nombre">
+          <span>{{ sitio.nombre }}</span>{% if sitio.aniversario %}<span class="aniversario">{{ sitio.aniversario }}</span>{% endif %}
+        </div>
+      </a>
+      <div class="marca__razon">{{ sitio.descripcion_larga }}</div>
+    </div>
+    <nav class="navegacion" aria-label="Principal">
+      <a href="{% url 'web:catalogo' %}">Calendario de cursos</a>
+      <a href="{% url 'web:inicio' %}#institucion">Institución</a>
+      <a href="{% url 'web:inicio' %}#contacto">Contacto</a>
+    </nav>
+    <a class="boton-wa" href="{{ sitio.whatsapp_general }}" rel="noopener" target="_blank">
+      {% include "includes/icono_whatsapp.svg" with tamano=19 %}
+      Solicitar turno
+    </a>
+  </div>
+</header>
+
+{% if messages %}
+  <div class="contenedor mensajes">
+    {% for mensaje in messages %}
+      <div class="mensaje mensaje--{{ mensaje.tags|default:'info' }}">{{ mensaje }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<main id="contenido">
+  {% block contenido %}{% endblock %}
+</main>
+
+<footer class="pie">
+  <div class="contenedor pie__interior">
+    <span>{{ sitio.nombre }} · {{ sitio.ciudad }}</span>
+    {% if sitio.facebook %}<a href="{{ sitio.facebook }}" rel="noopener" target="_blank">Facebook</a>{% endif %}
+    <a href="{% url 'panel:inicio' %}">Panel de administración</a>
+    <span class="pie__derecha">Turnos únicamente por WhatsApp</span>
+  </div>
+</footer>
+</body>
+</html>

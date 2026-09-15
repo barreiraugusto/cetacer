@@ -1,0 +1,4 @@
+{% if inscripcion.pago == "pagado" %}<span class="distintivo distintivo--verde">Pagado</span>
+{% elif inscripcion.pago == "pendiente" %}<span class="distintivo distintivo--ambar">Pendiente</span>
+{% elif inscripcion.pago == "exento" %}<span class="distintivo distintivo--gris">Exento</span>
+{% endif %}

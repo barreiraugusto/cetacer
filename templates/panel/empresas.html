@@ -1,0 +1,34 @@
+{% extends "panel/base.html" %}
+{% block title %}Empresas{% endblock %}
+{% block encabezado %}Empresas{% endblock %}
+{% block bajada %}<div class="bajada">Empresas de transporte que mandan gente a los cursos.</div>{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="{% url 'panel:participantes' %}">← Participantes</a>
+  <a class="boton boton--primario" href="{% url 'panel:empresa_nueva' %}">+ Nueva empresa</a>
+{% endblock %}
+
+{% block contenido %}
+<div class="tabla-envoltorio">
+  <table class="tabla">
+    <thead><tr><th>Razón social</th><th>CUIT</th><th>Localidad</th><th>Contacto</th><th>Personas</th><th>Asociada</th><th></th></tr></thead>
+    <tbody>
+      {% for empresa in empresas %}
+        <tr>
+          <td class="principal-celda">{{ empresa.razon_social }}</td>
+          <td>{{ empresa.cuit|default:"—" }}</td>
+          <td>{{ empresa.localidad|default:"—" }}</td>
+          <td class="apagado">{{ empresa.telefono|default:"" }} {{ empresa.email|default:"" }}</td>
+          <td>{{ empresa.total }}</td>
+          <td>
+            {% if empresa.socia %}<span class="distintivo distintivo--verde">Socia</span>
+            {% else %}<span class="distintivo distintivo--gris">No socia</span>{% endif %}
+          </td>
+          <td><a href="{% url 'panel:empresa_editar' empresa.pk %}">Editar</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7"><div class="tabla-vacia"><strong>No hay empresas cargadas.</strong></div></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "web/base.html" %}
+{% block title %}{{ curso.nombre }} — {{ sitio.nombre }}{% endblock %}
+{% block description %}{{ curso.nombre }}. {{ curso.requisitos }}{% endblock %}
+
+{% block contenido %}
+<section class="contenedor seccion-blanca">
+  <p class="migas">
+    <a href="{% url 'web:inicio' %}">Inicio</a> ›
+    <a href="{% url 'web:catalogo' %}?categoria={{ curso.categoria.slug }}">{{ curso.categoria.nombre }}</a>
+  </p>
+
+  <div class="ficha" style="margin-top:20px">
+    <div>
+      <div class="volanta">{{ curso.categoria.nombre|upper }}</div>
+      <h1>{{ curso.nombre }}</h1>
+
+      {% if curso.descripcion %}
+        <div class="ficha__bloque">
+          <h2>De qué se trata</h2>
+          <p>{{ curso.descripcion|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+
+      {% if curso.requisitos %}
+        <div class="ficha__bloque">
+          <h2>Requisitos</h2>
+          <p>{{ curso.requisitos|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+
+      <div class="ficha__bloque">
+        <h2>Fechas disponibles</h2>
+        {% if comisiones %}
+          <table class="tabla-fechas">
+            <thead>
+              <tr><th>Fecha</th><th>Horario</th><th>Lugar</th><th>Cupo</th><th></th></tr>
+            </thead>
+            <tbody>
+              {% for comision in comisiones %}
+                <tr>
+                  <td><strong>{{ comision.fecha_texto }}</strong></td>
+                  <td>{{ comision.horario_texto }}</td>
+                  <td>{{ comision.lugar_texto }}</td>
+                  <td>
+                    <div class="cupo-barra {% if comision.completa %}cupo-barra--lleno{% endif %}">
+                      <span style="width:{{ comision.ocupacion_porcentaje }}%"></span>
+                    </div>
+                    <div style="font-size:13.5px;color:var(--etiqueta);margin-top:4px">
+                      {% if comision.completa %}Completo{% else %}{{ comision.lugares_disponibles }} lugar{{ comision.lugares_disponibles|pluralize:"es" }}{% endif %}
+                    </div>
+                  </td>
+                  <td>
+                    {% if sitio.inscripcion_online and not comision.completa %}
+                      <a href="{% url 'web:preinscripcion' curso.slug %}">Reservar</a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>
+            Todavía no hay fechas publicadas para este curso.
+            Escribinos por WhatsApp y te avisamos apenas se abra la próxima.
+          </p>
+        {% endif %}
+      </div>
+
+      {% if relacionados %}
+        <div class="ficha__bloque">
+          <h2>Otros cursos de {{ curso.categoria.nombre }}</h2>
+          <ul style="list-style:none;font-size:16.5px;line-height:2">
+            {% for otro in relacionados %}
+              <li><a href="{{ otro.get_absolute_url }}">{{ otro.nombre }}</a> — {{ otro.precio_texto }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+
+    <aside class="ficha__lateral">
+      <div class="etiqueta">PRECIO</div>
+      <div class="dato-precio" style="font-size:30px">{{ curso.precio_texto }}</div>
+
+      <div class="etiqueta" style="margin-top:18px">DURACIÓN Y HORARIO</div>
+      <div class="dato-valor">{{ curso.duracion_horario }}</div>
+
+      <div class="etiqueta" style="margin-top:18px">CUPO</div>
+      <div class="dato-valor">{{ curso.cupo_texto }}</div>
+
+      <div class="etiqueta" style="margin-top:18px">SEDE</div>
+      <div class="dato-valor">{{ sitio.direccion }}</div>
+
+      <div style="height:1px;background:var(--borde);margin:22px 0"></div>
+
+      {% if sitio.inscripcion_online and curso.tiene_fechas %}
+        <a class="boton-azul" style="width:100%;justify-content:center"
+           href="{% url 'web:preinscripcion' curso.slug %}">Reservar mi lugar</a>
+      {% endif %}
+      <a class="boton-wa" style="width:100%;justify-content:center;margin-top:10px"
+         href="{{ whatsapp_curso }}" rel="noopener" target="_blank">
+        {% include "includes/icono_whatsapp.svg" with tamano=18 %}
+        Pedir turno por WhatsApp
+      </a>
+
+      {% if curso.link_externo %}
+        <p style="font-size:15px;margin-top:16px">
+          <a href="{{ curso.link_externo }}" rel="noopener" target="_blank">Más información →</a>
+        </p>
+      {% endif %}
+      {% if sitio.url_boleta %}
+        <p style="font-size:15px;margin-top:8px">
+          <a href="{{ sitio.url_boleta }}" rel="noopener" target="_blank">Boleta de pago e-SICAPRO →</a>
+        </p>
+      {% endif %}
+    </aside>
+  </div>
+</section>
+{% endblock %}

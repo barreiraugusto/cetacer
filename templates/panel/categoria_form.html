@@ -1,0 +1,18 @@
+{% extends "panel/base.html" %}
+{% block title %}Categoría{% endblock %}
+{% block encabezado %}{% if categoria %}Editar categoría{% else %}Nueva categoría{% endif %}{% endblock %}
+
+{% block contenido %}
+<form class="tarjeta formulario" method="post">
+  {% csrf_token %}
+  <p class="tarjeta__ayuda">
+    El resumen es la bajada que aparece debajo del título de la categoría en la web.
+    El orden decide cuál va primero: números más chicos, más arriba.
+  </p>
+  {% for campo in form %}{% include "panel/_campo.html" %}{% endfor %}
+  <div class="acciones-form">
+    <button class="boton boton--primario" type="submit">Guardar</button>
+    <a class="boton boton--secundario" href="{% url 'panel:categorias' %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

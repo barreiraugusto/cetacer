@@ -1,0 +1,22 @@
+{% extends "web/base.html" %}
+{% block title %}Solicitud enviada — {{ sitio.nombre }}{% endblock %}
+
+{% block contenido %}
+<section class="contenedor seccion-blanca">
+  <div class="panel-exito">
+    <h1>Listo, {{ datos.nombre }}.</h1>
+    <p>Tu lugar quedó reservado para <strong>{{ datos.curso }}</strong> el <strong>{{ datos.fecha }}</strong>.</p>
+    <p>
+      Te vamos a escribir por WhatsApp para confirmar la reserva y pasarte las instrucciones
+      de pago. Recordá traer el psicofísico vigente, el DNI y el comprobante el día del curso.
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:22px">
+      <a class="boton-wa" href="{{ sitio.whatsapp_general }}" rel="noopener" target="_blank">
+        {% include "includes/icono_whatsapp.svg" with tamano=18 %}
+        Escribirnos ahora
+      </a>
+      <a class="boton-borde" href="{% url 'web:catalogo' %}">Ver otros cursos</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

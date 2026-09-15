@@ -1,0 +1,60 @@
+{% extends "panel/base.html" %}
+{% block title %}Asistencia{% endblock %}
+{% block encabezado %}Tomar asistencia{% endblock %}
+{% block bajada %}
+  <div class="bajada">{{ comision.curso.nombre }} · {{ comision.fecha_texto }}</div>
+{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="{% url 'panel:planilla' comision.pk %}?formato=xlsx">
+    ↓ Planilla para firmar
+  </a>
+{% endblock %}
+
+{% block contenido %}
+<form method="post">
+  {% csrf_token %}
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">Marcá quiénes vinieron</div>
+    <p class="tarjeta__ayuda">
+      Al guardar, los tildados quedan como «Asistió» y el resto como «Ausente».
+      La comisión pasa automáticamente a «Finalizada».
+    </p>
+
+    <div class="tabla-envoltorio" style="border:0">
+      <table class="tabla">
+        <thead>
+          <tr><th style="width:70px">Presente</th><th>Apellido y nombre</th><th>DNI</th><th>Empresa</th><th>Estado actual</th></tr>
+        </thead>
+        <tbody>
+          {% for inscripcion in inscripciones %}
+            <tr>
+              <td>
+                <input class="casilla" type="checkbox" name="presente" value="{{ inscripcion.pk }}"
+                       id="p{{ inscripcion.pk }}"
+                       {% if inscripcion.estado == "asistio" or inscripcion.estado == "confirmada" %}checked{% endif %}>
+              </td>
+              <td class="principal-celda">
+                <label for="p{{ inscripcion.pk }}" style="cursor:pointer">
+                  {{ inscripcion.participante.nombre_completo }}
+                </label>
+              </td>
+              <td>{{ inscripcion.participante.dni }}</td>
+              <td class="apagado">{{ inscripcion.participante.empresa.razon_social|default:"—" }}</td>
+              <td>{% include "panel/_estado_inscripcion.html" %}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5"><div class="tabla-vacia"><strong>No hay inscriptos en esta comisión.</strong></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if inscripciones %}
+      <div class="acciones-form">
+        <button class="boton boton--primario" type="submit">Guardar asistencia</button>
+        <a class="boton boton--secundario" href="{% url 'panel:comision_detalle' comision.pk %}">Cancelar</a>
+      </div>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

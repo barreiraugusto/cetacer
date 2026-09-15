@@ -1,0 +1,106 @@
+{% extends "web/base.html" %}
+
+{% block contenido %}
+<section class="contenedor portada">
+  <div>
+    <div class="volanta">{{ sitio.nombre }} / CAPACITACIÓN</div>
+    <h1>{{ sitio.titulo_hero }}<br><span class="destacado">{{ sitio.titulo_hero_destacado }}</span></h1>
+    <p class="portada__bajada">{{ sitio.bajada_hero }}</p>
+    <a class="portada__enlace" href="#cursos">Ver calendario de cursos <span aria-hidden="true">↗</span></a>
+  </div>
+  <div class="portada__tarjeta">
+    <div class="portada__tarjeta-encabezado">
+      <div class="portada__tarjeta-volanta">FORMACIÓN EN TRANSPORTE</div>
+      {% include "includes/icono_calendario.svg" with tamano=26 %}
+    </div>
+    <div class="portada__tarjeta-titulo">Tu capacitación,<br>bien organizada.</div>
+    <div class="portada__tarjeta-texto">Fechas a mano.<br>Un lugar para planificar.</div>
+    <div class="portada__tarjeta-linea"></div>
+    <div class="portada__tarjeta-pie">
+      {% include "includes/icono_lugar.svg" with tamano=17 %}
+      {{ sitio.ciudad }}
+    </div>
+  </div>
+</section>
+
+<section id="cursos" class="seccion-gris">
+  <div class="contenedor seccion-interior">
+    <div class="encabezado-seccion">
+      <div>
+        <div class="volanta">AGENDA DE CAPACITACIÓN</div>
+        <h2 class="seccion-titulo">Consultá las fechas disponibles</h2>
+      </div>
+    </div>
+
+    {% include "web/_catalogo.html" with url_base="/" %}
+
+    {% if sitio.url_boleta %}
+      <p class="nota-pie">
+        Boleta de pago para cursos de Cargas Generales, Mercancías Peligrosas y Pasajeros:
+        <a href="{{ sitio.url_boleta }}" rel="noopener" target="_blank">e-SICAPRO — solicitud online</a>
+      </p>
+    {% endif %}
+  </div>
+</section>
+
+<section id="institucion" class="contenedor seccion-blanca">
+  <div class="volanta">INSTITUCIÓN</div>
+  <h2 class="seccion-titulo seccion-titulo--chico" style="max-width:30ch">
+    La capacitación y el psicofísico siguen siendo obligatorios para la licencia profesional
+  </h2>
+  <div class="grilla-institucion">
+    <div>
+      <h3>Categorías C, D y E</h3>
+      <p>Cursos habilitantes adheridos al sistema de Licencia Nacional de Conducir.</p>
+    </div>
+    <div>
+      <h3>Legislación</h3>
+      <p>Normativa vigente del transporte automotor de cargas.</p>
+      <a href="https://cetacer.com/legislacion-2" rel="noopener" target="_blank">Ver legislación →</a>
+    </div>
+    <div>
+      <h3>Información útil</h3>
+      <p>Trámites y documentación para asociados y conductores.</p>
+      <a href="https://cetacer.com/informacion-util" rel="noopener" target="_blank">Ver información útil →</a>
+    </div>
+    <div>
+      <h3>FADEEAC</h3>
+      <p>{{ sitio.nombre }} integra la Federación Argentina de Entidades Empresarias del Autotransporte de Cargas.</p>
+      <a href="https://www.fadeeac.org.ar/" rel="noopener" target="_blank">fadeeac.org.ar →</a>
+    </div>
+  </div>
+</section>
+
+<section id="contacto" class="seccion-gris">
+  <div class="contenedor seccion-interior">
+    <div class="volanta">CONTACTO</div>
+    <h2 class="seccion-titulo seccion-titulo--chico">Turnos únicamente por WhatsApp</h2>
+    <div class="grilla-contacto">
+      <div class="datos-contacto">
+        <div>
+          <div class="etiqueta">WHATSAPP — ÚNICO MEDIO PARA TURNOS</div>
+          <div class="dato-contacto-grande">{{ sitio.whatsapp_visible }}</div>
+          <a class="boton-wa" style="margin-top:12px" href="{{ sitio.whatsapp_general }}" rel="noopener" target="_blank">
+            {% include "includes/icono_whatsapp.svg" with tamano=18 %}
+            Escribir por WhatsApp
+          </a>
+        </div>
+        <div>
+          <div class="etiqueta">SEDE</div>
+          <div class="dato-contacto">{{ sitio.direccion }}</div>
+        </div>
+        <div>
+          <div class="etiqueta">TELÉFONOS</div>
+          <div class="dato-contacto">{{ sitio.telefonos }}</div>
+        </div>
+        <div>
+          <div class="etiqueta">CORREO</div>
+          <div class="dato-contacto"><a href="mailto:{{ sitio.email }}">{{ sitio.email }}</a></div>
+        </div>
+      </div>
+      <iframe title="Mapa de la sede de {{ sitio.nombre }}" src="{{ sitio.mapa_embed }}"
+              style="width:100%;height:340px;border:0;border-radius:6px" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+{% endblock %}

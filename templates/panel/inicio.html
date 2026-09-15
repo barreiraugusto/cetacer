@@ -1,0 +1,142 @@
+{% extends "panel/base.html" %}
+{% block title %}Tablero{% endblock %}
+{% block encabezado %}Hola, {{ user.first_name|default:user.username }}.{% endblock %}
+{% block bajada %}<div class="bajada">Esto es lo que hay que mirar hoy.</div>{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="{% url 'panel:agenda' %}">Ver agenda</a>
+  <a class="boton boton--primario" href="{% url 'panel:comision_nueva' %}">+ Nueva comisión</a>
+{% endblock %}
+
+{% block contenido %}
+
+<div class="grilla-indicadores">
+  <div class="indicador">
+    <div class="indicador__etiqueta">COMISIONES ABIERTAS</div>
+    <div class="indicador__valor">{{ indicadores.comisiones_abiertas }}</div>
+    <div class="indicador__pie">Publicadas en la web, con fecha futura</div>
+  </div>
+  <div class="indicador indicador--verde">
+    <div class="indicador__etiqueta">INSCRIPTOS PRÓXIMOS 30 DÍAS</div>
+    <div class="indicador__valor">{{ indicadores.inscriptos_proximos }}</div>
+    <div class="indicador__pie">Personas que vienen a cursar</div>
+  </div>
+  <div class="indicador indicador--ambar">
+    <div class="indicador__etiqueta">PAGOS PENDIENTES</div>
+    <div class="indicador__valor">{{ indicadores.pagos_pendientes }}</div>
+    <div class="indicador__pie">
+      <a href="{% url 'panel:inscripciones' %}?pago=pendiente">Ver quiénes son →</a>
+    </div>
+  </div>
+  <div class="indicador {% if indicadores.solicitudes_web %}indicador--rojo{% endif %}">
+    <div class="indicador__etiqueta">SOLICITUDES WEB SIN CONFIRMAR</div>
+    <div class="indicador__valor">{{ indicadores.solicitudes_web }}</div>
+    <div class="indicador__pie">
+      {% if indicadores.solicitudes_web %}
+        <a href="{% url 'panel:inscripciones' %}?estado=preinscripta&origen=web">Revisar ahora →</a>
+      {% else %}Nada pendiente{% endif %}
+    </div>
+  </div>
+</div>
+
+{% if avisos %}
+  <div style="margin-bottom:22px">
+    {% for aviso in avisos %}
+      <div class="aviso aviso--{{ aviso.tipo }}">
+        <span>{{ aviso.texto }}</span>
+        <a href="{{ aviso.url }}">{{ aviso.accion }} →</a>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="grilla-dos">
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">Próximas comisiones</div>
+    <p class="tarjeta__ayuda">
+      La barra muestra cuánto del cupo está ocupado. Hacé clic en una fila para ver
+      la lista de inscriptos y descargarla.
+    </p>
+    {% if proximas %}
+      <div class="tabla-envoltorio" style="border:0">
+        <table class="tabla">
+          <thead>
+            <tr><th>Curso</th><th>Fecha</th><th>Ocupación</th><th>Estado</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for comision in proximas %}
+              <tr>
+                <td class="principal-celda">
+                  {{ comision.curso.nombre }}
+                  <div class="apagado">{{ comision.curso.categoria.nombre }}</div>
+                </td>
+                <td>
+                  {{ comision.fecha_texto }}
+                  <div class="apagado">
+                    {% if comision.dias_faltantes == 0 %}Es hoy
+                    {% elif comision.dias_faltantes == 1 %}Mañana
+                    {% else %}En {{ comision.dias_faltantes }} días{% endif %}
+                  </div>
+                </td>
+                <td>
+                  <div class="barra barra--{{ comision.semaforo }}">
+                    <span style="width:{{ comision.ocupacion_porcentaje }}%"></span>
+                  </div>
+                  <div class="barra-pie">{{ comision.cantidad_inscriptos }} de {{ comision.cupo }}</div>
+                </td>
+                <td>{% include "panel/_estado_comision.html" with comision=comision %}</td>
+                <td><a href="{% url 'panel:comision_detalle' comision.pk %}">Abrir →</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="tabla-vacia">
+        <strong>No hay comisiones cargadas.</strong>
+        Creá la primera para que aparezca en la web con su fecha y su cupo.
+        <div style="margin-top:16px">
+          <a class="boton boton--primario" href="{% url 'panel:comision_nueva' %}">+ Nueva comisión</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="apilar">
+    <div class="tarjeta">
+      <div class="tarjeta__titulo">Demanda por categoría</div>
+      <p class="tarjeta__ayuda">Inscriptos de los próximos 60 días.</p>
+      {% if ocupacion %}
+        <div class="lista-barras">
+          {% for categoria in ocupacion %}
+            <div class="lista-barras__fila">
+              <div class="lista-barras__nombre">{{ categoria.nombre }}</div>
+              <div class="lista-barras__valor">{{ categoria.inscriptos }}</div>
+              <div class="lista-barras__barra">
+                <div class="barra"><span style="width:{{ categoria.barra }}%"></span></div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="texto-suave">Todavía no hay inscriptos para los próximos dos meses.</p>
+      {% endif %}
+    </div>
+
+    <div class="tarjeta">
+      <div class="tarjeta__titulo">Últimas inscripciones</div>
+      <p class="tarjeta__ayuda">Lo último que se cargó, de cualquier origen.</p>
+      {% for inscripcion in ultimas %}
+        <div class="fila-lista">
+          <div class="fila-lista__texto">
+            <div class="fila-lista__titulo">{{ inscripcion.participante.nombre_completo }}</div>
+            <div class="fila-lista__sub">{{ inscripcion.comision.curso.nombre }}</div>
+          </div>
+          {% include "panel/_estado_inscripcion.html" with inscripcion=inscripcion %}
+        </div>
+      {% empty %}
+        <p class="texto-suave">Sin movimientos todavía.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

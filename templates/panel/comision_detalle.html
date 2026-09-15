@@ -1,0 +1,152 @@
+{% extends "panel/base.html" %}
+{% block title %}{{ comision.curso.nombre }}{% endblock %}
+{% block encabezado %}{{ comision.curso.nombre }}{% endblock %}
+{% block bajada %}
+  <div class="bajada">
+    {{ comision.fecha_texto }} · {{ comision.horario_texto }} · {{ comision.lugar_texto }}
+  </div>
+{% endblock %}
+{% block acciones %}
+  <a class="boton boton--verde" href="{% url 'panel:exportar_comision' comision.pk %}?formato=xlsx">
+    ↓ Lista en Excel
+  </a>
+  <a class="boton boton--secundario" href="{% url 'panel:planilla' comision.pk %}?formato=xlsx">
+    ↓ Planilla de firmas
+  </a>
+  <a class="boton boton--secundario" href="{% url 'panel:asistencia' comision.pk %}">Tomar asistencia</a>
+  <a class="boton boton--secundario" href="{% url 'panel:comision_editar' comision.pk %}">Editar</a>
+{% endblock %}
+
+{% block contenido %}
+
+<div class="grilla-indicadores">
+  <div class="indicador">
+    <div class="indicador__etiqueta">INSCRIPTOS</div>
+    <div class="indicador__valor">{{ resumen.total }}<span style="font-size:20px;color:var(--etiqueta)"> / {{ comision.cupo }}</span></div>
+    <div class="indicador__pie">
+      <div class="barra barra--{{ comision.semaforo }}" style="margin-top:6px">
+        <span style="width:{{ comision.ocupacion_porcentaje }}%"></span>
+      </div>
+      {% if comision.completa %}Cupo completo{% else %}Quedan {{ comision.lugares_disponibles }} lugares{% endif %}
+    </div>
+  </div>
+  <div class="indicador indicador--verde">
+    <div class="indicador__etiqueta">CONFIRMADOS</div>
+    <div class="indicador__valor">{{ resumen.confirmadas }}</div>
+    <div class="indicador__pie">{{ resumen.preinscriptas }} todavía sin confirmar</div>
+  </div>
+  <div class="indicador indicador--ambar">
+    <div class="indicador__etiqueta">PAGOS REGISTRADOS</div>
+    <div class="indicador__valor">{{ resumen.pagadas }}</div>
+    <div class="indicador__pie">${{ resumen.recaudado|floatformat:0 }} cobrados</div>
+  </div>
+  <div class="indicador">
+    <div class="indicador__etiqueta">ESTADO DE LA COMISIÓN</div>
+    <div style="margin:12px 0 10px">{% include "panel/_estado_comision.html" with comision=comision %}</div>
+    <form method="post" action="{% url 'panel:comision_estado' comision.pk %}" class="fila" style="gap:6px">
+      {% csrf_token %}
+      <select class="campo campo--select" name="estado" style="font-size:13.5px;padding:6px 8px">
+        {% for valor, etiqueta in estados_comision %}
+          <option value="{{ valor }}" {% if comision.estado == valor %}selected{% endif %}>{{ etiqueta }}</option>
+        {% endfor %}
+      </select>
+      <button class="boton boton--secundario boton--chico" type="submit">Cambiar</button>
+    </form>
+  </div>
+</div>
+
+{% if puede_inscribir and not comision.completa %}
+  <div class="tarjeta" style="margin-bottom:18px">
+    <div class="tarjeta__titulo">Inscribir a alguien</div>
+    <p class="tarjeta__ayuda">
+      Escribí el DNI y apretá Inscribir. Si la persona ya cursó con nosotros la reconocemos sola;
+      si es nueva, completá también apellido y nombre.
+    </p>
+    <form method="post" action="{% url 'panel:inscribir' comision.pk %}">
+      {% csrf_token %}
+      <div class="grilla-campos">
+        {% for campo in form_inscribir %}{% include "panel/_campo.html" %}{% endfor %}
+      </div>
+      <button class="boton boton--primario" type="submit">Inscribir</button>
+    </form>
+  </div>
+{% elif comision.completa %}
+  <div class="aviso aviso--atencion" style="margin-bottom:18px">
+    <span>
+      La comisión llegó al cupo de {{ comision.cupo }}. Para sumar a alguien más,
+      ampliá el cupo desde «Editar».
+    </span>
+    <a href="{% url 'panel:comision_editar' comision.pk %}">Editar comisión →</a>
+  </div>
+{% endif %}
+
+<div class="tarjeta">
+  <div class="fila fila--separada" style="margin-bottom:14px">
+    <div>
+      <div class="tarjeta__titulo sin-margen">Participantes</div>
+      <p class="tarjeta__ayuda sin-margen">
+        Esta es la lista que se descarga en Excel, con las mismas columnas.
+      </p>
+    </div>
+    <div class="fila" style="gap:8px">
+      <a class="boton boton--secundario boton--chico"
+         href="{% url 'panel:exportar_comision' comision.pk %}?formato=csv">↓ CSV</a>
+      <a class="boton boton--verde boton--chico"
+         href="{% url 'panel:exportar_comision' comision.pk %}?formato=xlsx">↓ Excel</a>
+    </div>
+  </div>
+
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>#</th><th>Apellido y nombre</th><th>DNI</th><th>Empresa</th>
+          <th>Contacto</th><th>Estado</th><th>Pago</th><th>Falta</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inscripcion in inscripciones %}
+          <tr>
+            <td class="apagado">{{ forloop.counter }}</td>
+            <td class="principal-celda">{{ inscripcion.participante.nombre_completo }}</td>
+            <td>{{ inscripcion.participante.dni }}</td>
+            <td>
+              {% if inscripcion.participante.empresa %}{{ inscripcion.participante.empresa.razon_social }}
+              {% else %}<span class="apagado">—</span>{% endif %}
+            </td>
+            <td class="apagado">
+              {{ inscripcion.participante.telefono|default:"—" }}
+            </td>
+            <td>{% include "panel/_estado_inscripcion.html" %}</td>
+            <td>{% include "panel/_estado_pago.html" %}</td>
+            <td>
+              {% if inscripcion.pendientes %}
+                <span class="apagado">{{ inscripcion.pendientes|join:", " }}</span>
+              {% else %}
+                <span class="distintivo distintivo--verde">Al día</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'panel:inscripcion_editar' inscripcion.pk %}?next={{ request.path }}">Editar</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="9">
+            <div class="tabla-vacia">
+              <strong>Todavía no hay nadie inscripto.</strong>
+              Usá el formulario de arriba para sumar la primera persona.
+            </div>
+          </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if comision.observaciones %}
+  <div class="tarjeta" style="margin-top:18px">
+    <div class="tarjeta__titulo">Observaciones internas</div>
+    <p style="color:var(--texto-suave)">{{ comision.observaciones|linebreaksbr }}</p>
+  </div>
+{% endif %}
+{% endblock %}

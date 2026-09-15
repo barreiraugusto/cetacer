@@ -1,0 +1,43 @@
+{% extends "panel/base.html" %}
+{% load formato %}
+{% block title %}Agenda{% endblock %}
+{% block encabezado %}Agenda{% endblock %}
+{% block bajada %}
+  <div class="bajada">{{ total }} {{ total|plural:"comisión" }} en {{ mes_actual|date:"F \d\e Y" }}.</div>
+{% endblock %}
+{% block acciones %}
+  <a class="boton boton--secundario" href="?anio={{ mes_anterior|date:'Y' }}&mes={{ mes_anterior|date:'n' }}">← Mes anterior</a>
+  <a class="boton boton--secundario" href="{% url 'panel:agenda' %}">Hoy</a>
+  <a class="boton boton--secundario" href="?anio={{ mes_siguiente|date:'Y' }}&mes={{ mes_siguiente|date:'n' }}">Mes siguiente →</a>
+  <a class="boton boton--primario" href="{% url 'panel:comision_nueva' %}">+ Nueva comisión</a>
+{% endblock %}
+
+{% block contenido %}
+<div class="calendario">
+  <div class="calendario__encabezado">Lun</div>
+  <div class="calendario__encabezado">Mar</div>
+  <div class="calendario__encabezado">Mié</div>
+  <div class="calendario__encabezado">Jue</div>
+  <div class="calendario__encabezado">Vie</div>
+  <div class="calendario__encabezado">Sáb</div>
+  <div class="calendario__encabezado">Dom</div>
+
+  {% for celda in celdas %}
+    <div class="calendario__dia {% if not celda.del_mes %}calendario__dia--fuera{% endif %} {% if celda.es_hoy %}calendario__dia--hoy{% endif %}">
+      <div class="calendario__numero">{{ celda.fecha|date:"j" }}</div>
+      {% for comision in celda.comisiones %}
+        <a class="calendario__evento calendario__evento--{{ comision.estado }}"
+           href="{% url 'panel:comision_detalle' comision.pk %}"
+           title="{{ comision.curso.nombre }} — {{ comision.cantidad_inscriptos }} de {{ comision.cupo }}">
+          {{ comision.curso.nombre|truncatechars:26 }}
+          <div style="font-weight:400;opacity:.8">{{ comision.cantidad_inscriptos }}/{{ comision.cupo }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>
+
+<p class="texto-suave" style="margin-top:14px">
+  Los recuadros grises son comisiones en borrador: todavía no se ven en la web.
+</p>
+{% endblock %}

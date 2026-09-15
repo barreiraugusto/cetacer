@@ -1,0 +1,85 @@
+{% comment %}Grilla de categorías y cursos. La comparten el inicio y /cursos/.{% endcomment %}
+<div class="filtros">
+  <a class="filtro {% if filtro_actual == 'todas' %}filtro--activo{% endif %}"
+     href="{{ url_base }}?categoria=todas#cursos">Todas las categorías</a>
+  {% for categoria in filtros %}
+    <a class="filtro {% if filtro_actual == categoria.slug %}filtro--activo{% endif %}"
+       href="{{ url_base }}?categoria={{ categoria.slug }}#cursos">{{ categoria.nombre }}</a>
+  {% endfor %}
+</div>
+
+{% for bloque in catalogo %}
+  <div class="categoria">
+    <div class="categoria__titulo">
+      <h3>{{ bloque.categoria.nombre }}</h3>
+      <span class="chip-conteo">{{ bloque.categoria.conteo_texto }}</span>
+    </div>
+    {% if bloque.categoria.resumen %}
+      <p class="categoria__resumen">{{ bloque.categoria.resumen }}</p>
+    {% endif %}
+    <div class="grilla-cursos">
+      {% for curso in bloque.cursos %}
+        <article class="tarjeta-curso">
+          <div>
+            <div class="tarjeta-curso__categoria">{{ bloque.categoria.nombre|upper }}</div>
+            <div class="tarjeta-curso__nombre">
+              <a href="{{ curso.get_absolute_url }}">{{ curso.nombre }}</a>
+            </div>
+          </div>
+
+          <div class="datos-curso">
+            <div>
+              <div class="etiqueta">PRECIO</div>
+              <div class="dato-precio">{{ curso.precio_texto }}</div>
+            </div>
+            <div>
+              <div class="etiqueta">DURACIÓN Y HORARIO</div>
+              <div class="dato-valor">{{ curso.duracion_horario }}</div>
+            </div>
+            <div>
+              <div class="etiqueta">CUPO</div>
+              <div class="dato-valor">{{ curso.cupo_texto }}</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="etiqueta" style="margin-bottom:8px">FECHAS DISPONIBLES</div>
+            <div class="fechas">
+              {% for comision in curso.comisiones_publicadas %}
+                <span class="fecha-chip {% if comision.completa %}fecha-chip--completa{% endif %}">
+                  {{ comision.fecha_texto }}{% if comision.completa %} · completo{% else %} · {{ comision.lugares_disponibles }} lugar{{ comision.lugares_disponibles|pluralize:"es" }}{% endif %}
+                </span>
+              {% empty %}
+                <span class="fecha-chip fecha-chip--gris">Consultar por WhatsApp</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          {% if curso.requisitos %}
+            <div>
+              <div class="etiqueta" style="margin-bottom:5px">REQUISITOS</div>
+              <div class="tarjeta-curso__requisitos">{{ curso.requisitos }}</div>
+            </div>
+          {% endif %}
+
+          <div class="tarjeta-curso__acciones">
+            {% if sitio.inscripcion_online and curso.tiene_fechas %}
+              <a class="boton-azul" href="{% url 'web:preinscripcion' curso.slug %}"
+                 style="font-size:15px;padding:11px 18px">Reservar lugar</a>
+            {% endif %}
+            <a class="boton-wa boton-wa--chico" href="{{ curso.whatsapp_url }}"
+               rel="noopener" target="_blank">
+              {% include "includes/icono_whatsapp.svg" with tamano=17 %}
+              Pedir turno
+            </a>
+            <a class="enlace" href="{{ curso.get_absolute_url }}">Ver requisitos completos</a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+{% empty %}
+  <p class="categoria__resumen" style="margin-top:28px">
+    No hay cursos publicados en esta categoría. Escribinos por WhatsApp y te informamos las próximas fechas.
+  </p>
+{% endfor %}

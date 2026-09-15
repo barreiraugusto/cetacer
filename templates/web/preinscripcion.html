@@ -1,0 +1,55 @@
+{% extends "web/base.html" %}
+{% block title %}Reservar lugar — {{ curso.nombre }}{% endblock %}
+
+{% block contenido %}
+<section class="contenedor seccion-blanca">
+  <p class="migas"><a href="{{ curso.get_absolute_url }}">‹ {{ curso.nombre }}</a></p>
+  <div class="volanta" style="margin-top:18px">RESERVA DE LUGAR</div>
+  <h1 class="seccion-titulo" style="margin-bottom:10px">{{ curso.nombre }}</h1>
+  <p class="categoria__resumen">
+    Dejanos tus datos y reservamos tu lugar. Te confirmamos por WhatsApp junto con las
+    instrucciones de pago. La reserva no es definitiva hasta que la confirmemos.
+  </p>
+
+  <form class="formulario-web" method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="aviso-form">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="campo-grupo">
+      <label for="{{ form.comision.id_for_label }}">{{ form.comision.label }}</label>
+      {{ form.comision }}
+      {% if form.comision.errors %}<div class="error">{{ form.comision.errors.0 }}</div>{% endif %}
+    </div>
+
+    <div class="dos-columnas">
+      {% for campo in form %}
+        {% if campo.name != "comision" and campo.name != "empresa" %}
+          <div class="campo-grupo">
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
+            {{ campo }}
+            {% if campo.help_text %}<div class="ayuda">{{ campo.help_text }}</div>{% endif %}
+            {% if campo.errors %}<div class="error">{{ campo.errors.0 }}</div>{% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="campo-grupo">
+      <label for="{{ form.empresa.id_for_label }}">{{ form.empresa.label }}</label>
+      {{ form.empresa }}
+      <div class="ayuda">{{ form.empresa.help_text }}</div>
+      {% if form.empresa.errors %}<div class="error">{{ form.empresa.errors.0 }}</div>{% endif %}
+    </div>
+
+    <button class="boton-azul" type="submit" style="width:100%;justify-content:center">
+      Enviar solicitud
+    </button>
+    <p style="font-size:14px;color:var(--etiqueta);margin-top:14px;text-align:center">
+      Si preferís, escribinos directo por
+      <a href="{{ sitio.whatsapp_general }}" rel="noopener" target="_blank">WhatsApp {{ sitio.whatsapp_visible }}</a>.
+    </p>
+  </form>
+</section>
+{% endblock %}
