@@ -31,7 +31,7 @@ Sin `--demo` sólo carga el catálogo y los usuarios, sin inscriptos de prueba.
 | `python manage.py init_roles` | Crea o actualiza los cinco grupos con sus permisos. Es idempotente: corrélo de nuevo después de agregar modelos. |
 | `python manage.py cargar_datos` | Carga el catálogo real de cursos y un usuario por rol. |
 | `python manage.py cargar_datos --demo` | Suma comisiones, participantes e inscripciones de prueba. |
-| `python manage.py test` | Corre las 51 pruebas. |
+| `python manage.py test` | Corre las 94 pruebas. |
 
 ## Estructura
 
@@ -39,6 +39,7 @@ Sin `--demo` sólo carga el catálogo y los usuarios, sin inscriptos de prueba.
 config/          Configuración del proyecto
 cuentas/         Usuario propio y jerarquía de roles (grupos de Django)
 cursos/          Categorías, cursos, comisiones y configuración del sitio
+contenido/       Páginas institucionales de enlaces, editables desde el panel
 inscripciones/   Empresas, participantes e inscripciones
 panel/           Panel de administración (vistas, formularios, exportaciones)
 web/             Sitio público
@@ -86,6 +87,25 @@ puestos en pantalla.
 
 El CSV se genera con punto y coma y un único BOM para que Excel en español lo abra
 bien al hacer doble clic.
+
+## Páginas de contenido
+
+Legislación e Información útil son páginas cargadas desde el panel
+(**Páginas**), no código. Cada una es un título, una bajada y una lista de
+enlaces que pueden ser externos o documentos subidos.
+
+Subí como documento todo lo que importe. Los enlaces a sitios ajenos se
+pudren: de los 16 que tenía el sitio anterior, 9 ya estaban muertos cuando se
+migró el contenido, incluidos dos PDF de FADEEAC.
+
+Los archivos van a `media/documentos/`, que está fuera del control de versiones:
+en una instalación nueva hay que volver a subirlos desde el panel.
+
+`cargar_datos` siembra sólo las páginas que no existen: si la página ya está en
+la base, el comando no la toca ni a ella ni a sus enlaces. Esto protege lo que
+el administrador haya curado desde el panel. Un enlace nuevo agregado a la
+constante de páginas no se propaga automáticamente a una base ya sembrada: hay
+que cargarlo desde el panel.
 
 ## Producción
 
