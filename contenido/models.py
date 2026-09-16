@@ -51,6 +51,21 @@ class Pagina(models.Model):
     def publicadas(cls):
         return cls.objects.filter(publicada=True)
 
+    def enlaces_agrupados(self):
+        """Los enlaces visibles como [(grupo, [enlaces…])].
+
+        Los que no tienen grupo van primero, sueltos. El resto conserva el orden
+        en que aparece el primer enlace de cada grupo, para que el orden de la
+        página se maneje desde un solo lugar: el campo `orden` de cada enlace.
+        """
+        grupos = {}
+        for enlace in self.enlaces.filter(activo=True):
+            grupos.setdefault(enlace.grupo, []).append(enlace)
+        sueltos = grupos.pop("", None)
+        resultado = [("", sueltos)] if sueltos else []
+        resultado.extend(grupos.items())
+        return resultado
+
 
 class EnlacePagina(models.Model):
     """Un destino dentro de una página: enlace externo o documento propio.
