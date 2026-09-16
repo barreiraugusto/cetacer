@@ -128,10 +128,23 @@ class FormasDePagoTests(TestCase):
     def test_sin_alias_no_se_muestra_el_bloque(self):
         sitio = ConfiguracionSitio.vigente()
         sitio.pago_alias = ""
+        sitio.pago_banco = ""
+        sitio.pago_titular = ""
         sitio.pago_aclaracion = ""
         sitio.save()
         respuesta = self.client.get(self.curso.get_absolute_url())
         self.assertNotContains(respuesta, "FORMAS DE PAGO")
+
+    def test_con_solo_el_titular_cargado_el_bloque_igual_se_muestra(self):
+        sitio = ConfiguracionSitio.vigente()
+        sitio.pago_alias = ""
+        sitio.pago_banco = ""
+        sitio.pago_aclaracion = ""
+        sitio.pago_titular = "Cámara Empresaria del Transporte"
+        sitio.save()
+        respuesta = self.client.get(self.curso.get_absolute_url())
+        self.assertContains(respuesta, "FORMAS DE PAGO")
+        self.assertContains(respuesta, "Cámara Empresaria del Transporte")
 
     def test_el_curso_ya_no_tiene_link_externo(self):
         self.assertFalse(hasattr(self.curso, "link_externo"))

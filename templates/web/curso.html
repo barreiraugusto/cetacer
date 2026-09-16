@@ -103,13 +103,15 @@
         Pedir turno por WhatsApp
       </a>
 
-      {% if sitio.pago_alias or sitio.pago_aclaracion %}
+      {% if sitio.pago_alias or sitio.pago_banco or sitio.pago_titular or sitio.pago_aclaracion %}
         <div style="height:1px;background:var(--borde);margin:22px 0"></div>
         <div class="etiqueta">FORMAS DE PAGO</div>
         {% if sitio.pago_alias %}
           <div class="dato-valor">
             Alias {{ sitio.pago_alias }}{% if sitio.pago_banco %} · {{ sitio.pago_banco }}{% endif %}
           </div>
+        {% elif sitio.pago_banco %}
+          <div class="dato-valor">{{ sitio.pago_banco }}</div>
         {% endif %}
         {% if sitio.pago_titular %}
           <div class="dato-valor">Titular: {{ sitio.pago_titular }}</div>
