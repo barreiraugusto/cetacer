@@ -17,6 +17,7 @@ from .accesos import (
     GESTION_CATALOGO,
     GESTION_COMISIONES,
     GESTION_INSCRIPCIONES,
+    LECTURA_INSTITUCIONAL,
     SOLO_DIRECCION,
     comisiones_visibles,
     requiere_panel,
@@ -273,7 +274,7 @@ def categoria_editar(request, pk=None):
     })
 
 
-@GESTION_CATALOGO
+@LECTURA_INSTITUCIONAL
 def paginas_lista(request):
     return render(request, "panel/paginas.html", {
         "seccion": "paginas",

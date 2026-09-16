@@ -26,7 +26,7 @@ Dos hallazgos cambiaron el diseño respecto de la hipótesis inicial:
 1. **Ningún archivo estaba alojado en `cetacer.com`.** Los PDF que ofrecía viven
    en FADEEAC y en sitios de gobierno. Lo que se pierde al caer el dominio es la
    *lista curada*, no los archivos.
-2. **9 de los 16 enlaces ya están rotos.** Migrarlos tal cual sería importar
+2. **9 de los 17 enlaces ya están rotos.** Migrarlos tal cual sería importar
    enlaces muertos al sitio nuevo. La migración es también una curaduría.
 
 ### Legislación

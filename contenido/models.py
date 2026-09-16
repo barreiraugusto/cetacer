@@ -4,6 +4,7 @@ Reemplazan a las páginas que vivían en el dominio viejo: un título, una bajad
 y una lista de enlaces que pueden ser externos o documentos propios.
 """
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -84,7 +85,13 @@ class EnlacePagina(models.Model):
         help_text="Encabezado opcional. Los enlaces que comparten grupo se muestran juntos.",
     )
     url = models.URLField("enlace externo", blank=True)
-    archivo = models.FileField("documento", upload_to="documentos/", blank=True)
+    archivo = models.FileField(
+        "documento",
+        upload_to="documentos/",
+        blank=True,
+        validators=[FileExtensionValidator(["pdf"])],
+        help_text="Sólo se aceptan archivos PDF: la web los rotula así.",
+    )
     orden = models.PositiveIntegerField("orden", default=0)
     activo = models.BooleanField("visible", default=True)
 

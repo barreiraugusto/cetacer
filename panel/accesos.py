@@ -74,6 +74,7 @@ SOLO_DIRECCION = requiere_rol(Rol.DIRECCION)
 GESTION_CATALOGO = requiere_nivel(Rol.ADMINISTRACION)
 GESTION_COMISIONES = requiere_nivel(Rol.COORDINACION)
 GESTION_INSCRIPCIONES = requiere_nivel(Rol.RECEPCION)
+LECTURA_INSTITUCIONAL = requiere_nivel(Rol.RECEPCION)
 
 
 def comisiones_visibles(usuario, queryset):

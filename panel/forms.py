@@ -281,7 +281,15 @@ class PreinscripcionForm(forms.Form):
 class PaginaForm(BaseForm):
     class Meta:
         model = Pagina
-        fields = ["titulo", "bajada", "orden", "publicada"]
+        fields = ["titulo", "bajada", "slug", "orden", "publicada"]
+        help_texts = {
+            "slug": (
+                "Es la dirección web de la página (se ve como /info/lo-que-pongas-acá/). "
+                "Dejalo vacío para que se arme solo a partir del título. Las tarjetas del "
+                "inicio enlazan puntualmente a «legislacion» y a «informacion-util»: si les "
+                "cambiás el identificador a esas dos páginas, la tarjeta deja de mostrar el enlace."
+            ),
+        }
 
 
 class EnlacePaginaForm(BaseForm):

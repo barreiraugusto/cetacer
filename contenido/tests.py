@@ -1,11 +1,12 @@
 """Pruebas de las páginas de contenido institucional."""
 import re
+import tempfile
 from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from contenido.models import EnlacePagina, Pagina
 from cuentas.models import Rol, Usuario
@@ -61,6 +62,13 @@ class EnlacePaginaTests(TestCase):
         )
         self.assertEqual(enlace.destino, "/media/documentos/guia.pdf")
         self.assertTrue(enlace.es_documento)
+
+    def test_un_archivo_que_no_es_pdf_no_valida(self):
+        # La web rotula todo documento subido como «(PDF)»: aceptar otra
+        # extensión mentiría en la propia página.
+        enlace = EnlacePagina(pagina=self.pagina, titulo="Guía", archivo="documentos/guia.docx")
+        with self.assertRaises(ValidationError):
+            enlace.full_clean()
 
     def test_se_ordenan_por_orden(self):
         EnlacePagina.objects.create(pagina=self.pagina, titulo="B", url="https://b.test/", orden=2)
@@ -218,9 +226,15 @@ class PanelPaginasTests(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, "Legislación")
 
-    def test_recepcion_no_entra(self):
+    def test_recepcion_entra_al_listado(self):
         self._usuario("recepcion_test", Rol.RECEPCION)
         self.client.login(username="recepcion_test", password="clave-de-prueba")
+        respuesta = self.client.get("/panel/paginas/")
+        self.assertEqual(respuesta.status_code, 200)
+
+    def test_instructor_no_entra(self):
+        self._usuario("instructor_test", Rol.INSTRUCTOR)
+        self.client.login(username="instructor_test", password="clave-de-prueba")
         respuesta = self.client.get("/panel/paginas/")
         self.assertEqual(respuesta.status_code, 302)
 
@@ -332,7 +346,7 @@ class CargarPaginasTests(TestCase):
         self.assertTrue(Pagina.objects.filter(slug="legislacion").exists())
         self.assertTrue(Pagina.objects.filter(slug="informacion-util").exists())
 
-    def test_los_enlaces_cargados_estan_vivos_segun_el_relevamiento(self):
+    def test_carga_los_enlaces_que_sobrevivieron_al_relevamiento(self):
         call_command("cargar_datos", verbosity=0)
         info = Pagina.objects.get(slug="informacion-util")
         titulos = [e.titulo for e in info.enlaces.all()]
@@ -366,3 +380,27 @@ class CargarPaginasTests(TestCase):
         self.assertEqual(legislacion.enlaces.count(), 3)
         self.assertTrue(legislacion.enlaces.filter(titulo="Federación Argentina (FADEEAC)").exists())
         self.assertFalse(legislacion.publicada)
+
+    def test_sin_los_pdf_en_esta_instalacion_saltea_los_enlaces_de_archivo(self):
+        # `media/` está en `.gitignore`: en una instalación nueva el
+        # `MEDIA_ROOT` está vacío y ningún PDF de PAGINAS existe todavía. Esta
+        # es la rama que corre siempre, no la excepción.
+        with tempfile.TemporaryDirectory() as vacio:
+            with override_settings(MEDIA_ROOT=vacio):
+                call_command("cargar_datos", verbosity=0)
+
+            self.assertTrue(Pagina.objects.filter(slug="legislacion").exists())
+            self.assertTrue(Pagina.objects.filter(slug="informacion-util").exists())
+
+            legislacion = Pagina.objects.get(slug="legislacion")
+            informacion_util = Pagina.objects.get(slug="informacion-util")
+
+            # De los 3 enlaces de Legislación, 1 es de archivo: quedan 2.
+            self.assertEqual(legislacion.enlaces.count(), 2)
+            self.assertTrue(all(e.url for e in legislacion.enlaces.all()))
+            self.assertTrue(all(not e.archivo for e in legislacion.enlaces.all()))
+
+            # De los 8 enlaces de Información útil, 1 es de archivo: quedan 7.
+            self.assertEqual(informacion_util.enlaces.count(), 7)
+            self.assertTrue(all(e.url for e in informacion_util.enlaces.all()))
+            self.assertTrue(all(not e.archivo for e in informacion_util.enlaces.all()))

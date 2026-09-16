@@ -95,8 +95,8 @@ Legislación e Información útil son páginas cargadas desde el panel
 enlaces que pueden ser externos o documentos subidos.
 
 Subí como documento todo lo que importe. Los enlaces a sitios ajenos se
-pudren: de los 16 que tenía el sitio anterior, 9 ya estaban muertos cuando se
-migró el contenido, incluidos dos PDF de FADEEAC.
+pudren: de los 17 que tenía el sitio anterior, 9 ya estaban muertos cuando se
+migró el contenido, incluido un PDF de FADEEAC.
 
 Los archivos van a `media/documentos/`, que está fuera del control de versiones:
 en una instalación nueva hay que volver a subirlos desde el panel.
