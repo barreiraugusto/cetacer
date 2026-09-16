@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.test import SimpleTestCase, TestCase
 
 from contenido.models import EnlacePagina, Pagina
+from cuentas.models import Rol, Usuario
 
 
 class PaginaTests(TestCase):
@@ -196,3 +197,76 @@ class TarjetasDelInicioTests(TestCase):
         Pagina.objects.create(titulo="Información útil")
         respuesta = self.client.get("/")
         self.assertContains(respuesta, 'href="/info/informacion-util/"')
+
+
+class PanelPaginasTests(TestCase):
+    def setUp(self):
+        self.pagina = Pagina.objects.create(titulo="Legislación")
+
+    def _usuario(self, username, rol):
+        # `Usuario.rol` es una property derivada de los grupos: se asigna con
+        # `asignar_rol()`, no por atributo.
+        usuario = Usuario.objects.create_user(username=username, password="clave-de-prueba")
+        usuario.asignar_rol(rol)
+        return usuario
+
+    def test_administracion_entra_al_listado(self):
+        self._usuario("admin_test", Rol.ADMINISTRACION)
+        self.client.login(username="admin_test", password="clave-de-prueba")
+        respuesta = self.client.get("/panel/paginas/")
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "Legislación")
+
+    def test_recepcion_no_entra(self):
+        self._usuario("recepcion_test", Rol.RECEPCION)
+        self.client.login(username="recepcion_test", password="clave-de-prueba")
+        respuesta = self.client.get("/panel/paginas/")
+        self.assertEqual(respuesta.status_code, 302)
+
+    def test_anonimo_va_al_login(self):
+        respuesta = self.client.get("/panel/paginas/")
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertIn("/panel/ingresar/", respuesta["Location"])
+
+    def test_crear_una_pagina_con_sus_enlaces(self):
+        self._usuario("admin_test", Rol.ADMINISTRACION)
+        self.client.login(username="admin_test", password="clave-de-prueba")
+        respuesta = self.client.post("/panel/paginas/nueva/", {
+            "titulo": "Información útil",
+            "bajada": "Material de interés.",
+            "orden": 0,
+            "publicada": "on",
+            "enlaces-TOTAL_FORMS": "1",
+            "enlaces-INITIAL_FORMS": "0",
+            "enlaces-MIN_NUM_FORMS": "0",
+            "enlaces-MAX_NUM_FORMS": "1000",
+            "enlaces-0-titulo": "IRU",
+            "enlaces-0-descripcion": "",
+            "enlaces-0-grupo": "Organismos",
+            "enlaces-0-url": "https://www.iru.org/",
+            "enlaces-0-orden": "0",
+            "enlaces-0-activo": "on",
+        })
+        self.assertEqual(respuesta.status_code, 302)
+        creada = Pagina.objects.get(slug="informacion-util")
+        self.assertEqual(creada.enlaces.count(), 1)
+        self.assertEqual(creada.enlaces.first().grupo, "Organismos")
+
+    def test_una_pagina_con_un_enlace_invalido_no_se_guarda(self):
+        self._usuario("admin_test", Rol.ADMINISTRACION)
+        self.client.login(username="admin_test", password="clave-de-prueba")
+        respuesta = self.client.post("/panel/paginas/nueva/", {
+            "titulo": "Rota",
+            "orden": 0,
+            "enlaces-TOTAL_FORMS": "1",
+            "enlaces-INITIAL_FORMS": "0",
+            "enlaces-MIN_NUM_FORMS": "0",
+            "enlaces-MAX_NUM_FORMS": "1000",
+            "enlaces-0-titulo": "Sin destino",
+            "enlaces-0-descripcion": "",
+            "enlaces-0-grupo": "",
+            "enlaces-0-url": "",
+            "enlaces-0-orden": "0",
+        })
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertFalse(Pagina.objects.filter(titulo="Rota").exists())

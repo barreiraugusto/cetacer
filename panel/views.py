@@ -7,6 +7,7 @@ from django.db.models import Count, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 
+from contenido.models import Pagina
 from cuentas.models import DESCRIPCION_ROLES, JERARQUIA, Rol, Usuario
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
 from inscripciones.models import Empresa, Inscripcion, Participante
@@ -26,8 +27,10 @@ from .forms import (
     ConfiguracionForm,
     CursoForm,
     EmpresaForm,
+    EnlaceFormSet,
     InscribirForm,
     InscripcionForm,
+    PaginaForm,
     ParticipanteForm,
     UsuarioForm,
 )
@@ -268,6 +271,49 @@ def categoria_editar(request, pk=None):
         "form": formulario,
         "categoria": categoria,
     })
+
+
+@GESTION_CATALOGO
+def paginas_lista(request):
+    return render(request, "panel/paginas.html", {
+        "seccion": "paginas",
+        "paginas_cargadas": Pagina.objects.prefetch_related("enlaces"),
+    })
+
+
+@GESTION_CATALOGO
+def pagina_editar(request, pk=None):
+    """La página y sus enlaces se guardan juntos o no se guarda nada."""
+    pagina = get_object_or_404(Pagina, pk=pk) if pk else None
+    if request.method == "POST":
+        formulario = PaginaForm(request.POST, instance=pagina)
+        enlaces = EnlaceFormSet(request.POST, request.FILES, instance=pagina)
+        if formulario.is_valid() and enlaces.is_valid():
+            with transaction.atomic():
+                guardada = formulario.save()
+                enlaces.instance = guardada
+                enlaces.save()
+            messages.success(request, f"Página «{guardada.titulo}» guardada.")
+            return redirect("panel:paginas")
+        messages.error(request, "Revisá los campos marcados en rojo.")
+    else:
+        formulario = PaginaForm(instance=pagina)
+        enlaces = EnlaceFormSet(instance=pagina)
+    return render(request, "panel/pagina_form.html", {
+        "seccion": "paginas",
+        "form": formulario,
+        "enlaces": enlaces,
+        "pagina": pagina,
+    })
+
+
+@GESTION_CATALOGO
+def pagina_eliminar(request, pk):
+    pagina = get_object_or_404(Pagina, pk=pk)
+    titulo = pagina.titulo
+    pagina.delete()
+    messages.success(request, f"Página «{titulo}» eliminada.")
+    return redirect("panel:paginas")
 
 
 # --- Comisiones ------------------------------------------------------------

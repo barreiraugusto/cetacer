@@ -37,6 +37,9 @@
       <a href="{% url 'panel:cursos' %}" class="{% if seccion == 'cursos' %}activo{% endif %}">
         {% include "panel/iconos.html" with icono="libro" %} Cursos
       </a>
+      <a href="{% url 'panel:paginas' %}" class="{% if seccion == 'paginas' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="lista" %} Páginas
+      </a>
 
       <div class="menu__titulo">PERSONAS</div>
       <a href="{% url 'panel:inscripciones' %}" class="{% if seccion == 'inscripciones' %}activo{% endif %}">

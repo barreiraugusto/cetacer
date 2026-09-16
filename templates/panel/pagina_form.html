@@ -1,0 +1,76 @@
+{% extends "panel/base.html" %}
+{% block title %}{% if pagina %}Editar página{% else %}Nueva página{% endif %}{% endblock %}
+{% block encabezado %}{% if pagina %}{{ pagina.titulo }}{% else %}Nueva página{% endif %}{% endblock %}
+{% block bajada %}
+  <div class="bajada">Todo lo que se cargue acá se ve en la web apenas guardás.</div>
+{% endblock %}
+
+{% block contenido %}
+<form class="tarjeta formulario" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">1. La página</div>
+    <p class="seccion-form__ayuda">El título arma la dirección web. Si la despublicás, deja de verse y las tarjetas del inicio dejan de enlazarla.</p>
+    {% include "panel/_campo.html" with campo=form.titulo %}
+    {% include "panel/_campo.html" with campo=form.bajada %}
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.orden %}
+      {% include "panel/_campo.html" with campo=form.publicada %}
+    </div>
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">2. Enlaces</div>
+    <p class="seccion-form__ayuda">
+      Cada fila es un enlace externo <em>o</em> un documento subido, nunca las dos cosas.
+      Si el enlace importa de verdad, subí el archivo: los sitios ajenos dan de baja sus PDF sin avisar.
+      Poné el mismo texto en «grupo» para que aparezcan juntos bajo ese encabezado.
+    </p>
+    {{ enlaces.management_form }}
+    {% for formulario_enlace in enlaces %}
+      <div class="seccion-form" style="border:1px solid var(--borde);padding:14px;margin-bottom:12px">
+        {{ formulario_enlace.id }}
+        <div class="grilla-campos">
+          {% include "panel/_campo.html" with campo=formulario_enlace.titulo %}
+          {% include "panel/_campo.html" with campo=formulario_enlace.grupo %}
+        </div>
+        {% include "panel/_campo.html" with campo=formulario_enlace.descripcion %}
+        <div class="grilla-campos">
+          {% include "panel/_campo.html" with campo=formulario_enlace.url %}
+          {% include "panel/_campo.html" with campo=formulario_enlace.archivo %}
+        </div>
+        <div class="grilla-campos">
+          {% include "panel/_campo.html" with campo=formulario_enlace.orden %}
+          {% include "panel/_campo.html" with campo=formulario_enlace.activo %}
+          {% if formulario_enlace.instance.pk %}
+            {% include "panel/_campo.html" with campo=formulario_enlace.DELETE %}
+          {% endif %}
+        </div>
+        {% for error in formulario_enlace.non_field_errors %}
+          <div class="error">{{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="acciones-form">
+    <button class="boton boton--primario" type="submit">Guardar página</button>
+    <a class="boton boton--secundario" href="{% url 'panel:paginas' %}">Cancelar</a>
+    {% if pagina %}
+      <a class="boton boton--secundario derecha" href="{{ pagina.get_absolute_url }}" target="_blank">Ver en la web →</a>
+    {% endif %}
+  </div>
+</form>
+
+{% if pagina %}
+  <form class="tarjeta formulario" method="post" action="{% url 'panel:pagina_eliminar' pagina.pk %}"
+        style="margin-top:18px;border-color:#fda29b"
+        onsubmit="return confirm('¿Eliminar «{{ pagina.titulo|escapejs }}» y todos sus enlaces?')">
+    {% csrf_token %}
+    <div class="tarjeta__titulo" style="color:var(--rojo)">Eliminar página</div>
+    <p class="tarjeta__ayuda">Se borran también sus enlaces. Si sólo querés sacarla de la web, despublicala arriba.</p>
+    <button class="boton boton--peligro" type="submit">Eliminar esta página</button>
+  </form>
+{% endif %}
+{% endblock %}

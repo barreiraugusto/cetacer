@@ -26,6 +26,8 @@ MATRIZ = {
         "inscripciones.inscripcion": TODOS,
         "cuentas.usuario": TODOS,
         "auth.group": LECTURA,
+        "contenido.pagina": TODOS,
+        "contenido.enlacepagina": TODOS,
     },
     Rol.ADMINISTRACION: {
         "cursos.configuracionsitio": ("change", "view"),
@@ -36,6 +38,8 @@ MATRIZ = {
         "inscripciones.participante": TODOS,
         "inscripciones.inscripcion": TODOS,
         "cuentas.usuario": LECTURA,
+        "contenido.pagina": TODOS,
+        "contenido.enlacepagina": TODOS,
     },
     Rol.COORDINACION: {
         "cursos.configuracionsitio": LECTURA,
@@ -45,6 +49,8 @@ MATRIZ = {
         "inscripciones.empresa": ALTA_Y_EDICION,
         "inscripciones.participante": ALTA_Y_EDICION,
         "inscripciones.inscripcion": TODOS,
+        "contenido.pagina": LECTURA,
+        "contenido.enlacepagina": LECTURA,
     },
     Rol.RECEPCION: {
         "cursos.configuracionsitio": LECTURA,
@@ -54,6 +60,8 @@ MATRIZ = {
         "inscripciones.empresa": ALTA_Y_EDICION,
         "inscripciones.participante": ALTA_Y_EDICION,
         "inscripciones.inscripcion": ALTA_Y_EDICION,
+        "contenido.pagina": LECTURA,
+        "contenido.enlacepagina": LECTURA,
     },
     Rol.INSTRUCTOR: {
         "cursos.curso": LECTURA,

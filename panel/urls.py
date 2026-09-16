@@ -28,6 +28,10 @@ urlpatterns = [
     path("categorias/", views.categorias_lista, name="categorias"),
     path("categorias/nueva/", views.categoria_editar, name="categoria_nueva"),
     path("categorias/<int:pk>/", views.categoria_editar, name="categoria_editar"),
+    path("paginas/", views.paginas_lista, name="paginas"),
+    path("paginas/nueva/", views.pagina_editar, name="pagina_nueva"),
+    path("paginas/<int:pk>/", views.pagina_editar, name="pagina_editar"),
+    path("paginas/<int:pk>/eliminar/", views.pagina_eliminar, name="pagina_eliminar"),
 
     # Comisiones
     path("comisiones/", views.comisiones_lista, name="comisiones"),

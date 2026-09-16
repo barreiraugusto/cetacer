@@ -5,7 +5,9 @@ sin repetir estilos por plantilla.
 """
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.forms import inlineformset_factory
 
+from contenido.models import EnlacePagina, Pagina
 from cuentas.models import JERARQUIA, Rol, Usuario
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
 from inscripciones.models import Empresa, Inscripcion, Participante
@@ -274,3 +276,24 @@ class PreinscripcionForm(forms.Form):
                     "dni", "Ya tenemos una solicitud tuya para esa fecha. Te vamos a contactar."
                 )
         return datos
+
+
+class PaginaForm(BaseForm):
+    class Meta:
+        model = Pagina
+        fields = ["titulo", "bajada", "orden", "publicada"]
+
+
+class EnlacePaginaForm(BaseForm):
+    class Meta:
+        model = EnlacePagina
+        fields = ["titulo", "descripcion", "grupo", "url", "archivo", "orden", "activo"]
+        help_texts = {
+            "grupo": "Dejalo vacío si el enlace va suelto arriba de todo.",
+        }
+
+
+#: Los enlaces se cargan en la misma pantalla que la página.
+EnlaceFormSet = inlineformset_factory(
+    Pagina, EnlacePagina, form=EnlacePaginaForm, extra=3, can_delete=True
+)
