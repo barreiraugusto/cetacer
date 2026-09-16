@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "cuentas",
     "cursos",
+    "contenido",
     "inscripciones",
     "panel",
     "web",
