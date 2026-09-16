@@ -347,3 +347,22 @@ class CargarPaginasTests(TestCase):
         self.assertEqual(
             legislacion.enlaces.filter(titulo="Ley 24449 — Tránsito y Seguridad Vial").count(), 1
         )
+        self.assertEqual(legislacion.enlaces.count(), 3)
+        informacion_util = Pagina.objects.get(slug="informacion-util")
+        self.assertEqual(informacion_util.enlaces.count(), 8)
+
+    def test_no_duplica_ni_pisa_lo_que_editó_el_administrador(self):
+        call_command("cargar_datos", verbosity=0)
+        legislacion = Pagina.objects.get(slug="legislacion")
+        enlace = legislacion.enlaces.get(titulo="FADEEAC")
+        enlace.titulo = "Federación Argentina (FADEEAC)"
+        enlace.save()
+        legislacion.publicada = False
+        legislacion.save()
+
+        call_command("cargar_datos", verbosity=0)
+
+        legislacion.refresh_from_db()
+        self.assertEqual(legislacion.enlaces.count(), 3)
+        self.assertTrue(legislacion.enlaces.filter(titulo="Federación Argentina (FADEEAC)").exists())
+        self.assertFalse(legislacion.publicada)

@@ -297,9 +297,20 @@ class Command(BaseCommand):
         )
 
     def _cargar_paginas(self):
-        """Crea las páginas institucionales. Idempotente, como el resto."""
+        """Siembra las páginas institucionales, pero sólo si no existen.
+
+        A diferencia del resto del comando, esto NO usa update_or_create con
+        defaults: estas páginas están pensadas para que el administrador las
+        edite desde el panel (título de un enlace, orden, publicación, etc.),
+        y una corrida posterior no debe pisarle esos cambios ni duplicar el
+        enlace si le cambió el título. Por eso, una vez creada la página, el
+        comando la deja intacta y no vuelve a tocar sus enlaces. El costo es
+        que agregar un enlace nuevo a PAGINAS no se propaga a una base ya
+        sembrada: hay que cargarlo una vez a mano desde el panel. Es
+        deliberado — no lo "arregles" volviendo a update_or_create.
+        """
         for datos in PAGINAS:
-            pagina, _ = Pagina.objects.update_or_create(
+            pagina, creada = Pagina.objects.get_or_create(
                 slug=datos["slug"],
                 defaults={
                     "titulo": datos["titulo"],
@@ -308,22 +319,22 @@ class Command(BaseCommand):
                     "publicada": True,
                 },
             )
+            if not creada:
+                continue
             for enlace in datos.get("enlaces", []):
                 archivo = enlace.get("archivo", "")
                 if archivo and not (Path(settings.MEDIA_ROOT) / archivo).exists():
                     # El PDF no está en esta instalación; se sube desde el panel.
                     continue
-                EnlacePagina.objects.update_or_create(
+                EnlacePagina.objects.create(
                     pagina=pagina,
                     titulo=enlace["titulo"],
-                    defaults={
-                        "descripcion": enlace.get("descripcion", ""),
-                        "grupo": enlace.get("grupo", ""),
-                        "url": enlace.get("url", ""),
-                        "archivo": archivo,
-                        "orden": enlace.get("orden", 0),
-                        "activo": True,
-                    },
+                    descripcion=enlace.get("descripcion", ""),
+                    grupo=enlace.get("grupo", ""),
+                    url=enlace.get("url", ""),
+                    archivo=archivo,
+                    orden=enlace.get("orden", 0),
+                    activo=True,
                 )
 
     def _cargar_demo(self, cursos):
