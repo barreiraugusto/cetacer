@@ -100,7 +100,7 @@ CATALOGO = [
     },
 ]
 
-# Relevado del sitio viejo el 2026-09-15 y depurado: 9 de los 16 enlaces
+# Relevado del sitio viejo el 2026-09-15 y depurado: 9 de los 17 enlaces
 # originales ya estaban muertos. Ver el spec para el detalle enlace por enlace.
 PAGINAS = [
     {
