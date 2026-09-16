@@ -46,7 +46,7 @@ class CursoForm(BaseForm):
         model = Curso
         fields = [
             "categoria", "nombre", "precio", "precio_a_consultar", "duracion_horario",
-            "cupo_sugerido", "cupo_texto", "requisitos", "descripcion", "link_externo",
+            "cupo_sugerido", "cupo_texto", "requisitos", "descripcion",
             "orden", "activo",
         ]
         help_texts = {

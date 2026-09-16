@@ -59,6 +59,21 @@ class ConfiguracionSitio(models.Model):
         "URL de la boleta de pago", blank=True,
         default="https://sicapro.com.ar/solicitudonline.aspx",
     )
+    pago_alias = models.CharField(
+        "alias para transferencias", max_length=60, blank=True,
+        default="FPT.LICENCIAPROF",
+    )
+    pago_banco = models.CharField(
+        "banco", max_length=80, blank=True, default="Banco Nación"
+    )
+    pago_titular = models.CharField("titular de la cuenta", max_length=120, blank=True)
+    pago_aclaracion = models.TextField(
+        "aclaración sobre el pago", blank=True,
+        default=(
+            "Enviá el comprobante por WhatsApp junto con la foto del DNI y de la "
+            "licencia de conducir, frente y dorso."
+        ),
+    )
     inscripcion_online = models.BooleanField(
         "habilitar preinscripción online", default=True,
         help_text="Si está apagado, la web sólo ofrece el turno por WhatsApp.",
@@ -154,7 +169,6 @@ class Curso(models.Model):
     )
     requisitos = models.TextField("requisitos", blank=True)
     descripcion = models.TextField("descripción ampliada", blank=True)
-    link_externo = models.URLField("enlace a más información", blank=True)
     activo = models.BooleanField("visible en la web", default=True)
     orden = models.PositiveIntegerField("orden dentro de la categoría", default=0)
     creado = models.DateTimeField(auto_now_add=True)

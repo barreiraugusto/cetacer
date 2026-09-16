@@ -103,10 +103,22 @@
         Pedir turno por WhatsApp
       </a>
 
-      {% if curso.link_externo %}
-        <p style="font-size:15px;margin-top:16px">
-          <a href="{{ curso.link_externo }}" rel="noopener" target="_blank">Más información →</a>
-        </p>
+      {% if sitio.pago_alias or sitio.pago_aclaracion %}
+        <div style="height:1px;background:var(--borde);margin:22px 0"></div>
+        <div class="etiqueta">FORMAS DE PAGO</div>
+        {% if sitio.pago_alias %}
+          <div class="dato-valor">
+            Alias {{ sitio.pago_alias }}{% if sitio.pago_banco %} · {{ sitio.pago_banco }}{% endif %}
+          </div>
+        {% endif %}
+        {% if sitio.pago_titular %}
+          <div class="dato-valor">Titular: {{ sitio.pago_titular }}</div>
+        {% endif %}
+        {% if sitio.pago_aclaracion %}
+          <p style="font-size:14px;color:var(--etiqueta);margin-top:6px">
+            {{ sitio.pago_aclaracion|linebreaksbr }}
+          </p>
+        {% endif %}
       {% endif %}
       {% if sitio.url_boleta %}
         <p style="font-size:15px;margin-top:8px">

@@ -51,6 +51,20 @@
   </div>
 
   <div class="seccion-form">
+    <div class="seccion-form__titulo">Formas de pago</div>
+    <p class="seccion-form__ayuda">
+      Se muestran en la ficha de cada curso, debajo del precio. Son las mismas para
+      todo el catálogo, por eso se cargan una sola vez acá.
+    </p>
+    <div class="grilla-campos">
+      {% include "panel/_campo.html" with campo=form.pago_alias %}
+      {% include "panel/_campo.html" with campo=form.pago_banco %}
+    </div>
+    {% include "panel/_campo.html" with campo=form.pago_titular %}
+    {% include "panel/_campo.html" with campo=form.pago_aclaracion %}
+  </div>
+
+  <div class="seccion-form">
     <div class="seccion-form__titulo">Enlaces y funcionamiento</div>
     {% include "panel/_campo.html" with campo=form.facebook %}
     {% include "panel/_campo.html" with campo=form.url_boleta %}

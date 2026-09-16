@@ -107,3 +107,31 @@ class ConfiguracionTests(TestCase):
         enlace = sitio.enlace_whatsapp("Hola, ¿turno?")
         self.assertTrue(enlace.startswith(f"https://wa.me/{sitio.whatsapp}?text="))
         self.assertNotIn(" ", enlace)
+
+
+class FormasDePagoTests(TestCase):
+    def setUp(self):
+        self.categoria = Categoria.objects.create(nombre="Cargas Generales")
+        self.curso = Curso.objects.create(
+            categoria=self.categoria, nombre="Curso primera vez", precio=405000
+        )
+
+    def test_la_configuracion_trae_el_alias_por_defecto(self):
+        sitio = ConfiguracionSitio.vigente()
+        self.assertEqual(sitio.pago_alias, "FPT.LICENCIAPROF")
+        self.assertEqual(sitio.pago_banco, "Banco Nación")
+
+    def test_la_ficha_del_curso_muestra_el_alias(self):
+        respuesta = self.client.get(self.curso.get_absolute_url())
+        self.assertContains(respuesta, "FPT.LICENCIAPROF")
+
+    def test_sin_alias_no_se_muestra_el_bloque(self):
+        sitio = ConfiguracionSitio.vigente()
+        sitio.pago_alias = ""
+        sitio.pago_aclaracion = ""
+        sitio.save()
+        respuesta = self.client.get(self.curso.get_absolute_url())
+        self.assertNotContains(respuesta, "FORMAS DE PAGO")
+
+    def test_el_curso_ya_no_tiene_link_externo(self):
+        self.assertFalse(hasattr(self.curso, "link_externo"))

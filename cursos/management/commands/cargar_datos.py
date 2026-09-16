@@ -30,7 +30,6 @@ CATALOGO = [
                     "Nacional Habilitante en las categorías de carga general. Incluye normativa "
                     "vigente, seguridad vial, documentación del transporte y manejo defensivo."
                 ),
-                "link": "https://cetacer.com/curso-basico-cargas-generales-por-1-vez",
             }
         ],
     },
@@ -49,7 +48,6 @@ CATALOGO = [
                     "clasificación de sustancias, rotulado, documentación de porte y "
                     "procedimientos ante incidentes."
                 ),
-                "link": "https://cetacer.com/curso-basico-cargas-peligrosas-por-1-vez",
             },
             {
                 "nombre": "Curso actualización — Mercancías Peligrosas",
@@ -57,7 +55,6 @@ CATALOGO = [
                 "cupo_sugerido": 30,
                 "requisitos": "Certificado anterior de Mercancías Peligrosas y DNI.",
                 "descripcion": "Actualización de la habilitación para quienes ya tienen el curso básico aprobado.",
-                "link": "https://cetacer.com/cargas-actualizacion-cargas-peligrosas",
             },
         ],
     },
@@ -73,7 +70,6 @@ CATALOGO = [
                 "cupo_sugerido": 25,
                 "requisitos": "Psicofísico vigente, DNI y constancia de pago.",
                 "descripcion": "Curso habilitante para el transporte de pasajeros, categorías D.2 y D.3.",
-                "link": "https://cetacer.com/cursos",
             }
         ],
     },
@@ -88,7 +84,6 @@ CATALOGO = [
                 "cupo_sugerido": 35,
                 "requisitos": "Certificado anterior, psicofísico vigente y DNI.",
                 "descripcion": "Renovación de la Licencia Nacional Habilitante ya obtenida.",
-                "link": "https://cetacer.com/curso-renovacion-y-renovacion-mas-ampliacion-de-cargas-generales-y-pasajeros",
             },
             {
                 "nombre": "Renovación + ampliación — Cargas Generales",
@@ -97,7 +92,6 @@ CATALOGO = [
                 "cupo_sugerido": 30,
                 "requisitos": "Certificado anterior, psicofísico vigente y DNI.",
                 "descripcion": "Renovación de la habilitación vigente sumando una categoría nueva.",
-                "link": "https://cetacer.com/curso-renovacion-y-renovacion-mas-ampliacion-de-cargas-generales-y-pasajeros",
             },
         ],
     },
@@ -172,7 +166,6 @@ class Command(BaseCommand):
                         "cupo_sugerido": datos_curso["cupo_sugerido"],
                         "requisitos": datos_curso["requisitos"],
                         "descripcion": datos_curso["descripcion"],
-                        "link_externo": datos_curso["link"],
                         "orden": orden,
                         "activo": True,
                     },
