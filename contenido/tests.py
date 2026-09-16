@@ -4,6 +4,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.management import call_command
 from django.test import SimpleTestCase, TestCase
 
 from contenido.models import EnlacePagina, Pagina
@@ -323,3 +324,26 @@ class PanelPaginasTests(TestCase):
         respuesta = self.client.post(f"/panel/paginas/{self.pagina.pk}/eliminar/")
         self.assertEqual(respuesta.status_code, 302)
         self.assertFalse(Pagina.objects.filter(pk=self.pagina.pk).exists())
+
+
+class CargarPaginasTests(TestCase):
+    def test_el_comando_crea_las_dos_paginas(self):
+        call_command("cargar_datos", verbosity=0)
+        self.assertTrue(Pagina.objects.filter(slug="legislacion").exists())
+        self.assertTrue(Pagina.objects.filter(slug="informacion-util").exists())
+
+    def test_los_enlaces_cargados_estan_vivos_segun_el_relevamiento(self):
+        call_command("cargar_datos", verbosity=0)
+        info = Pagina.objects.get(slug="informacion-util")
+        titulos = [e.titulo for e in info.enlaces.all()]
+        self.assertIn("Gendarmería Nacional", titulos)
+        self.assertNotIn("Occovi", titulos)  # organismo disuelto
+
+    def test_es_idempotente(self):
+        call_command("cargar_datos", verbosity=0)
+        call_command("cargar_datos", verbosity=0)
+        self.assertEqual(Pagina.objects.filter(slug="legislacion").count(), 1)
+        legislacion = Pagina.objects.get(slug="legislacion")
+        self.assertEqual(
+            legislacion.enlaces.filter(titulo="Ley 24449 — Tránsito y Seguridad Vial").count(), 1
+        )

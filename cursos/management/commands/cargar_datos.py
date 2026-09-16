@@ -5,10 +5,13 @@
 """
 import random
 from datetime import date, time, timedelta
+from pathlib import Path
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from contenido.models import EnlacePagina, Pagina
 from cuentas.models import Rol, Usuario
 from cuentas.permisos import sincronizar_grupos
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
@@ -97,6 +100,95 @@ CATALOGO = [
     },
 ]
 
+# Relevado del sitio viejo el 2026-09-15 y depurado: 9 de los 16 enlaces
+# originales ya estaban muertos. Ver el spec para el detalle enlace por enlace.
+PAGINAS = [
+    {
+        "titulo": "Legislación",
+        "slug": "legislacion",
+        "bajada": "Normativa vigente del transporte automotor de cargas.",
+        "orden": 1,
+        "enlaces": [
+            {
+                "titulo": "Ley 24449 — Tránsito y Seguridad Vial",
+                "descripcion": "Texto actualizado en Infoleg, con las reformas de la Ley 26363.",
+                "url": "https://servicios.infoleg.gob.ar/infolegInternet/anexos/0-4999/818/texact.htm",
+                "orden": 1,
+            },
+            {
+                "titulo": "Ley 24449 (PDF)",
+                "descripcion": "Copia propia, por si el enlace de Infoleg cambia.",
+                "archivo": "documentos/ley-24449-transito.pdf",
+                "orden": 2,
+            },
+            {
+                "titulo": "FADEEAC",
+                "descripcion": "Federación Argentina de Entidades Empresarias del Autotransporte de Cargas.",
+                "url": "https://www.fadeeac.org.ar/",
+                "orden": 3,
+            },
+        ],
+    },
+    {
+        "titulo": "Información útil",
+        "slug": "informacion-util",
+        "bajada": "Material de interés para la actividad del transportista.",
+        "orden": 2,
+        "enlaces": [
+            {
+                "titulo": "Guía del transportista",
+                "descripcion": "Documento de FADEEAC, alojado en nuestro sitio.",
+                "archivo": "documentos/guia-del-transportista.pdf",
+                "grupo": "",
+                "orden": 1,
+            },
+            {
+                "titulo": "Vialidad Nacional",
+                "url": "https://www.argentina.gob.ar/transporte/vialidad-nacional",
+                "grupo": "Organismos",
+                "orden": 2,
+            },
+            {
+                "titulo": "Gendarmería Nacional",
+                "url": "https://www.argentina.gob.ar/gendarmeria",
+                "grupo": "Organismos",
+                "orden": 3,
+            },
+            {
+                "titulo": "Registro Automotor",
+                "url": "https://www.dnrpa.gov.ar/portal_dnrpa/",
+                "grupo": "Organismos",
+                "orden": 4,
+            },
+            {
+                "titulo": "Secretaría de Transporte",
+                "url": "https://www.argentina.gob.ar/transporte",
+                "grupo": "Organismos",
+                "orden": 5,
+            },
+            {
+                "titulo": "IRU",
+                "descripcion": "International Road Transport Union.",
+                "url": "https://www.iru.org/",
+                "grupo": "Organismos",
+                "orden": 6,
+            },
+            {
+                "titulo": "Consultas sobre multas",
+                "url": "https://www.fadeeac.org.ar/consultas-sobre-multas/",
+                "grupo": "FADEEAC",
+                "orden": 7,
+            },
+            {
+                "titulo": "Estudios económicos y costos",
+                "url": "https://www.fadeeac.org.ar/estudios-economicos-y-costos/",
+                "grupo": "FADEEAC",
+                "orden": 8,
+            },
+        ],
+    },
+]
+
 USUARIOS = [
     ("direccion", "Marta", "Gaitán", Rol.DIRECCION, "Gerencia"),
     ("administracion", "Luis", "Peralta", Rol.ADMINISTRACION, "Administración"),
@@ -143,13 +235,13 @@ class Command(BaseCommand):
     def handle(self, *args, **opciones):
         random.seed(7)
 
-        self.stdout.write("1/4  Grupos y permisos...")
+        self.stdout.write("1/5  Grupos y permisos...")
         sincronizar_grupos()
 
-        self.stdout.write("2/4  Configuración del sitio...")
+        self.stdout.write("2/5  Configuración del sitio...")
         ConfiguracionSitio.vigente()
 
-        self.stdout.write("3/4  Catálogo de cursos...")
+        self.stdout.write("3/5  Catálogo de cursos...")
         cursos_creados = []
         for datos_cat in CATALOGO:
             categoria, _ = Categoria.objects.update_or_create(
@@ -172,7 +264,7 @@ class Command(BaseCommand):
                 )
                 cursos_creados.append(curso)
 
-        self.stdout.write("4/4  Usuarios del panel...")
+        self.stdout.write("4/5  Usuarios del panel...")
         clave = opciones["clave"]
         for username, nombre, apellido, rol, cargo in USUARIOS:
             usuario, creado = Usuario.objects.get_or_create(
@@ -187,6 +279,9 @@ class Command(BaseCommand):
                 usuario.save()
             usuario.asignar_rol(rol)
 
+        self.stdout.write("5/5  Páginas institucionales...")
+        self._cargar_paginas()
+
         if opciones["demo"]:
             self.stdout.write("Extra  Datos de demostración...")
             self._cargar_demo(cursos_creados)
@@ -200,6 +295,36 @@ class Command(BaseCommand):
             f"\n  Usuarios de ejemplo (contraseña «{clave}»): "
             + ", ".join(u[0] for u in USUARIOS)
         )
+
+    def _cargar_paginas(self):
+        """Crea las páginas institucionales. Idempotente, como el resto."""
+        for datos in PAGINAS:
+            pagina, _ = Pagina.objects.update_or_create(
+                slug=datos["slug"],
+                defaults={
+                    "titulo": datos["titulo"],
+                    "bajada": datos["bajada"],
+                    "orden": datos["orden"],
+                    "publicada": True,
+                },
+            )
+            for enlace in datos.get("enlaces", []):
+                archivo = enlace.get("archivo", "")
+                if archivo and not (Path(settings.MEDIA_ROOT) / archivo).exists():
+                    # El PDF no está en esta instalación; se sube desde el panel.
+                    continue
+                EnlacePagina.objects.update_or_create(
+                    pagina=pagina,
+                    titulo=enlace["titulo"],
+                    defaults={
+                        "descripcion": enlace.get("descripcion", ""),
+                        "grupo": enlace.get("grupo", ""),
+                        "url": enlace.get("url", ""),
+                        "archivo": archivo,
+                        "orden": enlace.get("orden", 0),
+                        "activo": True,
+                    },
+                )
 
     def _cargar_demo(self, cursos):
         empresas = [
