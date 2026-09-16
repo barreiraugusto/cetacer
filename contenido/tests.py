@@ -270,3 +270,56 @@ class PanelPaginasTests(TestCase):
         })
         self.assertEqual(respuesta.status_code, 200)
         self.assertFalse(Pagina.objects.filter(titulo="Rota").exists())
+
+    def test_las_filas_extra_vacias_del_formset_no_molestan(self):
+        # `/panel/paginas/nueva/` renderiza el formset con `extra=3`: un
+        # navegador real manda las tres filas aunque sólo se complete una.
+        # Las filas vacías llegan con los valores por defecto que el propio
+        # formulario les puso (`orden=0`, `activo` tildado).
+        self._usuario("admin_test", Rol.ADMINISTRACION)
+        self.client.login(username="admin_test", password="clave-de-prueba")
+        respuesta = self.client.post("/panel/paginas/nueva/", {
+            "titulo": "Información útil",
+            "bajada": "Material de interés.",
+            "orden": 0,
+            "publicada": "on",
+            "enlaces-TOTAL_FORMS": "3",
+            "enlaces-INITIAL_FORMS": "0",
+            "enlaces-MIN_NUM_FORMS": "0",
+            "enlaces-MAX_NUM_FORMS": "1000",
+            "enlaces-0-titulo": "IRU",
+            "enlaces-0-descripcion": "",
+            "enlaces-0-grupo": "Organismos",
+            "enlaces-0-url": "https://www.iru.org/",
+            "enlaces-0-orden": "0",
+            "enlaces-0-activo": "on",
+            "enlaces-1-titulo": "",
+            "enlaces-1-descripcion": "",
+            "enlaces-1-grupo": "",
+            "enlaces-1-url": "",
+            "enlaces-1-orden": "0",
+            "enlaces-1-activo": "on",
+            "enlaces-2-titulo": "",
+            "enlaces-2-descripcion": "",
+            "enlaces-2-grupo": "",
+            "enlaces-2-url": "",
+            "enlaces-2-orden": "0",
+            "enlaces-2-activo": "on",
+        })
+        self.assertEqual(respuesta.status_code, 302)
+        creada = Pagina.objects.get(slug="informacion-util")
+        self.assertEqual(creada.enlaces.count(), 1)
+
+    def test_un_get_no_borra_la_pagina(self):
+        self._usuario("admin_test", Rol.ADMINISTRACION)
+        self.client.login(username="admin_test", password="clave-de-prueba")
+        respuesta = self.client.get(f"/panel/paginas/{self.pagina.pk}/eliminar/")
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertTrue(Pagina.objects.filter(pk=self.pagina.pk).exists())
+
+    def test_un_post_si_borra_la_pagina(self):
+        self._usuario("admin_test", Rol.ADMINISTRACION)
+        self.client.login(username="admin_test", password="clave-de-prueba")
+        respuesta = self.client.post(f"/panel/paginas/{self.pagina.pk}/eliminar/")
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertFalse(Pagina.objects.filter(pk=self.pagina.pk).exists())

@@ -310,6 +310,8 @@ def pagina_editar(request, pk=None):
 @GESTION_CATALOGO
 def pagina_eliminar(request, pk):
     pagina = get_object_or_404(Pagina, pk=pk)
+    if request.method != "POST":
+        return redirect("panel:pagina_editar", pk=pk)
     titulo = pagina.titulo
     pagina.delete()
     messages.success(request, f"Página «{titulo}» eliminada.")
