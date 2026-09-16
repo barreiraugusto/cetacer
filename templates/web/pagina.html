@@ -1,0 +1,39 @@
+{% extends "web/base.html" %}
+{% block title %}{{ pagina.titulo }} — {{ sitio.nombre }}{% endblock %}
+{% block description %}{{ pagina.bajada }}{% endblock %}
+
+{% block contenido %}
+<section class="contenedor seccion-blanca">
+  <p class="migas">
+    <a href="{% url 'web:inicio' %}">Inicio</a> › {{ pagina.titulo }}
+  </p>
+
+  <h1 style="margin-top:20px">{{ pagina.titulo }}</h1>
+  {% if pagina.bajada %}
+    <p style="max-width:70ch">{{ pagina.bajada|linebreaksbr }}</p>
+  {% endif %}
+
+  {% for grupo, enlaces in grupos %}
+    <div class="ficha__bloque">
+      {% if grupo %}<h2>{{ grupo }}</h2>{% endif %}
+      <ul style="list-style:none;padding:0;margin:0">
+        {% for enlace in enlaces %}
+          <li style="padding:10px 0;border-bottom:1px solid var(--borde)">
+            <a href="{{ enlace.destino }}" rel="noopener"
+               {% if not enlace.es_documento %}target="_blank"{% endif %}>
+              {{ enlace.titulo }}{% if enlace.es_documento %} (PDF){% endif %} →
+            </a>
+            {% if enlace.descripcion %}
+              <div style="font-size:14.5px;color:var(--etiqueta);margin-top:2px">
+                {{ enlace.descripcion }}
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% empty %}
+    <p style="color:var(--etiqueta)">Todavía no hay enlaces cargados en esta página.</p>
+  {% endfor %}
+</section>
+{% endblock %}

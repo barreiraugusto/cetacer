@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 
+from contenido.models import Pagina
 from cursos.models import Categoria, ConfiguracionSitio, Curso
 from inscripciones.models import Empresa, Inscripcion, Participante
 from panel.forms import PreinscripcionForm
@@ -41,6 +42,15 @@ def catalogo(request):
         "catalogo": _catalogo(filtro),
         "filtros": Categoria.objects.filter(activa=True),
         "filtro_actual": filtro,
+    })
+
+
+def pagina(request, slug):
+    """Una página de contenido institucional, con sus enlaces agrupados."""
+    pagina = get_object_or_404(Pagina.publicadas(), slug=slug)
+    return render(request, "web/pagina.html", {
+        "pagina": pagina,
+        "grupos": pagina.enlaces_agrupados(),
     })
 
 

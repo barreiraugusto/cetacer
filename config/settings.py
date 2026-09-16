@@ -76,6 +76,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "web.context_processors.configuracion_sitio",
+                "web.context_processors.paginas_de_contenido",
                 "panel.context_processors.rol_usuario",
             ],
         },

@@ -102,3 +102,53 @@ class EnlacesAgrupadosTests(TestCase):
 
     def test_pagina_sin_enlaces_devuelve_lista_vacia(self):
         self.assertEqual(self.pagina.enlaces_agrupados(), [])
+
+
+class PaginaPublicaTests(TestCase):
+    def setUp(self):
+        self.pagina = Pagina.objects.create(
+            titulo="Legislación", bajada="Normativa vigente."
+        )
+        EnlacePagina.objects.create(
+            pagina=self.pagina, titulo="Ley 24449", url="https://ejemplo.test/ley",
+            grupo="Leyes",
+        )
+
+    def test_url_propia(self):
+        self.assertEqual(self.pagina.get_absolute_url(), "/info/legislacion/")
+
+    def test_la_pagina_publicada_se_ve(self):
+        respuesta = self.client.get("/info/legislacion/")
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "Normativa vigente.")
+        self.assertContains(respuesta, "Ley 24449")
+        self.assertContains(respuesta, "Leyes")
+
+    def test_la_pagina_despublicada_da_404(self):
+        self.pagina.publicada = False
+        self.pagina.save()
+        self.assertEqual(self.client.get("/info/legislacion/").status_code, 404)
+
+    def test_un_slug_inexistente_da_404(self):
+        self.assertEqual(self.client.get("/info/no-existe/").status_code, 404)
+
+    def test_las_paginas_publicadas_estan_en_el_contexto(self):
+        respuesta = self.client.get("/")
+        self.assertIn("legislacion", respuesta.context["paginas"])
+
+    def test_las_despublicadas_no_estan_en_el_contexto(self):
+        self.pagina.publicada = False
+        self.pagina.save()
+        respuesta = self.client.get("/")
+        self.assertNotIn("legislacion", respuesta.context["paginas"])
+
+    def test_el_contexto_aguanta_que_la_tabla_no_exista(self):
+        # Pasa de verdad en una base recién creada, antes de migrar.
+        from unittest.mock import patch
+
+        from django.db.utils import OperationalError
+
+        from web.context_processors import paginas_de_contenido
+
+        with patch.object(Pagina, "publicadas", side_effect=OperationalError("no such table")):
+            self.assertEqual(paginas_de_contenido(None), {"paginas": {}})
