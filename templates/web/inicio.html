@@ -1,4 +1,5 @@
 {% extends "web/base.html" %}
+{% load web_extras %}
 
 {% block contenido %}
 <section class="contenedor portada">
@@ -56,12 +57,16 @@
     <div>
       <h3>Legislación</h3>
       <p>Normativa vigente del transporte automotor de cargas.</p>
-      <a href="https://cetacer.com/legislacion-2" rel="noopener" target="_blank">Ver legislación →</a>
+      {% with p=paginas|buscar_pagina:"legislacion" %}
+        {% if p %}<a href="{{ p.get_absolute_url }}">Ver legislación →</a>{% endif %}
+      {% endwith %}
     </div>
     <div>
       <h3>Información útil</h3>
       <p>Trámites y documentación para asociados y conductores.</p>
-      <a href="https://cetacer.com/informacion-util" rel="noopener" target="_blank">Ver información útil →</a>
+      {% with p=paginas|buscar_pagina:"informacion-util" %}
+        {% if p %}<a href="{{ p.get_absolute_url }}">Ver información útil →</a>{% endif %}
+      {% endwith %}
     </div>
     <div>
       <h3>FADEEAC</h3>

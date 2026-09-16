@@ -1,6 +1,10 @@
 """Pruebas de las páginas de contenido institucional."""
+import re
+from pathlib import Path
+
+from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
 from contenido.models import EnlacePagina, Pagina
 
@@ -152,3 +156,43 @@ class PaginaPublicaTests(TestCase):
 
         with patch.object(Pagina, "publicadas", side_effect=OperationalError("no such table")):
             self.assertEqual(paginas_de_contenido(None), {"paginas": {}})
+
+
+class SinEnlacesAlDominioViejoTests(SimpleTestCase):
+    """El bug que este trabajo arregla: que una plantilla saque al visitante
+    hacia el dominio que se da de baja."""
+
+    def test_ninguna_plantilla_enlaza_al_dominio_viejo(self):
+        raiz = Path(settings.BASE_DIR) / "templates"
+        ofensores = []
+        for plantilla in raiz.rglob("*.html"):
+            texto = plantilla.read_text(encoding="utf-8")
+            if re.search(r'href="https?://(www\.)?cetacer\.com', texto):
+                ofensores.append(str(plantilla.relative_to(raiz)))
+        self.assertEqual(
+            ofensores, [],
+            "Estas plantillas enlazan al dominio viejo: " + ", ".join(ofensores),
+        )
+
+
+class TarjetasDelInicioTests(TestCase):
+    def test_la_tarjeta_enlaza_a_la_pagina_interna(self):
+        Pagina.objects.create(titulo="Legislación")
+        respuesta = self.client.get("/")
+        self.assertContains(respuesta, 'href="/info/legislacion/"')
+
+    def test_sin_pagina_cargada_la_tarjeta_no_muestra_enlace(self):
+        respuesta = self.client.get("/")
+        self.assertNotContains(respuesta, "Ver legislación")
+
+    def test_la_pagina_despublicada_no_se_enlaza(self):
+        Pagina.objects.create(titulo="Legislación", publicada=False)
+        respuesta = self.client.get("/")
+        self.assertNotContains(respuesta, 'href="/info/legislacion/"')
+
+    def test_la_tarjeta_con_slug_con_guion_tambien_enlaza(self):
+        # `informacion-util` es el caso que justifica el filtro `buscar_pagina`:
+        # con notación de punto la plantilla renderizaría vacío sin avisar.
+        Pagina.objects.create(titulo="Información útil")
+        respuesta = self.client.get("/")
+        self.assertContains(respuesta, 'href="/info/informacion-util/"')
