@@ -12,9 +12,9 @@
 <body>
 <div class="ingreso">
   <div class="ingreso__lateral">
-    <div class="lateral__nombre" style="font-size:30px">
-      {{ sitio.nombre|default:"CETACER" }}{% if sitio.aniversario %}<span class="aniversario"> {{ sitio.aniversario }}</span>{% endif %}
-    </div>
+    <img class="ingreso__logo" src="{% static 'img/logo-cetacer-blanco.svg' %}"
+         width="573" height="200"
+         alt="{{ sitio.nombre|default:'CETACER' }}{% if sitio.aniversario %} — {{ sitio.aniversario }}{% endif %}">
     <div class="lateral__sub" style="margin-bottom:34px">{{ sitio.descripcion_larga|default:"CÁMARA EMPRESARIA DEL TRANSPORTE AUTOMOTOR DE CARGAS DE ENTRE RÍOS" }}</div>
     <h1>Panel de<br>capacitación.</h1>
     <p>

@@ -60,8 +60,7 @@ input, select, textarea, button { font-family: inherit; }
 }
 .lateral__marca { padding: 20px 22px 16px; border-bottom: 1px solid rgba(255,255,255,0.12); }
 .lateral__marca a { color: #ffffff; text-decoration: none; }
-.lateral__nombre { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
-.lateral__nombre .aniversario { color: #9aa6f0; }
+.lateral__logo { display: block; width: auto; height: 42px; margin-bottom: 7px; }
 .lateral__sub {
   font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em;
   color: #979ecb; margin-top: 3px;
@@ -347,6 +346,9 @@ table.tabla .apagado { color: var(--etiqueta); font-size: 13.5px; }
 @media (max-width: 860px) { .ingreso { grid-template-columns: 1fr; } .ingreso__lateral { display: none; } }
 .ingreso__lateral { padding: clamp(36px, 5vw, 70px); color: #ffffff; display: flex; flex-direction: column; justify-content: center; }
 .ingreso__lateral h1 { font-size: clamp(32px, 4vw, 48px); font-weight: 800; line-height: 1.05; margin-bottom: 18px; }
+/* align-self porque .ingreso__lateral es flex column: sin esto el flex item
+   se estira a todo el ancho y el logo queda flotando al medio. */
+.ingreso__logo { align-self: flex-start; width: auto; height: 58px; margin-bottom: 10px; }
 .ingreso__lateral p { font-size: 17px; line-height: 1.6; color: #bcc4dd; max-width: 42ch; }
 .ingreso__caja { background: var(--blanco); display: flex; align-items: center; justify-content: center; padding: clamp(24px, 4vw, 56px); }
 .ingreso__form { width: 100%; max-width: 380px; }
