@@ -140,6 +140,8 @@ cuanto el dominio tenga certificado hay que volver a ponerlo en `True`.
 | `cetacer.service` | Unidad de systemd. Va a `/etc/systemd/system/`. |
 | `nginx-cetacer.conf` | Proxy inverso. Va a `/etc/nginx/sites-available/cetacer`. |
 | `actualizar.sh` | Despliega una versión nueva: pull, dependencias, migraciones, estáticos y reinicio. |
+| `backup.sh` | Copia la base y `media/`, verifica que se puedan leer y rota las viejas. |
+| `cetacer-backup.service` y `.timer` | Disparan esa copia todos los días a las 3:30. |
 
 La instalación queda así:
 
@@ -156,9 +158,45 @@ bash /srv/cetacer/app/deploy/actualizar.sh
 ```
 
 Los estáticos los sirve whitenoise desde la propia aplicación; nginx sólo se
-encarga de `/media/`, que whitenoise no cubre. `media/` no está en el
-repositorio: lo que se sube desde el panel vive únicamente en el servidor y hay
-que respaldarlo aparte, junto con la base.
+encarga de `/media/`, que whitenoise no cubre.
+
+### Copias de seguridad
+
+`cetacer-backup.timer` corre `backup.sh` todos los días a las 3:30. Deja en
+`/var/backups/cetacer/` un dump de PostgreSQL en formato `custom` y un `.tar.gz`
+de `media/`, conserva 14 copias diarias y una por mes durante un año, y verifica
+cada copia antes de darla por buena.
+
+```bash
+systemctl list-timers cetacer-backup    # cuándo corre la próxima
+systemctl start cetacer-backup          # correr una ahora
+journalctl -u cetacer-backup -n 30      # cómo fue la última
+```
+
+Las copias quedan **en el mismo servidor**: eso cubre un borrado accidental o
+una migración que salga mal, no la pérdida del VPS. Para eso hay que bajarlas a
+otra máquina, por ejemplo desde una tarea local:
+
+```bash
+rsync -az cetacer-vps:/var/backups/cetacer/ ~/backups-cetacer/
+```
+
+Para restaurar la base en el servidor:
+
+```bash
+systemctl stop cetacer
+runuser -u postgres -- dropdb cetacer
+runuser -u postgres -- createdb -O cetacer cetacer
+runuser -u postgres -- pg_restore -d cetacer /var/backups/cetacer/diarias/base-FECHA.dump
+systemctl start cetacer
+```
+
+Y los archivos subidos:
+
+```bash
+tar xzf /var/backups/cetacer/diarias/media-FECHA.tar.gz -C /srv/cetacer/app
+chown -R cetacer:cetacer /srv/cetacer/app/media
+```
 
 ## Diseño
 

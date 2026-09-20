@@ -1,0 +1,16 @@
+# Copia de seguridad diaria. Copiar a /etc/systemd/system/ junto con el .timer
+# y luego: systemctl daemon-reload && systemctl enable --now cetacer-backup.timer
+[Unit]
+Description=CETACER — copia de seguridad de la base y los archivos subidos
+After=postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/srv/cetacer/app/deploy/backup.sh
+
+# Corre como root porque escribe en /var/backups y lee el .env, que es del
+# usuario cetacer y está en 600.
+User=root
+Nice=10
+IOSchedulingClass=idle

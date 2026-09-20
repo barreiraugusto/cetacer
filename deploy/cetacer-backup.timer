@@ -1,0 +1,13 @@
+# Dispara la copia de seguridad todos los días de madrugada.
+[Unit]
+Description=CETACER — disparador diario de la copia de seguridad
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+# Si el servidor estuvo apagado a esa hora, la corre al volver.
+Persistent=true
+# Desparrama el arranque para no pegarle al disco siempre en el mismo instante.
+RandomizedDelaySec=15m
+
+[Install]
+WantedBy=timers.target
