@@ -17,6 +17,10 @@ set -a
 source "$RAIZ/.env"
 set +a
 
+# media/ no está en el repositorio, así que un clon recién hecho no lo trae.
+# La unidad de systemd lo declara en ReadWritePaths y no arranca sin él.
+install -d -o "$USUARIO" -g "$USUARIO" -m 755 "$APP/media"
+
 echo "==> Trayendo el código"
 como_app git -C "$APP" pull --ff-only
 
