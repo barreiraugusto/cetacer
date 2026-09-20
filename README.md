@@ -125,7 +125,15 @@ Por defecto usa SQLite. Para PostgreSQL, definí `DATABASE_URL`.
 
 ## Diseño
 
-La web pública reproduce la maqueta aprobada: azul institucional `#0f2744`, azul de
-acento `#1b55d4`, verde de WhatsApp `#16a34a`, tipografía Source Sans 3, esquinas de
-4 px y ancho de contenido de 1160 px. El panel usa la misma paleta y tipografía.
+La web pública usa la identidad institucional: azul `#1e2869` (el mismo del logo),
+azul de acento `#2b3fa8` derivado de él, verde de WhatsApp `#16a34a`, tipografía
+Source Sans 3, esquinas de 4 px y ancho de contenido de 1160 px. El panel usa la
+misma paleta y tipografía.
+
+El verde `#00ff00` de la marca vive sólo dentro del logo: como fondo no llega al
+contraste mínimo con texto blanco.
+
+Los logos están en `static/img/` en SVG (`logo-cetacer-color.svg` en el encabezado,
+`logo-cetacer-blanco.svg` en el pie) y la foto de portada en WebP con respaldo JPG.
+Los originales quedaron en `elementos/`.
 Los tokens están al principio de `static/css/web.css` y `static/css/panel.css`.

@@ -1,16 +1,18 @@
 /* ---------------------------------------------------------------------------
    CETACER — web pública.
-   Los tokens replican exactamente la maqueta aprobada: azul institucional
-   #0f2744, azul de acento #1b55d4, verde de WhatsApp #16a34a, tipografía
-   Source Sans 3, esquinas de 4 px y ancho de contenido de 1160 px.
+   Los tokens siguen la identidad institucional: azul #1e2869 (el mismo del
+   logo), azul de acento #2b3fa8 derivado de él y verde de WhatsApp #16a34a.
+   El verde #00ff00 de la marca sólo vive dentro del logo: como fondo no llega
+   al contraste mínimo con texto blanco. Tipografía Source Sans 3, esquinas de
+   4 px y ancho de contenido de 1160 px.
    --------------------------------------------------------------------------- */
 
 :root {
-  --azul-profundo: #0f2744;
-  --azul: #1b55d4;
-  --azul-oscuro: #123c99;
-  --azul-tinte: #e8efff;
-  --azul-claro: #dbe6ff;
+  --azul-profundo: #1e2869;
+  --azul: #2b3fa8;
+  --azul-oscuro: #1e2869;
+  --azul-tinte: #eaedfa;
+  --azul-claro: #dde2f6;
   --verde: #16a34a;
   --verde-oscuro: #12833c;
   --tinta: #101828;
@@ -22,7 +24,7 @@
   --borde-fuerte: #cfd4dd;
   --fondo: #ffffff;
   --fondo-seccion: #f4f5f7;
-  --pie-texto: #b8c4d6;
+  --pie-texto: #bcc4dd;
   --rojo: #b42318;
   --ancho: 1160px;
   --radio: 4px;
@@ -87,11 +89,8 @@ img, iframe { max-width: 100%; }
   padding-top: 18px; padding-bottom: 18px;
 }
 .marca { margin-right: auto; }
-.marca__nombre { display: flex; align-items: baseline; gap: 8px; }
-.marca__nombre span {
-  font-size: 27px; font-weight: 800; letter-spacing: -0.03em; color: var(--azul-profundo);
-}
-.marca__nombre .aniversario { color: var(--azul); }
+.marca__enlace { display: inline-block; }
+.marca__logo { display: block; width: auto; height: 58px; }
 .marca__razon {
   font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; color: var(--volanta);
   max-width: 34ch; line-height: 1.3; margin-top: 3px;
@@ -147,20 +146,15 @@ img, iframe { max-width: 100%; }
 .portada__enlace {
   display: inline-flex; align-items: center; gap: 12px; font-weight: 700; font-size: 16.5px;
 }
-.portada__tarjeta {
-  background: var(--azul); color: #ffffff;
-  padding: clamp(26px, 3vw, 38px); border-radius: var(--radio);
+.portada__foto { margin: 0; }
+.portada__foto img {
+  display: block; width: 100%; height: auto;
+  border-radius: var(--radio-card);
 }
-.portada__tarjeta-encabezado { display: flex; align-items: flex-start; gap: 16px; }
-.portada__tarjeta-volanta {
-  font-size: 12.5px; font-weight: 700; letter-spacing: 0.16em; margin-right: auto;
+.portada__foto-pie {
+  display: flex; align-items: center; gap: 9px;
+  margin-top: 14px; font-size: 15.5px; font-weight: 600; color: var(--texto-suave);
 }
-.portada__tarjeta-titulo {
-  font-size: clamp(26px, 3.2vw, 34px); font-weight: 700; line-height: 1.15; margin: 22px 0 18px;
-}
-.portada__tarjeta-texto { font-size: 16.5px; line-height: 1.6; color: var(--azul-claro); }
-.portada__tarjeta-linea { height: 1px; background: rgba(255,255,255,0.35); margin: 26px 0 16px; }
-.portada__tarjeta-pie { display: flex; align-items: center; gap: 9px; font-size: 15.5px; }
 
 /* --- Secciones ------------------------------------------------------------ */
 
@@ -270,6 +264,7 @@ img, iframe { max-width: 100%; }
   padding-top: 22px; padding-bottom: 22px; font-size: 14px;
 }
 .pie a { color: var(--pie-texto); }
+.pie__logo { display: block; width: auto; height: 38px; margin-right: 4px; }
 .pie__derecha { margin-left: auto; }
 
 /* --- Ficha de curso ------------------------------------------------------- */
@@ -339,7 +334,7 @@ img, iframe { max-width: 100%; }
   padding: 12px 16px; border-radius: var(--radio); font-size: 15.5px; margin-bottom: 10px;
 }
 .mensaje--success { background: #ecfdf3; color: #05603a; border: 1px solid #abefc6; }
-.mensaje--info { background: var(--azul-tinte); color: var(--azul-oscuro); border: 1px solid #b2ccff; }
+.mensaje--info { background: var(--azul-tinte); color: var(--azul-oscuro); border: 1px solid #c3cbec; }
 .mensaje--error { background: #fef3f2; color: #912018; border: 1px solid #fda29b; }
 .mensaje--warning { background: #fffaeb; color: #93370d; border: 1px solid #fedf89; }
 

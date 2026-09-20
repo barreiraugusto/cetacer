@@ -1,16 +1,17 @@
 /* ---------------------------------------------------------------------------
    CETACER — panel de administración.
    Hereda la paleta y la tipografía de la web pública para que quien atiende el
-   mostrador vea siempre la misma marca. El panel prioriza la lectura rápida:
+   mostrador vea siempre la misma marca: azul institucional #1e2869, el mismo
+   del logo, y #2b3fa8 como acento derivado. El panel prioriza la lectura rápida:
    barra lateral fija, tarjetas de indicadores y tablas con mucho aire.
    --------------------------------------------------------------------------- */
 
 :root {
-  --azul-profundo: #0f2744;
-  --azul-profundo-2: #16355b;
-  --azul: #1b55d4;
-  --azul-oscuro: #123c99;
-  --azul-tinte: #e8efff;
+  --azul-profundo: #1e2869;
+  --azul-profundo-2: #2a3583;
+  --azul: #2b3fa8;
+  --azul-oscuro: #1e2869;
+  --azul-tinte: #eaedfa;
   --verde: #16a34a;
   --verde-oscuro: #12833c;
   --verde-tinte: #ecfdf3;
@@ -60,20 +61,20 @@ input, select, textarea, button { font-family: inherit; }
 .lateral__marca { padding: 20px 22px 16px; border-bottom: 1px solid rgba(255,255,255,0.12); }
 .lateral__marca a { color: #ffffff; text-decoration: none; }
 .lateral__nombre { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
-.lateral__nombre .aniversario { color: #7ea6ff; }
+.lateral__nombre .aniversario { color: #9aa6f0; }
 .lateral__sub {
   font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em;
-  color: #8fa3bf; margin-top: 3px;
+  color: #979ecb; margin-top: 3px;
 }
 
 .menu { padding: 14px 12px; flex: 1; }
 .menu__titulo {
-  font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; color: #7d93b3;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; color: #979ecb;
   padding: 16px 10px 7px;
 }
 .menu a {
   display: flex; align-items: center; gap: 11px;
-  padding: 10px 12px; border-radius: var(--radio); color: #d6e0ee;
+  padding: 10px 12px; border-radius: var(--radio); color: #dadeef;
   font-size: 15px; font-weight: 600; margin-bottom: 2px; text-decoration: none;
 }
 .menu a:hover { background: rgba(255,255,255,0.09); color: #ffffff; text-decoration: none; }
@@ -98,10 +99,10 @@ input, select, textarea, button { font-family: inherit; }
   font-size: 14px; font-weight: 700; color: #ffffff;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.lateral__pie-rol { font-size: 12px; color: #8fa3bf; }
+.lateral__pie-rol { font-size: 12px; color: #98a2c8; }
 .lateral__pie form { margin-left: auto; }
 .lateral__salir {
-  background: transparent; border: 0; color: #8fa3bf; cursor: pointer;
+  background: transparent; border: 0; color: #98a2c8; cursor: pointer;
   font-size: 13px; font-weight: 600; padding: 6px;
 }
 .lateral__salir:hover { color: #ffffff; }
@@ -188,7 +189,7 @@ input, select, textarea, button { font-family: inherit; }
   padding: 13px 16px; border-radius: var(--radio); margin-bottom: 9px; font-size: 14.5px;
 }
 .aviso--atencion { background: var(--ambar-tinte); border: 1px solid #fedf89; color: #93370d; }
-.aviso--info { background: var(--azul-tinte); border: 1px solid #b2ccff; color: var(--azul-oscuro); }
+.aviso--info { background: var(--azul-tinte); border: 1px solid #c3cbec; color: var(--azul-oscuro); }
 .aviso a { margin-left: auto; font-weight: 700; white-space: nowrap; }
 
 .mensaje {
@@ -196,7 +197,7 @@ input, select, textarea, button { font-family: inherit; }
   margin-bottom: 10px; font-weight: 600;
 }
 .mensaje--success { background: var(--verde-tinte); color: #05603a; border: 1px solid #abefc6; }
-.mensaje--info { background: var(--azul-tinte); color: var(--azul-oscuro); border: 1px solid #b2ccff; }
+.mensaje--info { background: var(--azul-tinte); color: var(--azul-oscuro); border: 1px solid #c3cbec; }
 .mensaje--error { background: var(--rojo-tinte); color: #912018; border: 1px solid #fda29b; }
 .mensaje--warning { background: var(--ambar-tinte); color: #93370d; border: 1px solid #fedf89; }
 
@@ -333,7 +334,7 @@ table.tabla .apagado { color: var(--etiqueta); font-size: 13.5px; }
   display: block; font-size: 12px; font-weight: 600; padding: 4px 6px; border-radius: 3px;
   background: var(--azul-tinte); color: var(--azul-oscuro); margin-bottom: 3px; line-height: 1.3;
 }
-.calendario__evento:hover { text-decoration: none; background: #d6e4ff; }
+.calendario__evento:hover { text-decoration: none; background: #dde2f6; }
 .calendario__evento--borrador { background: #eef0f4; color: var(--texto-suave); }
 .calendario__evento--cancelada { background: var(--rojo-tinte); color: #912018; text-decoration: line-through; }
 
@@ -346,7 +347,7 @@ table.tabla .apagado { color: var(--etiqueta); font-size: 13.5px; }
 @media (max-width: 860px) { .ingreso { grid-template-columns: 1fr; } .ingreso__lateral { display: none; } }
 .ingreso__lateral { padding: clamp(36px, 5vw, 70px); color: #ffffff; display: flex; flex-direction: column; justify-content: center; }
 .ingreso__lateral h1 { font-size: clamp(32px, 4vw, 48px); font-weight: 800; line-height: 1.05; margin-bottom: 18px; }
-.ingreso__lateral p { font-size: 17px; line-height: 1.6; color: #b8c4d6; max-width: 42ch; }
+.ingreso__lateral p { font-size: 17px; line-height: 1.6; color: #bcc4dd; max-width: 42ch; }
 .ingreso__caja { background: var(--blanco); display: flex; align-items: center; justify-content: center; padding: clamp(24px, 4vw, 56px); }
 .ingreso__form { width: 100%; max-width: 380px; }
 .ingreso__form h2 { font-size: 26px; font-weight: 700; color: var(--azul-profundo); margin-bottom: 6px; }

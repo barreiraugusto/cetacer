@@ -1,0 +1,7 @@
+COLORES CETACER
+
+AZUL #1e2869
+VERDE #00ff00
+
+Logo color para poner en la parte superior
+Logo blanco para poner en el footer

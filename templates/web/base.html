@@ -23,10 +23,10 @@
 <header class="encabezado">
   <div class="contenedor encabezado__interior">
     <div class="marca">
-      <a href="{% url 'web:inicio' %}" style="text-decoration:none">
-        <div class="marca__nombre">
-          <span>{{ sitio.nombre }}</span>{% if sitio.aniversario %}<span class="aniversario">{{ sitio.aniversario }}</span>{% endif %}
-        </div>
+      <a class="marca__enlace" href="{% url 'web:inicio' %}">
+        <img class="marca__logo" src="{% static 'img/logo-cetacer-color.svg' %}"
+             width="573" height="200"
+             alt="{{ sitio.nombre }}{% if sitio.aniversario %} — {{ sitio.aniversario }}{% endif %}">
       </a>
       <div class="marca__razon">{{ sitio.descripcion_larga }}</div>
     </div>
@@ -56,7 +56,9 @@
 
 <footer class="pie">
   <div class="contenedor pie__interior">
-    <span>{{ sitio.nombre }} · {{ sitio.ciudad }}</span>
+    <img class="pie__logo" src="{% static 'img/logo-cetacer-blanco.svg' %}"
+         width="573" height="200" alt="{{ sitio.nombre }}">
+    <span>{{ sitio.ciudad }}</span>
     {% if sitio.facebook %}<a href="{{ sitio.facebook }}" rel="noopener" target="_blank">Facebook</a>{% endif %}
     <a href="{% url 'panel:inicio' %}">Panel de administración</a>
     <span class="pie__derecha">Turnos únicamente por WhatsApp</span>

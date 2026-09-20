@@ -1,5 +1,5 @@
 {% extends "web/base.html" %}
-{% load web_extras %}
+{% load static web_extras %}
 
 {% block contenido %}
 <section class="contenedor portada">
@@ -9,19 +9,17 @@
     <p class="portada__bajada">{{ sitio.bajada_hero }}</p>
     <a class="portada__enlace" href="#cursos">Ver calendario de cursos <span aria-hidden="true">↗</span></a>
   </div>
-  <div class="portada__tarjeta">
-    <div class="portada__tarjeta-encabezado">
-      <div class="portada__tarjeta-volanta">FORMACIÓN EN TRANSPORTE</div>
-      {% include "includes/icono_calendario.svg" with tamano=26 %}
-    </div>
-    <div class="portada__tarjeta-titulo">Tu capacitación,<br>bien organizada.</div>
-    <div class="portada__tarjeta-texto">Fechas a mano.<br>Un lugar para planificar.</div>
-    <div class="portada__tarjeta-linea"></div>
-    <div class="portada__tarjeta-pie">
+  <figure class="portada__foto">
+    <picture>
+      <source srcset="{% static 'img/portada-camion.webp' %}" type="image/webp">
+      <img src="{% static 'img/portada-camion.jpg' %}" width="1600" height="900"
+           alt="Camión de cargas circulando por una ruta al amanecer">
+    </picture>
+    <figcaption class="portada__foto-pie">
       {% include "includes/icono_lugar.svg" with tamano=17 %}
       {{ sitio.ciudad }}
-    </div>
-  </div>
+    </figcaption>
+  </figure>
 </section>
 
 <section id="cursos" class="seccion-gris">
