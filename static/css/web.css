@@ -14,6 +14,8 @@
   --azul-tinte: #eaedfa;
   --azul-claro: #dde2f6;
   --verde: #16a34a;
+  /* El verde del logo. Sólo se usa sobre el azul profundo, nunca como fondo. */
+  --verde-marca: #46f08c;
   --verde-oscuro: #12833c;
   --tinta: #101828;
   --texto: #344054;
@@ -126,34 +128,72 @@ img, iframe { max-width: 100%; }
 
 /* --- Portada -------------------------------------------------------------- */
 
+/* La foto ocupa el ancho completo y el texto va encima. El velo azul es lo que
+   hace legible al texto: la foto tiene cielo claro y un camión blanco, así que
+   sin él el blanco sobre blanco desaparece. */
 .portada {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: clamp(28px, 4vw, 64px);
-  align-items: start;
-  padding-top: clamp(40px, 6vw, 76px);
-  padding-bottom: clamp(40px, 6vw, 76px);
+  position: relative;
+  display: flex; align-items: center;
+  /* Sin un alto mínimo la sección queda muy panorámica y el "cover" agranda
+     tanto la foto que del camión sólo se ve un pedazo. */
+  min-height: clamp(440px, 52vw, 620px);
+  background: var(--azul-profundo);
+  overflow: hidden;
 }
+.portada__fondo { position: absolute; inset: 0; }
+.portada__fondo img {
+  display: block; width: 100%; height: 100%;
+  /* El recorte es vertical: 40% deja entrar el techo del camión sin perder
+     la ruta de abajo, que es lo que le da sentido al título. */
+  object-fit: cover; object-position: center 40%;
+}
+.portada::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(
+    95deg,
+    rgba(30, 40, 105, 0.95) 0%,
+    rgba(30, 40, 105, 0.88) 38%,
+    rgba(30, 40, 105, 0.52) 68%,
+    rgba(30, 40, 105, 0.34) 100%
+  );
+}
+/* El ancho y el centrado los pone .contenedor, que va en el mismo elemento. */
+.portada__contenido {
+  position: relative; z-index: 1; width: 100%;
+  padding-top: clamp(52px, 8vw, 104px);
+  padding-bottom: clamp(52px, 8vw, 104px);
+}
+.portada .volanta { color: rgba(255, 255, 255, 0.72); }
 .portada h1 {
   font-size: clamp(42px, 7vw, 76px); font-weight: 800; line-height: 1.02;
-  margin: 18px 0 0; color: var(--azul-profundo); text-wrap: balance;
+  margin: 18px 0 0; color: #ffffff; text-wrap: balance; max-width: 20ch;
 }
-.portada h1 .destacado { color: var(--azul); }
+.portada h1 .destacado { color: var(--verde-marca); }
 .portada__bajada {
-  font-size: 18.5px; line-height: 1.55; color: var(--texto-suave);
+  font-size: 18.5px; line-height: 1.55; color: rgba(255, 255, 255, 0.88);
   max-width: 40ch; margin: 22px 0 26px;
 }
 .portada__enlace {
   display: inline-flex; align-items: center; gap: 12px; font-weight: 700; font-size: 16.5px;
+  color: #ffffff;
 }
-.portada__foto { margin: 0; }
-.portada__foto img {
-  display: block; width: 100%; height: auto;
-  border-radius: var(--radio-card);
-}
-.portada__foto-pie {
+.portada__enlace:hover { color: #ffffff; }
+.portada__lugar {
   display: flex; align-items: center; gap: 9px;
-  margin-top: 14px; font-size: 15.5px; font-weight: 600; color: var(--texto-suave);
+  margin-top: 34px; font-size: 15.5px; font-weight: 600;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* En pantallas angostas el texto ocupa todo el ancho, así que el velo tiene que
+   ser parejo y no un degradado lateral. */
+@media (max-width: 720px) {
+  .portada::after {
+    background: linear-gradient(
+      180deg,
+      rgba(30, 40, 105, 0.93) 0%,
+      rgba(30, 40, 105, 0.88) 100%
+    );
+  }
 }
 
 /* --- Secciones ------------------------------------------------------------ */

@@ -2,24 +2,23 @@
 {% load static web_extras %}
 
 {% block contenido %}
-<section class="contenedor portada">
-  <div>
+<section class="portada">
+  {# Decorativa: todo lo que dice ya está en el texto de al lado, por eso alt vacío. #}
+  <picture class="portada__fondo">
+    <source srcset="{% static 'img/portada-camion.webp' %}" type="image/webp">
+    <img src="{% static 'img/portada-camion.jpg' %}" width="1600" height="900" alt=""
+         fetchpriority="high">
+  </picture>
+  <div class="contenedor portada__contenido">
     <div class="volanta">{{ sitio.nombre }} / CAPACITACIÓN</div>
     <h1>{{ sitio.titulo_hero }}<br><span class="destacado">{{ sitio.titulo_hero_destacado }}</span></h1>
     <p class="portada__bajada">{{ sitio.bajada_hero }}</p>
     <a class="portada__enlace" href="#cursos">Ver calendario de cursos <span aria-hidden="true">↗</span></a>
-  </div>
-  <figure class="portada__foto">
-    <picture>
-      <source srcset="{% static 'img/portada-camion.webp' %}" type="image/webp">
-      <img src="{% static 'img/portada-camion.jpg' %}" width="1600" height="900"
-           alt="Camión de cargas circulando por una ruta al amanecer">
-    </picture>
-    <figcaption class="portada__foto-pie">
+    <div class="portada__lugar">
       {% include "includes/icono_lugar.svg" with tamano=17 %}
       {{ sitio.ciudad }}
-    </figcaption>
-  </figure>
+    </div>
+  </div>
 </section>
 
 <section id="cursos" class="seccion-gris">
