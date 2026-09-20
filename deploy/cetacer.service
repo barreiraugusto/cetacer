@@ -1,0 +1,39 @@
+# Servicio de la aplicación. Copiar a /etc/systemd/system/cetacer.service
+# y luego: systemctl daemon-reload && systemctl enable --now cetacer
+[Unit]
+Description=CETACER — aplicación Django (gunicorn)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=cetacer
+Group=cetacer
+WorkingDirectory=/srv/cetacer/app
+EnvironmentFile=/srv/cetacer/.env
+ExecStart=/srv/cetacer/venv/bin/gunicorn \
+    --workers 3 \
+    --bind unix:/run/cetacer/gunicorn.sock \
+    --access-logfile - \
+    --error-logfile - \
+    config.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+# El socket vive en /run/cetacer, que systemd crea y limpia solo.
+RuntimeDirectory=cetacer
+RuntimeDirectoryMode=0755
+
+# Endurecimiento: la aplicación sólo necesita escribir en media/ y en su propio
+# directorio de ejecución.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/cetacer/app/media
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

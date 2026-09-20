@@ -145,8 +145,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 if not DEBUG:
-    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", True)
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # Todo esto asume que el sitio se sirve por HTTPS, que es como tiene que
+    # estar en producción. DJANGO_HTTPS=False lo apaga para la etapa en que el
+    # sitio corre sobre una IP sin certificado: ahí las cookies "secure" nunca
+    # llegarían al servidor y no se podría ni entrar al panel ni enviar un
+    # formulario. Mientras esté apagado, la sesión viaja sin cifrar.
+    HTTPS = env_bool("DJANGO_HTTPS", True)
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30 if HTTPS else 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = HTTPS
+    SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", HTTPS)
+    SESSION_COOKIE_SECURE = HTTPS
+    CSRF_COOKIE_SECURE = HTTPS

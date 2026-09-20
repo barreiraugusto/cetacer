@@ -123,6 +123,43 @@ python manage.py check --deploy
 
 Por defecto usa SQLite. Para PostgreSQL, definí `DATABASE_URL`.
 
+### Sitio sin certificado
+
+`DJANGO_HTTPS=False` apaga HSTS, la redirección a HTTPS y las cookies seguras.
+Hace falta sólo mientras el sitio se sirve por IP: con las cookies marcadas como
+seguras el navegador no las manda por HTTP y no se puede ni entrar al panel ni
+enviar un formulario. Mientras esté apagado **la sesión viaja sin cifrar**. En
+cuanto el dominio tenga certificado hay que volver a ponerlo en `True`.
+
+### Servidor
+
+`deploy/` tiene lo necesario para un VPS con nginx, gunicorn y PostgreSQL:
+
+| Archivo | Para qué |
+| --- | --- |
+| `cetacer.service` | Unidad de systemd. Va a `/etc/systemd/system/`. |
+| `nginx-cetacer.conf` | Proxy inverso. Va a `/etc/nginx/sites-available/cetacer`. |
+| `actualizar.sh` | Despliega una versión nueva: pull, dependencias, migraciones, estáticos y reinicio. |
+
+La instalación queda así:
+
+```
+/srv/cetacer/.env        variables de entorno (chmod 600)
+/srv/cetacer/app/        el repositorio
+/srv/cetacer/venv/       el entorno virtual
+```
+
+Para publicar cambios, desde el servidor:
+
+```bash
+bash /srv/cetacer/app/deploy/actualizar.sh
+```
+
+Los estáticos los sirve whitenoise desde la propia aplicación; nginx sólo se
+encarga de `/media/`, que whitenoise no cubre. `media/` no está en el
+repositorio: lo que se sube desde el panel vive únicamente en el servidor y hay
+que respaldarlo aparte, junto con la base.
+
 ## Diseño
 
 La web pública usa la identidad institucional: azul `#1e2869` (el mismo del logo),
