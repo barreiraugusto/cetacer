@@ -96,6 +96,32 @@ class ComisionTests(TestCase):
         self.assertEqual(self.comision.lugar_texto, ConfiguracionSitio.vigente().direccion)
 
 
+class FechaTextoTests(TestCase):
+    def setUp(self):
+        categoria = Categoria.objects.create(nombre="Cargas")
+        self.curso = Curso.objects.create(categoria=categoria, nombre="Básico")
+
+    def _texto(self, inicio, fin=None):
+        return Comision(curso=self.curso, fecha_inicio=inicio, fecha_fin=fin).fecha_texto
+
+    def test_un_solo_dia(self):
+        self.assertEqual(self._texto(date(2026, 10, 5)), "5 de octubre")
+
+    def test_en_el_mismo_mes_no_repite_el_mes(self):
+        self.assertEqual(
+            self._texto(date(2026, 10, 5), date(2026, 10, 7)), "5 al 7 de octubre"
+        )
+
+    def test_entre_dos_meses_nombra_los_dos(self):
+        self.assertEqual(
+            self._texto(date(2026, 9, 30), date(2026, 10, 2)),
+            "30 de setiembre al 2 de octubre",
+        )
+
+    def test_mismo_dia_de_inicio_y_fin(self):
+        self.assertEqual(self._texto(date(2026, 10, 5), date(2026, 10, 5)), "5 de octubre")
+
+
 class ConfiguracionTests(TestCase):
     def test_vigente_es_singleton(self):
         primera = ConfiguracionSitio.vigente()
@@ -107,6 +133,30 @@ class ConfiguracionTests(TestCase):
         enlace = sitio.enlace_whatsapp("Hola, ¿turno?")
         self.assertTrue(enlace.startswith(f"https://wa.me/{sitio.whatsapp}?text="))
         self.assertNotIn(" ", enlace)
+
+    def test_whatsapp_de_socios_sin_el_cero_y_con_el_codigo_de_pais(self):
+        sitio = ConfiguracionSitio(whatsapp_socios="(0343) 4503288")
+        self.assertEqual(sitio.whatsapp_socios_url, "https://wa.me/543434503288")
+
+    def test_sin_whatsapp_de_socios_no_hay_enlace(self):
+        self.assertEqual(ConfiguracionSitio(whatsapp_socios="").whatsapp_socios_url, "")
+
+    def test_video_de_cursos_en_sus_distintas_formas(self):
+        embed = "https://www.youtube-nocookie.com/embed/0YY-WsyDzD8"
+        for url in (
+            "https://www.youtube.com/watch?v=0YY-WsyDzD8",
+            "https://youtube.com/watch?v=0YY-WsyDzD8&t=12s",
+            "https://youtu.be/0YY-WsyDzD8",
+            "https://www.youtube.com/embed/0YY-WsyDzD8",
+            "https://www.youtube.com/shorts/0YY-WsyDzD8",
+        ):
+            with self.subTest(url=url):
+                self.assertEqual(ConfiguracionSitio(video_cursos=url).video_cursos_embed, embed)
+
+    def test_un_video_que_no_es_de_youtube_no_se_embebe(self):
+        for url in ("", "https://vimeo.com/123456", "https://www.youtube.com/watch?v=<script>"):
+            with self.subTest(url=url):
+                self.assertEqual(ConfiguracionSitio(video_cursos=url).video_cursos_embed, "")
 
 
 class FormasDePagoTests(TestCase):

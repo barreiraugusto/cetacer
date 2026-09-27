@@ -9,7 +9,7 @@ from inscripciones.models import Empresa, Inscripcion, Participante
 from panel.forms import PreinscripcionForm
 
 
-def _catalogo(filtro=None):
+def _catalogo():
     """Categorías activas con sus cursos publicados, listo para la grilla."""
     categorias = (
         Categoria.objects.filter(activa=True)
@@ -21,28 +21,31 @@ def _catalogo(filtro=None):
         cursos = [c for c in categoria.cursos.all() if c.activo]
         if not cursos:
             continue
-        if filtro and filtro != "todas" and categoria.slug != filtro:
-            continue
         resultado.append({"categoria": categoria, "cursos": sorted(cursos, key=lambda c: (c.orden, c.nombre))})
     return resultado
 
 
+def _contexto_catalogo(request):
+    """La grilla y sus filtros. Sólo hay filtro para las categorías con cursos.
+
+    Sin filtro, o con uno que no corresponde a ninguna, se ven todas.
+    """
+    todas = _catalogo()
+    filtro = request.GET.get("categoria", "")
+    elegidas = [b for b in todas if b["categoria"].slug == filtro]
+    return {
+        "catalogo": elegidas or todas,
+        "filtros": [bloque["categoria"] for bloque in todas],
+        "filtro_actual": filtro if elegidas else "",
+    }
+
+
 def inicio(request):
-    filtro = request.GET.get("categoria", "todas")
-    return render(request, "web/inicio.html", {
-        "catalogo": _catalogo(filtro),
-        "filtros": Categoria.objects.filter(activa=True),
-        "filtro_actual": filtro,
-    })
+    return render(request, "web/inicio.html", _contexto_catalogo(request))
 
 
 def catalogo(request):
-    filtro = request.GET.get("categoria", "todas")
-    return render(request, "web/catalogo.html", {
-        "catalogo": _catalogo(filtro),
-        "filtros": Categoria.objects.filter(activa=True),
-        "filtro_actual": filtro,
-    })
+    return render(request, "web/catalogo.html", _contexto_catalogo(request))
 
 
 def pagina(request, slug):

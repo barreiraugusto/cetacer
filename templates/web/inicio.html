@@ -23,34 +23,20 @@
 
 <section id="cursos" class="seccion-gris">
   <div class="contenedor seccion-interior">
-    <div class="encabezado-seccion">
-      <div>
-        <div class="volanta">AGENDA DE CAPACITACIÓN</div>
-        <h2 class="seccion-titulo">Consultá las fechas disponibles</h2>
-      </div>
-    </div>
+    <div class="volanta">AGENDA DE CAPACITACIÓN</div>
+    <h2 class="seccion-titulo">Cursos de capacitación</h2>
+    {% include "web/_encabezado_cursos.html" %}
 
     {% include "web/_catalogo.html" with url_base="/" %}
 
-    {% if sitio.url_boleta %}
-      <p class="nota-pie">
-        Boleta de pago para cursos de Cargas Generales, Mercancías Peligrosas y Pasajeros:
-        <a href="{{ sitio.url_boleta }}" rel="noopener" target="_blank">e-SICAPRO — solicitud online</a>
-      </p>
-    {% endif %}
+    {% include "web/_pie_cursos.html" %}
   </div>
 </section>
 
 <section id="institucion" class="contenedor seccion-blanca">
-  <div class="volanta">INSTITUCIÓN</div>
-  <h2 class="seccion-titulo seccion-titulo--chico" style="max-width:30ch">
-    La capacitación y el psicofísico siguen siendo obligatorios para la licencia profesional
-  </h2>
+  <div class="volanta">INSTITUCIONAL</div>
+  <h2 class="seccion-titulo seccion-titulo--chico">Institucional e información general</h2>
   <div class="grilla-institucion">
-    <div>
-      <h3>Categorías C, D y E</h3>
-      <p>Cursos habilitantes adheridos al sistema de Licencia Nacional de Conducir.</p>
-    </div>
     <div>
       <h3>Legislación</h3>
       <p>Normativa vigente del transporte automotor de cargas.</p>
@@ -95,6 +81,14 @@
           <div class="etiqueta">TELÉFONOS</div>
           <div class="dato-contacto">{{ sitio.telefonos }}</div>
         </div>
+        {% if sitio.whatsapp_socios %}
+          <div>
+            <div class="etiqueta">WHATSAPP SOCIOS</div>
+            <div class="dato-contacto">
+              <a href="{{ sitio.whatsapp_socios_url }}" rel="noopener" target="_blank">{{ sitio.whatsapp_socios }}</a>
+            </div>
+          </div>
+        {% endif %}
         <div>
           <div class="etiqueta">CORREO</div>
           <div class="dato-contacto"><a href="mailto:{{ sitio.email }}">{{ sitio.email }}</a></div>

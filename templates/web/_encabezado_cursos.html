@@ -1,0 +1,15 @@
+{% comment %}Bajada y video de la sección de cursos. El título lo pone cada página,
+porque en el inicio es un h2 y en /cursos/ es el h1.{% endcomment %}
+<p class="cursos__bajada">
+  La capacitación y el psicofísico siguen siendo obligatorios para la obtención de las
+  licencias profesionales, categorías C, D y E en todas sus formas, adheridas al sistema
+  de LNC (Licencia Nacional de Conducir).
+</p>
+{% if sitio.video_cursos_embed %}
+  <div class="cursos__video">
+    <iframe src="{{ sitio.video_cursos_embed }}" title="Video de los cursos de capacitación de {{ sitio.nombre }}"
+            loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+  </div>
+{% endif %}

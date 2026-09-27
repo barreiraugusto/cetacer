@@ -363,7 +363,7 @@ class CargarPaginasTests(TestCase):
         )
         self.assertEqual(legislacion.enlaces.count(), 3)
         informacion_util = Pagina.objects.get(slug="informacion-util")
-        self.assertEqual(informacion_util.enlaces.count(), 8)
+        self.assertEqual(informacion_util.enlaces.count(), 9)
 
     def test_no_duplica_ni_pisa_lo_que_editó_el_administrador(self):
         call_command("cargar_datos", verbosity=0)
@@ -400,7 +400,7 @@ class CargarPaginasTests(TestCase):
             self.assertTrue(all(e.url for e in legislacion.enlaces.all()))
             self.assertTrue(all(not e.archivo for e in legislacion.enlaces.all()))
 
-            # De los 8 enlaces de Información útil, 1 es de archivo: quedan 7.
-            self.assertEqual(informacion_util.enlaces.count(), 7)
+            # De los 9 enlaces de Información útil, 1 es de archivo: quedan 8.
+            self.assertEqual(informacion_util.enlaces.count(), 8)
             self.assertTrue(all(e.url for e in informacion_util.enlaces.all()))
             self.assertTrue(all(not e.archivo for e in informacion_util.enlaces.all()))

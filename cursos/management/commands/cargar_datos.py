@@ -62,24 +62,9 @@ CATALOGO = [
         ],
     },
     {
-        "nombre": "Transporte de Pasajeros",
+        "nombre": "Renovación",
         "orden": 3,
-        "resumen": "Cursos para el transporte de pasajeros en sus distintas categorías.",
-        "cursos": [
-            {
-                "nombre": "Curso primera vez — Transporte de Pasajeros",
-                "precio": None,
-                "consultar": True,
-                "cupo_sugerido": 25,
-                "requisitos": "Psicofísico vigente, DNI y constancia de pago.",
-                "descripcion": "Curso habilitante para el transporte de pasajeros, categorías D.2 y D.3.",
-            }
-        ],
-    },
-    {
-        "nombre": "Renovaciones y ampliaciones",
-        "orden": 4,
-        "resumen": "Renovación de la habilitación y ampliación a nuevas categorías.",
+        "resumen": "Renovación de la habilitación ya obtenida.",
         "cursos": [
             {
                 "nombre": "Renovación — Cargas Generales y Transporte de Pasajeros",
@@ -88,6 +73,13 @@ CATALOGO = [
                 "requisitos": "Certificado anterior, psicofísico vigente y DNI.",
                 "descripcion": "Renovación de la Licencia Nacional Habilitante ya obtenida.",
             },
+        ],
+    },
+    {
+        "nombre": "Ampliación",
+        "orden": 4,
+        "resumen": "Ampliación de la habilitación a nuevas categorías.",
+        "cursos": [
             {
                 "nombre": "Renovación + ampliación — Cargas Generales",
                 "precio": None,
@@ -123,8 +115,8 @@ PAGINAS = [
             },
             {
                 "titulo": "FADEEAC",
-                "descripcion": "Federación Argentina de Entidades Empresarias del Autotransporte de Cargas.",
-                "url": "https://www.fadeeac.org.ar/",
+                "descripcion": "Departamento de Legislación, Legales y Seguros de la Federación.",
+                "url": "https://www.fadeeac.org.ar/departamento-legislacion-legales-y-seguros/",
                 "orden": 3,
             },
         ],
@@ -184,6 +176,13 @@ PAGINAS = [
                 "url": "https://www.fadeeac.org.ar/estudios-economicos-y-costos/",
                 "grupo": "FADEEAC",
                 "orden": 8,
+            },
+            {
+                "titulo": "Otras cámaras",
+                "descripcion": "Entidades asociadas a FADEEAC en todo el país.",
+                "url": "https://www.fadeeac.org.ar/entidades-asociadas/",
+                "grupo": "FADEEAC",
+                "orden": 9,
             },
         ],
     },

@@ -92,11 +92,8 @@ img, iframe { max-width: 100%; }
 }
 .marca { margin-right: auto; }
 .marca__enlace { display: inline-block; }
-.marca__logo { display: block; width: auto; height: 58px; }
-.marca__razon {
-  font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; color: var(--volanta);
-  max-width: 34ch; line-height: 1.3; margin-top: 3px;
-}
+.marca__logo { display: block; width: auto; height: 72px; }
+@media (max-width: 560px) { .marca__logo { height: 58px; } }
 .navegacion {
   display: flex; flex-wrap: wrap; gap: 8px 26px; align-items: center; font-size: 15.5px;
 }
@@ -207,8 +204,16 @@ img, iframe { max-width: 100%; }
 }
 .seccion-titulo--chico { font-size: clamp(26px, 3.4vw, 34px); margin: 12px 0 28px; }
 
-.encabezado-seccion { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
-.encabezado-seccion > div:first-child { margin-right: auto; }
+/* --- Encabezado de cursos ------------------------------------------------ */
+
+.cursos__bajada {
+  font-size: 17.5px; line-height: 1.55; color: var(--texto-suave); max-width: 66ch; margin: 12px 0 0;
+}
+.cursos__video {
+  margin-top: 24px; max-width: 880px; aspect-ratio: 16 / 9;
+  border-radius: var(--radio-card); overflow: hidden; background: var(--azul-profundo);
+}
+.cursos__video iframe { display: block; width: 100%; height: 100%; border: 0; }
 
 /* --- Filtros -------------------------------------------------------------- */
 
@@ -249,11 +254,8 @@ img, iframe { max-width: 100%; }
   background: #ffffff; border: 1px solid var(--borde); border-radius: var(--radio-card);
   padding: 24px;
 }
-.tarjeta-curso__categoria {
-  font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; color: var(--azul);
-}
 .tarjeta-curso__nombre {
-  font-size: 20px; font-weight: 700; line-height: 1.25; color: var(--azul-profundo); margin-top: 7px;
+  font-size: 20px; font-weight: 700; line-height: 1.25; color: var(--azul-profundo);
 }
 .tarjeta-curso__nombre a { color: inherit; }
 .datos-curso {
@@ -268,7 +270,8 @@ img, iframe { max-width: 100%; }
 }
 .fecha-chip--gris { color: var(--texto-suave); background: #eef0f4; }
 .fecha-chip--completa { color: #854708; background: #fef4e6; }
-.tarjeta-curso__requisitos { font-size: 15.5px; color: var(--texto-suave); }
+.tarjeta-curso__requisitos { font-size: 15.5px; color: var(--texto-suave); overflow-wrap: anywhere; }
+.tarjeta-curso__requisitos strong, .ficha__requisitos strong { color: var(--tinta); }
 .tarjeta-curso__acciones {
   display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
   margin-top: auto; padding-top: 4px;
@@ -332,6 +335,25 @@ img, iframe { max-width: 100%; }
   font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; color: var(--etiqueta);
   text-transform: uppercase;
 }
+.ficha__requisitos a { overflow-wrap: anywhere; }
+
+/* Las fechas van en una caja del azul del pie para que se encuentren rápido. */
+.caja-fechas {
+  background: var(--azul-profundo); color: #ffffff;
+  border-radius: var(--radio-card); padding: clamp(18px, 3vw, 26px);
+  overflow-x: auto;
+}
+.ficha__bloque.caja-fechas h2 { color: var(--verde-marca); }
+.ficha__bloque.caja-fechas p { color: #ffffff; }
+.caja-fechas .tabla-fechas th { color: var(--pie-texto); }
+.caja-fechas .tabla-fechas th,
+.caja-fechas .tabla-fechas td { border-bottom-color: rgba(255, 255, 255, 0.16); }
+.caja-fechas .tabla-fechas tr:last-child td { border-bottom: 0; }
+.caja-fechas .cupo-barra { background: rgba(255, 255, 255, 0.22); }
+.caja-fechas .cupo-barra span { background: var(--verde-marca); }
+.caja-fechas .cupo-barra--lleno span { background: #fbbf24; }
+.caja-fechas__cupo { font-size: 13.5px; color: var(--pie-texto); margin-top: 4px; }
+
 .cupo-barra { height: 6px; background: var(--borde); border-radius: 999px; overflow: hidden; width: 90px; }
 .cupo-barra span { display: block; height: 100%; background: var(--azul); }
 .cupo-barra--lleno span { background: #d97706; }

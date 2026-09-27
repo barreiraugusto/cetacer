@@ -44,6 +44,7 @@
       {% include "panel/_campo.html" with campo=form.whatsapp_visible %}
       {% include "panel/_campo.html" with campo=form.telefono_principal %}
       {% include "panel/_campo.html" with campo=form.telefonos %}
+      {% include "panel/_campo.html" with campo=form.whatsapp_socios %}
       {% include "panel/_campo.html" with campo=form.email %}
       {% include "panel/_campo.html" with campo=form.ciudad %}
     </div>
@@ -66,7 +67,8 @@
 
   <div class="seccion-form">
     <div class="seccion-form__titulo">Enlaces y funcionamiento</div>
-    {% include "panel/_campo.html" with campo=form.facebook %}
+    {% include "panel/_campo.html" with campo=form.instagram %}
+    {% include "panel/_campo.html" with campo=form.video_cursos %}
     {% include "panel/_campo.html" with campo=form.url_boleta %}
     {% include "panel/_campo.html" with campo=form.inscripcion_online %}
   </div>

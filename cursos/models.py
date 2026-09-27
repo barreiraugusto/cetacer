@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 from django.db import models
@@ -17,7 +18,8 @@ class ConfiguracionSitio(models.Model):
         help_text="Se muestra en azul junto al nombre en el encabezado.",
     )
     descripcion_larga = models.CharField(
-        "razón social", max_length=200,
+        "razón social", max_length=200, blank=True,
+        help_text="Se muestra en la pantalla de ingreso del panel.",
         default="CÁMARA EMPRESARIA DEL TRANSPORTE AUTOMOTOR DE CARGAS DE ENTRE RÍOS",
     )
     cintillo = models.CharField(
@@ -49,12 +51,21 @@ class ConfiguracionSitio(models.Model):
     telefono_principal = models.CharField(
         "teléfono del cintillo", max_length=40, default="(0343) 4330742"
     )
+    whatsapp_socios = models.CharField(
+        "WhatsApp de socios", max_length=40, blank=True, default="(0343) 4503288",
+        help_text="Con la característica. Ej: (0343) 4503288",
+    )
     email = models.EmailField("correo", default="administracion@cetacer.com")
     direccion = models.CharField(
         "dirección", max_length=200, default="Almirante Brown 2185, Paraná, Entre Ríos"
     )
     ciudad = models.CharField("ciudad", max_length=100, default="Paraná, Entre Ríos")
-    facebook = models.URLField("Facebook", blank=True, default="https://facebook.com/cetacer")
+    instagram = models.URLField("Instagram", blank=True)
+    video_cursos = models.URLField(
+        "video de la sección de cursos", blank=True,
+        default="https://www.youtube.com/watch?v=0YY-WsyDzD8",
+        help_text="Enlace de YouTube. Si se deja vacío, la sección va sin video.",
+    )
     url_boleta = models.URLField(
         "URL de la boleta de pago", blank=True,
         default="https://sicapro.com.ar/solicitudonline.aspx",
@@ -101,6 +112,31 @@ class ConfiguracionSitio(models.Model):
         return self.enlace_whatsapp(
             "Hola, quisiera solicitar un turno para un curso de CETACER."
         )
+
+    @property
+    def whatsapp_socios_url(self):
+        """wa.me del número de socios: sin el 0 de la característica y con el 54."""
+        digitos = re.sub(r"\D", "", self.whatsapp_socios).lstrip("0")
+        return f"https://wa.me/54{digitos}" if digitos else ""
+
+    @property
+    def video_cursos_embed(self):
+        """URL para el iframe, o vacío si el enlace no es de YouTube."""
+        from urllib.parse import parse_qs, urlparse
+
+        url = urlparse(self.video_cursos)
+        host = url.netloc.lower().removeprefix("www.").removeprefix("m.")
+        video = ""
+        if host == "youtu.be":
+            video = url.path.strip("/")
+        elif host in {"youtube.com", "youtube-nocookie.com"}:
+            if url.path == "/watch":
+                video = parse_qs(url.query).get("v", [""])[0]
+            elif url.path.startswith(("/embed/", "/shorts/", "/live/")):
+                video = url.path.split("/")[2]
+        if not re.fullmatch(r"[\w-]{6,20}", video):
+            return ""
+        return f"https://www.youtube-nocookie.com/embed/{video}"
 
     @property
     def mapa_embed(self):
@@ -273,11 +309,14 @@ class Comision(models.Model):
     def fecha_texto(self):
         from django.utils.formats import date_format
 
-        inicio = date_format(self.fecha_inicio, "j \\d\\e F", use_l10n=True)
-        if self.fecha_fin and self.fecha_fin != self.fecha_inicio:
-            fin = date_format(self.fecha_fin, "j \\d\\e F", use_l10n=True)
-            return f"{inicio} al {fin}"
-        return inicio
+        con_mes = "j \\d\\e F"
+        fin = self.fecha_fin
+        if not fin or fin == self.fecha_inicio:
+            return date_format(self.fecha_inicio, con_mes, use_l10n=True)
+        # «5 al 7 de octubre»: el mes se escribe una sola vez si no cambia.
+        mismo_mes = (fin.year, fin.month) == (self.fecha_inicio.year, self.fecha_inicio.month)
+        inicio = date_format(self.fecha_inicio, "j" if mismo_mes else con_mes, use_l10n=True)
+        return f"{inicio} al {date_format(fin, con_mes, use_l10n=True)}"
 
     @property
     def horario_texto(self):
