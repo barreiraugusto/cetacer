@@ -45,10 +45,11 @@ def _enlace(url):
 
 
 @register.filter
-def requisitos(texto):
-    """Formatea el texto libre de requisitos: enlaces y mayúsculas en negrita.
+def texto_curso(texto):
+    """Formatea los textos libres del curso: enlaces y mayúsculas en negrita.
 
-    Quien carga los cursos escribe en mayúsculas lo importante («Foto DNI»,
+    Se usa en la descripción y en los requisitos. Quien carga los cursos
+    escribe en mayúsculas lo importante («Foto DNI»,
     «LICENCIA DE CONDUCIR»); acá eso se pasa a negrita y las direcciones se
     vuelven enlaces. Todo lo demás se escapa, así que el texto sigue sin
     admitir HTML propio.

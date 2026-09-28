@@ -65,7 +65,7 @@ enlaces recargan y caen en #filtros, no al principio de la sección.{% endcommen
           {% if curso.requisitos %}
             <div>
               <div class="etiqueta" style="margin-bottom:5px">REQUISITOS</div>
-              <div class="tarjeta-curso__requisitos">{{ curso.requisitos|requisitos }}</div>
+              <div class="tarjeta-curso__requisitos">{{ curso.requisitos|texto_curso }}</div>
             </div>
           {% endif %}
 

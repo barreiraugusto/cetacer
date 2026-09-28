@@ -12,14 +12,14 @@
       {% if curso.descripcion %}
         <div class="ficha__bloque">
           <h2>De qué se trata</h2>
-          <p>{{ curso.descripcion|linebreaksbr }}</p>
+          <p class="ficha__texto">{{ curso.descripcion|texto_curso }}</p>
         </div>
       {% endif %}
 
       {% if curso.requisitos %}
         <div class="ficha__bloque">
           <h2>Requisitos</h2>
-          <p class="ficha__requisitos">{{ curso.requisitos|requisitos }}</p>
+          <p class="ficha__texto">{{ curso.requisitos|texto_curso }}</p>
         </div>
       {% endif %}
 

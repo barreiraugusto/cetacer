@@ -288,7 +288,7 @@ img, iframe { max-width: 100%; }
 .fecha-chip--gris { color: var(--texto-suave); background: #eef0f4; }
 .fecha-chip--completa { color: #854708; background: #fef4e6; }
 .tarjeta-curso__requisitos { font-size: 15.5px; color: var(--texto-suave); overflow-wrap: anywhere; }
-.tarjeta-curso__requisitos strong, .ficha__requisitos strong { color: var(--tinta); }
+.tarjeta-curso__requisitos strong, .ficha__texto strong { color: var(--tinta); }
 .tarjeta-curso__acciones {
   display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
   margin-top: auto; padding-top: 4px;
@@ -352,7 +352,7 @@ img, iframe { max-width: 100%; }
   font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; color: var(--etiqueta);
   text-transform: uppercase;
 }
-.ficha__requisitos a { overflow-wrap: anywhere; }
+.ficha__texto a { overflow-wrap: anywhere; }
 
 /* Las fechas van en una caja del azul del pie para que se encuentren rápido. */
 .caja-fechas {

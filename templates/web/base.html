@@ -24,7 +24,7 @@
   <div class="contenedor encabezado__interior">
     <div class="marca">
       <a class="marca__enlace" href="{% url 'web:inicio' %}">
-        <img class="marca__logo" src="{% static 'img/logo-cetacer-color.svg' %}"
+        <img class="marca__logo" src="{% static 'img/logo-cetacer-color-sin-razon.svg' %}"
              width="573" height="200"
              alt="{{ sitio.nombre }}{% if sitio.aniversario %} — {{ sitio.aniversario }}{% endif %}">
       </a>
@@ -55,7 +55,7 @@
 
 <footer class="pie">
   <div class="contenedor pie__interior">
-    <img class="pie__logo" src="{% static 'img/logo-cetacer-blanco.svg' %}"
+    <img class="pie__logo" src="{% static 'img/logo-cetacer-blanco-sin-razon.svg' %}"
          width="573" height="200" alt="{{ sitio.nombre }}">
     <span>{{ sitio.ciudad }}</span>
     {% if sitio.instagram %}<a href="{{ sitio.instagram }}" rel="noopener" target="_blank">Instagram</a>{% endif %}

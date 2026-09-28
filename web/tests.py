@@ -7,22 +7,22 @@ from django.test import SimpleTestCase, TestCase
 
 from contenido.models import EnlacePagina, Pagina
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
-from web.templatetags.web_extras import requisitos
+from web.templatetags.web_extras import texto_curso
 
 
-class RequisitosTests(SimpleTestCase):
+class TextoCursoTests(SimpleTestCase):
     def test_las_palabras_en_mayusculas_van_en_negrita(self):
         self.assertEqual(
-            requisitos("- Foto LICENCIA DE CONDUCIR - frente y dorso"),
+            texto_curso("- Foto LICENCIA DE CONDUCIR - frente y dorso"),
             "- Foto <strong>LICENCIA DE CONDUCIR</strong> - frente y dorso",
         )
 
     def test_una_mayuscula_suelta_no_se_resalta(self):
-        self.assertEqual(requisitos("Foto DNI y comprobante"), "Foto <strong>DNI</strong> y comprobante")
-        self.assertEqual(requisitos("A confirmar"), "A confirmar")
+        self.assertEqual(texto_curso("Foto DNI y comprobante"), "Foto <strong>DNI</strong> y comprobante")
+        self.assertEqual(texto_curso("A confirmar"), "A confirmar")
 
     def test_las_direcciones_se_vuelven_enlaces(self):
-        html = requisitos("CERTIFICADO\nhttps://sicapro.com.ar/consultasonline.aspx")
+        html = texto_curso("CERTIFICADO\nhttps://sicapro.com.ar/consultasonline.aspx")
         self.assertEqual(
             html,
             "<strong>CERTIFICADO</strong><br>"
@@ -31,12 +31,12 @@ class RequisitosTests(SimpleTestCase):
         )
 
     def test_www_sin_esquema_y_punto_final(self):
-        html = requisitos("Turno en www.psicofisicos.com.ar.")
+        html = texto_curso("Turno en www.psicofisicos.com.ar.")
         self.assertIn('href="https://www.psicofisicos.com.ar"', html)
         self.assertTrue(html.endswith("</a>."))
 
     def test_el_html_se_escapa(self):
-        self.assertEqual(requisitos("<b>hola</b>"), "&lt;b&gt;hola&lt;/b&gt;")
+        self.assertEqual(texto_curso("<b>hola</b>"), "&lt;b&gt;hola&lt;/b&gt;")
 
 
 class CatalogoTests(TestCase):
@@ -101,6 +101,18 @@ class CatalogoTests(TestCase):
         respuesta = self.client.get("/")
         self.assertContains(respuesta, "Cursos de capacitación")
         self.assertContains(respuesta, "youtube-nocookie.com/embed/0YY-WsyDzD8")
+
+    def test_la_descripcion_tambien_resalta_y_enlaza(self):
+        self.curso.descripcion = "CERTIFICADO DE CARGAS\nhttps://sicapro.com.ar/consultasonline.aspx"
+        self.curso.save()
+        respuesta = self.client.get(self.curso.get_absolute_url())
+        self.assertContains(respuesta, "<strong>CERTIFICADO DE CARGAS</strong>")
+        self.assertContains(respuesta, 'href="https://sicapro.com.ar/consultasonline.aspx"')
+
+    def test_la_web_usa_el_logo_sin_la_razon_social(self):
+        respuesta = self.client.get("/")
+        self.assertContains(respuesta, "logo-cetacer-color-sin-razon")
+        self.assertContains(respuesta, "logo-cetacer-blanco-sin-razon")
 
     def test_la_ficha_no_repite_la_categoria_arriba_del_titulo(self):
         respuesta = self.client.get(self.curso.get_absolute_url())
