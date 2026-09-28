@@ -371,3 +371,22 @@ class EliminarComisionTests(BaseDatos):
         self.entrar(Rol.COORDINACION)
         respuesta = self.client.get(reverse("panel:comision_editar", args=[self.comision.pk]))
         self.assertContains(respuesta, self._url(self.comision))
+
+
+class ComisionMarcadaCompletaTests(BaseDatos):
+    def setUp(self):
+        self.comision.cerrada = True
+        self.comision.save()
+
+    def test_no_se_puede_inscribir(self):
+        self.entrar(Rol.RECEPCION)
+        self.client.post(
+            reverse("panel:inscribir", args=[self.comision.pk]),
+            {"dni": "32000001", "apellido": "A", "nombre": "B"},
+        )
+        self.assertFalse(self.comision.inscripciones.exists())
+
+    def test_la_web_la_muestra_completa(self):
+        respuesta = self.client.get(self.curso.get_absolute_url())
+        self.assertContains(respuesta, "Completo")
+        self.assertContains(self.client.get("/"), "· completo")

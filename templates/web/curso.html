@@ -38,7 +38,7 @@
                   <td>{{ comision.lugar_texto }}</td>
                   <td>
                     <div class="cupo-barra {% if comision.completa %}cupo-barra--lleno{% endif %}">
-                      <span style="width:{{ comision.ocupacion_porcentaje }}%"></span>
+                      <span style="width:{% if comision.completa %}100{% else %}{{ comision.ocupacion_porcentaje }}{% endif %}%"></span>
                     </div>
                     <div class="caja-fechas__cupo">
                       {% if comision.completa %}Completo{% else %}{{ comision.lugares_disponibles }} lugar{{ comision.lugares_disponibles|pluralize:"es" }}{% endif %}

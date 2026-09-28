@@ -282,8 +282,7 @@ img, iframe { max-width: 100%; }
 }
 .fecha-chip--gris { color: var(--texto-suave); background: #eef0f4; }
 .fecha-chip--completa { color: #854708; background: #fef4e6; }
-.tarjeta-curso__requisitos { font-size: 15.5px; color: var(--texto-suave); overflow-wrap: anywhere; }
-.tarjeta-curso__requisitos strong, .ficha__texto strong { color: var(--tinta); }
+.ficha__texto strong { color: var(--tinta); }
 .tarjeta-curso__acciones {
   display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
   margin-top: auto; padding-top: 4px;

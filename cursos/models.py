@@ -320,6 +320,10 @@ class Comision(models.Model):
     hora_inicio = models.TimeField("hora de inicio", null=True, blank=True)
     hora_fin = models.TimeField("hora de finalización", null=True, blank=True)
     cupo = models.PositiveIntegerField("cupo", default=25)
+    cerrada = models.BooleanField(
+        "marcar como completa", default=False,
+        help_text="La web la muestra completa y no se inscribe a nadie más, sin tocar el cupo.",
+    )
     lugar = models.CharField(
         "lugar", max_length=200, blank=True,
         help_text="Si se deja vacío se usa la sede de la configuración del sitio.",
@@ -387,7 +391,7 @@ class Comision(models.Model):
 
     @property
     def completa(self):
-        return self.cantidad_inscriptos >= self.cupo
+        return self.cerrada or self.cantidad_inscriptos >= self.cupo
 
     @property
     def ocupacion_porcentaje(self):
@@ -398,6 +402,8 @@ class Comision(models.Model):
     @property
     def semaforo(self):
         """Color de referencia para el panel según la ocupación."""
+        if self.cerrada:
+            return "completa"
         porcentaje = self.ocupacion_porcentaje
         if porcentaje >= 100:
             return "completa"

@@ -68,7 +68,7 @@ class ComisionForm(BaseForm):
         model = Comision
         fields = [
             "curso", "fecha_inicio", "fecha_fin", "hora_inicio", "hora_fin",
-            "cupo", "lugar", "instructor", "estado", "observaciones",
+            "cupo", "cerrada", "lugar", "instructor", "estado", "observaciones",
         ]
         widgets = {
             "fecha_inicio": forms.DateInput(attrs={"type": "date"}),

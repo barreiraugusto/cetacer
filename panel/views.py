@@ -101,7 +101,11 @@ def inicio(request):
         if comision.completa and comision.visible_en_web:
             avisos.append({
                 "tipo": "info",
-                "texto": f"«{comision.curso.nombre}» del {comision.fecha_texto} llegó al cupo ({comision.cupo}).",
+                "texto": (
+                    f"«{comision.curso.nombre}» del {comision.fecha_texto} está marcada como completa."
+                    if comision.cerrada
+                    else f"«{comision.curso.nombre}» del {comision.fecha_texto} llegó al cupo ({comision.cupo})."
+                ),
                 "url": f"/panel/comisiones/{comision.pk}/",
                 "accion": "Ver lista",
             })
@@ -467,6 +471,12 @@ def inscribir(request, pk):
         return redirect("panel:comision_detalle", pk=pk)
 
     datos = formulario.cleaned_data
+    if comision.cerrada:
+        messages.error(
+            request,
+            "La comisión está marcada como completa. Desmarcala antes de agregar a alguien más.",
+        )
+        return redirect("panel:comision_detalle", pk=pk)
     if comision.completa:
         messages.error(
             request,

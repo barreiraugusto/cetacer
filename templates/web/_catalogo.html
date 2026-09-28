@@ -1,4 +1,4 @@
-{% load static web_extras %}
+{% load static %}
 {% comment %}Grilla de categorías y cursos. La comparten el inicio y /cursos/.
 Sin filtro se ven todas; tocar el filtro activo lo apaga y vuelve a mostrarlas.
 Se dibujan siempre todas las categorías y el filtro oculta las demás: así
@@ -61,13 +61,6 @@ enlaces recargan y caen en #filtros, no al principio de la sección.{% endcommen
               {% endfor %}
             </div>
           </div>
-
-          {% if curso.requisitos %}
-            <div>
-              <div class="etiqueta" style="margin-bottom:5px">REQUISITOS</div>
-              <div class="tarjeta-curso__requisitos">{{ curso.requisitos|texto_curso }}</div>
-            </div>
-          {% endif %}
 
           <div class="tarjeta-curso__acciones">
             <a class="boton-wa boton-wa--chico" href="{{ curso.whatsapp_url }}"

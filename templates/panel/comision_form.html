@@ -37,12 +37,14 @@
     <div class="seccion-form__titulo">3. Cupo y responsable</div>
     <p class="seccion-form__ayuda">
       Cuando los inscriptos llegan al cupo, la web muestra la fecha como completa y el panel
-      no deja sumar a nadie más sin ampliarlo.
+      no deja sumar a nadie más sin ampliarlo. Para cerrarla antes, sin achicar el cupo,
+      marcala como completa.
     </p>
     <div class="grilla-campos">
       {% include "panel/_campo.html" with campo=form.cupo %}
       {% include "panel/_campo.html" with campo=form.instructor %}
     </div>
+    {% include "panel/_campo.html" with campo=form.cerrada %}
   </div>
 
   <div class="seccion-form">

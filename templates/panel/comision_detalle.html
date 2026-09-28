@@ -75,8 +75,13 @@
 {% elif comision.completa %}
   <div class="aviso aviso--atencion" style="margin-bottom:18px">
     <span>
-      La comisión llegó al cupo de {{ comision.cupo }}. Para sumar a alguien más,
-      ampliá el cupo desde «Editar».
+      {% if comision.cerrada %}
+        La comisión está marcada como completa. Para sumar a alguien más,
+        desmarcala desde «Editar».
+      {% else %}
+        La comisión llegó al cupo de {{ comision.cupo }}. Para sumar a alguien más,
+        ampliá el cupo desde «Editar».
+      {% endif %}
     </span>
     <a href="{% url 'panel:comision_editar' comision.pk %}">Editar comisión →</a>
   </div>

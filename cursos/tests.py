@@ -95,6 +95,12 @@ class ComisionTests(TestCase):
         self.comision.save()
         self.assertNotIn(self.comision, self.curso.comisiones_publicadas())
 
+    def test_marcada_como_completa_sin_llegar_al_cupo(self):
+        self.comision.cerrada = True
+        self.assertTrue(self.comision.completa)
+        self.assertEqual(self.comision.semaforo, "completa")
+        self.assertEqual(self.comision.cupo, 3)
+
     def test_lugar_cae_a_la_sede_configurada(self):
         self.assertEqual(self.comision.lugar_texto, ConfiguracionSitio.vigente().direccion)
 

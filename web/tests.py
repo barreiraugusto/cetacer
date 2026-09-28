@@ -87,6 +87,17 @@ class CatalogoTests(TestCase):
                 self.assertNotContains(respuesta, "Reservar")
                 self.assertNotContains(respuesta, "/inscripcion/")
 
+    def test_las_tarjetas_no_muestran_requisitos_ni_la_volanta(self):
+        self.curso.requisitos = "Foto DNI"
+        self.curso.save()
+        for url in ("/", "/cursos/"):
+            with self.subTest(url=url):
+                respuesta = self.client.get(url)
+                self.assertNotContains(respuesta, "REQUISITOS")
+                self.assertNotContains(respuesta, "AGENDA DE CAPACITACIÓN")
+                self.assertContains(respuesta, "Ver requisitos completos")
+        self.assertContains(self.client.get(self.curso.get_absolute_url()), "<strong>DNI</strong>")
+
     def test_la_duracion_ya_no_habla_de_horario(self):
         respuesta = self.client.get("/cursos/")
         self.assertContains(respuesta, "DURACIÓN")
