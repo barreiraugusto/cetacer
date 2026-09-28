@@ -3,8 +3,8 @@
 
 {% block contenido %}
 <section class="portada">
-  {# Decorativas: todo lo que dicen ya está en el texto de al lado, por eso alt vacío.
-     Con más de una foto rotan solas; sin ninguna cargada se usa la del camión. #}
+  {% comment %}Decorativas: todo lo que dicen ya está en el texto de al lado, por eso alt vacío.
+  Con más de una foto rotan solas; sin ninguna cargada se usa la del camión.{% endcomment %}
   <div class="portada__fondo" data-rotar="{{ sitio.portada_visible.count }}">
     {% for foto in sitio.portada_visible %}
       <img src="{{ foto.imagen.url }}" alt="" class="portada__foto{% if forloop.first %} portada__foto--activa{% endif %}"
@@ -21,7 +21,6 @@
     <div class="volanta">{{ sitio.nombre }} / CAPACITACIÓN</div>
     <h1>{{ sitio.titulo_hero }}<br><span class="destacado">{{ sitio.titulo_hero_destacado }}</span></h1>
     <p class="portada__bajada">{{ sitio.bajada_hero }}</p>
-    <a class="portada__enlace" href="#cursos">Ver calendario de cursos <span aria-hidden="true">↗</span></a>
     <div class="portada__lugar">
       {% include "includes/icono_lugar.svg" with tamano=17 %}
       {{ sitio.ciudad }}

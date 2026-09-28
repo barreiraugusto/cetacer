@@ -122,6 +122,13 @@ class CatalogoTests(TestCase):
 
 
 class EncabezadoYPieTests(TestCase):
+    def test_la_portada_no_filtra_comentarios_ni_enlaza_al_calendario(self):
+        # Un {# #} de varias líneas Django no lo reconoce y lo imprime como
+        # texto: en la portada eso empujaba todo el contenido a la derecha.
+        respuesta = self.client.get("/")
+        self.assertNotContains(respuesta, "{#")
+        self.assertNotContains(respuesta, "Ver calendario de cursos")
+
     def test_menu_dice_institucional(self):
         respuesta = self.client.get("/")
         self.assertContains(respuesta, ">Institucional</a>")
