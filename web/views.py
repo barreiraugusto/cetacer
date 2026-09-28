@@ -1,12 +1,8 @@
 """Vistas de la web pública de CETACER."""
-from django.contrib import messages
-from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 
 from contenido.models import Pagina
 from cursos.models import Categoria, ConfiguracionSitio, Curso
-from inscripciones.models import Empresa, Inscripcion, Participante
-from panel.forms import PreinscripcionForm
 
 
 def _catalogo():
@@ -74,77 +70,3 @@ def curso_detalle(request, slug):
             categoria=curso.categoria, activo=True
         ).exclude(pk=curso.pk)[:3],
     })
-
-
-def preinscripcion(request, slug):
-    """Solicitud de turno desde la web. Entra al panel como «preinscripta»."""
-    curso = get_object_or_404(Curso, slug=slug, activo=True)
-    sitio = ConfiguracionSitio.vigente()
-
-    if not sitio.inscripcion_online:
-        return redirect("web:curso", slug=slug)
-
-    if not curso.tiene_fechas:
-        messages.info(
-            request,
-            "Este curso todavía no tiene fechas publicadas. Escribinos por WhatsApp y te avisamos.",
-        )
-        return redirect("web:curso", slug=slug)
-
-    if request.method == "POST":
-        formulario = PreinscripcionForm(curso, request.POST)
-        if formulario.is_valid():
-            datos = formulario.cleaned_data
-            with transaction.atomic():
-                empresa = None
-                if datos["empresa"]:
-                    empresa, _ = Empresa.objects.get_or_create(
-                        razon_social=datos["empresa"].strip()
-                    )
-                participante, creado = Participante.objects.get_or_create(
-                    dni=datos["dni"],
-                    defaults={
-                        "apellido": datos["apellido"],
-                        "nombre": datos["nombre"],
-                        "telefono": datos["telefono"],
-                        "email": datos["email"],
-                        "localidad": datos["localidad"],
-                        "empresa": empresa,
-                    },
-                )
-                if not creado:
-                    participante.telefono = datos["telefono"] or participante.telefono
-                    participante.email = datos["email"] or participante.email
-                    participante.localidad = datos["localidad"] or participante.localidad
-                    if empresa and not participante.empresa:
-                        participante.empresa = empresa
-                    participante.save()
-
-                Inscripcion.objects.get_or_create(
-                    comision=datos["comision"],
-                    participante=participante,
-                    defaults={
-                        "estado": Inscripcion.Estado.PREINSCRIPTO,
-                        "origen": "web",
-                    },
-                )
-            request.session["preinscripcion"] = {
-                "curso": curso.nombre,
-                "fecha": datos["comision"].fecha_texto,
-                "nombre": participante.nombre,
-            }
-            return redirect("web:preinscripcion_ok")
-    else:
-        formulario = PreinscripcionForm(curso)
-
-    return render(request, "web/preinscripcion.html", {
-        "curso": curso,
-        "form": formulario,
-    })
-
-
-def preinscripcion_ok(request):
-    datos = request.session.pop("preinscripcion", None)
-    if not datos:
-        return redirect("web:inicio")
-    return render(request, "web/preinscripcion_ok.html", {"datos": datos})

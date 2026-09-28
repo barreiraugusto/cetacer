@@ -1,6 +1,7 @@
 import re
 from datetime import date
 
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -66,10 +67,6 @@ class ConfiguracionSitio(models.Model):
         default="https://www.youtube.com/watch?v=0YY-WsyDzD8",
         help_text="Enlace de YouTube. Si se deja vacío, la sección va sin video.",
     )
-    url_boleta = models.URLField(
-        "URL de la boleta de pago", blank=True,
-        default="https://sicapro.com.ar/solicitudonline.aspx",
-    )
     pago_alias = models.CharField(
         "alias para transferencias", max_length=60, blank=True,
         default="FPT.LICENCIAPROF",
@@ -84,10 +81,6 @@ class ConfiguracionSitio(models.Model):
             "Enviá el comprobante por WhatsApp junto con la foto del DNI y de la "
             "licencia de conducir, frente y dorso."
         ),
-    )
-    inscripcion_online = models.BooleanField(
-        "habilitar preinscripción online", default=True,
-        help_text="Si está apagado, la web sólo ofrece el turno por WhatsApp.",
     )
 
     class Meta:
@@ -139,10 +132,49 @@ class ConfiguracionSitio(models.Model):
         return f"https://www.youtube-nocookie.com/embed/{video}"
 
     @property
+    def portada_visible(self):
+        """Las imágenes de portada que se muestran, en orden."""
+        return self.imagenes_portada.filter(activa=True)
+
+    @property
     def mapa_embed(self):
         from urllib.parse import quote
 
         return f"https://www.google.com/maps?q={quote(self.direccion)}&output=embed"
+
+
+class ImagenPortada(models.Model):
+    """Fotos que rotan de fondo en la portada del inicio.
+
+    Con una sola imagen la portada queda fija; con varias se van alternando.
+    Si no hay ninguna cargada, la web cae en la foto del camión que viene con
+    el proyecto, así la portada nunca queda vacía.
+    """
+
+    sitio = models.ForeignKey(
+        ConfiguracionSitio, on_delete=models.CASCADE,
+        related_name="imagenes_portada", verbose_name="sitio",
+    )
+    imagen = models.FileField(
+        "imagen",
+        upload_to="portada/",
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
+        help_text="Apaisada y de al menos 1600 px de ancho: se recorta a lo alto.",
+    )
+    descripcion = models.CharField(
+        "de qué es la foto", max_length=120, blank=True,
+        help_text="Para uso interno: ayuda a distinguirlas en esta lista.",
+    )
+    orden = models.PositiveIntegerField("orden", default=0)
+    activa = models.BooleanField("visible en la web", default=True)
+
+    class Meta:
+        verbose_name = "imagen de portada"
+        verbose_name_plural = "imágenes de portada"
+        ordering = ["orden", "id"]
+
+    def __str__(self):
+        return self.descripcion or self.imagen.name
 
 
 class Categoria(models.Model):
@@ -151,6 +183,16 @@ class Categoria(models.Model):
     nombre = models.CharField("nombre", max_length=120, unique=True)
     slug = models.SlugField("identificador en la URL", max_length=140, unique=True, blank=True)
     resumen = models.TextField("resumen", blank=True, help_text="Bajada que aparece bajo el título.")
+    icono = models.FileField(
+        "icono",
+        upload_to="iconos/",
+        blank=True,
+        validators=[FileExtensionValidator(["svg", "png", "webp"])],
+        help_text=(
+            "Se muestra junto al título de la categoría en la web. "
+            "Preferentemente SVG; también sirve PNG o WebP de 64×64."
+        ),
+    )
     orden = models.PositiveIntegerField("orden", default=0, help_text="Menor número, aparece antes.")
     activa = models.BooleanField("visible en la web", default=True)
 

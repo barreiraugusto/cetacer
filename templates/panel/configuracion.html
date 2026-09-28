@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block contenido %}
-<form class="tarjeta formulario formulario--ancho" method="post">
+<form class="tarjeta formulario formulario--ancho" method="post" enctype="multipart/form-data">
   {% csrf_token %}
 
   <div class="seccion-form">
@@ -66,11 +66,40 @@
   </div>
 
   <div class="seccion-form">
-    <div class="seccion-form__titulo">Enlaces y funcionamiento</div>
+    <div class="seccion-form__titulo">Enlaces</div>
     {% include "panel/_campo.html" with campo=form.instagram %}
     {% include "panel/_campo.html" with campo=form.video_cursos %}
-    {% include "panel/_campo.html" with campo=form.url_boleta %}
-    {% include "panel/_campo.html" with campo=form.inscripcion_online %}
+  </div>
+
+  <div class="seccion-form">
+    <div class="seccion-form__titulo">Fotos de la portada</div>
+    <p class="seccion-form__ayuda">
+      Con una sola foto la portada queda fija; con dos o más se van alternando solas.
+      Si no cargás ninguna, se usa la foto del camión que ya viene con el sitio.
+      Subí imágenes apaisadas de 1600 px de ancho o más: se recortan a lo alto.
+    </p>
+    {{ portada.management_form }}
+    {% for formulario_imagen in portada %}
+      <div class="seccion-form" style="border:1px solid var(--borde);padding:14px;margin-bottom:12px">
+        {{ formulario_imagen.id }}
+        {% if formulario_imagen.instance.pk and formulario_imagen.instance.imagen %}
+          <img src="{{ formulario_imagen.instance.imagen.url }}" alt=""
+               style="width:180px;height:100px;object-fit:cover;border-radius:4px;margin-bottom:10px">
+        {% endif %}
+        {% include "panel/_campo.html" with campo=formulario_imagen.imagen %}
+        {% include "panel/_campo.html" with campo=formulario_imagen.descripcion %}
+        <div class="grilla-campos">
+          {% include "panel/_campo.html" with campo=formulario_imagen.orden %}
+          {% include "panel/_campo.html" with campo=formulario_imagen.activa %}
+          {% if formulario_imagen.instance.pk %}
+            {% include "panel/_campo.html" with campo=formulario_imagen.DELETE %}
+          {% endif %}
+        </div>
+        {% for error in formulario_imagen.non_field_errors %}
+          <div class="error">{{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
   </div>
 
   <div class="acciones-form">

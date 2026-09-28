@@ -341,6 +341,21 @@ class PanelPaginasTests(TestCase):
 
 
 class CargarPaginasTests(TestCase):
+    """El comando corre siempre sobre un MEDIA_ROOT vacío, como una instalación nueva.
+
+    `media/` está en `.gitignore`, así que en un checkout limpio los PDF de
+    PAGINAS no existen y el comando saltea esos enlaces. Fijar acá el
+    MEDIA_ROOT hace que el conteo de enlaces sea el mismo para todos, tenga o
+    no subidos los archivos quien corre las pruebas.
+    """
+
+    def setUp(self):
+        vacio = tempfile.TemporaryDirectory()
+        self.addCleanup(vacio.cleanup)
+        ajustes = override_settings(MEDIA_ROOT=vacio.name)
+        ajustes.enable()
+        self.addCleanup(ajustes.disable)
+
     def test_el_comando_crea_las_dos_paginas(self):
         call_command("cargar_datos", verbosity=0)
         self.assertTrue(Pagina.objects.filter(slug="legislacion").exists())
@@ -361,9 +376,11 @@ class CargarPaginasTests(TestCase):
         self.assertEqual(
             legislacion.enlaces.filter(titulo="Ley 24449 — Tránsito y Seguridad Vial").count(), 1
         )
-        self.assertEqual(legislacion.enlaces.count(), 3)
+        # 3 enlaces menos el de archivo, que sin el PDF no se crea. Ídem 9 en
+        # Información útil.
+        self.assertEqual(legislacion.enlaces.count(), 2)
         informacion_util = Pagina.objects.get(slug="informacion-util")
-        self.assertEqual(informacion_util.enlaces.count(), 9)
+        self.assertEqual(informacion_util.enlaces.count(), 8)
 
     def test_no_duplica_ni_pisa_lo_que_editó_el_administrador(self):
         call_command("cargar_datos", verbosity=0)
@@ -377,7 +394,7 @@ class CargarPaginasTests(TestCase):
         call_command("cargar_datos", verbosity=0)
 
         legislacion.refresh_from_db()
-        self.assertEqual(legislacion.enlaces.count(), 3)
+        self.assertEqual(legislacion.enlaces.count(), 2)
         self.assertTrue(legislacion.enlaces.filter(titulo="Federación Argentina (FADEEAC)").exists())
         self.assertFalse(legislacion.publicada)
 

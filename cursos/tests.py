@@ -1,9 +1,12 @@
 """Pruebas del catálogo, las comisiones y el cupo."""
 from datetime import date, time, timedelta
 
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.urls import reverse
 
-from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
+from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso, ImagenPortada
 from inscripciones.models import Inscripcion, Participante
 
 
@@ -198,3 +201,81 @@ class FormasDePagoTests(TestCase):
 
     def test_el_curso_ya_no_tiene_link_externo(self):
         self.assertFalse(hasattr(self.curso, "link_externo"))
+
+
+class IconoCategoriaTests(TestCase):
+    """CETACER pidió poder ponerle un icono a cada categoría (los mandan aparte)."""
+
+    def setUp(self):
+        self.categoria = Categoria.objects.create(nombre="Cargas Generales")
+        Curso.objects.create(categoria=self.categoria, nombre="Básico", precio=1000)
+
+    def test_sin_icono_la_web_no_dibuja_la_imagen(self):
+        html = self.client.get(reverse("web:inicio")).content.decode()
+        self.assertNotIn("categoria__icono", html)
+
+    def test_con_icono_la_web_lo_muestra_junto_al_titulo(self):
+        self.categoria.icono = SimpleUploadedFile(
+            "cargas.svg", b"<svg xmlns='http://www.w3.org/2000/svg'></svg>",
+            content_type="image/svg+xml",
+        )
+        self.categoria.save()
+        self.addCleanup(self.categoria.icono.delete, save=False)
+
+        html = self.client.get(reverse("web:inicio")).content.decode()
+        self.assertIn("categoria__icono", html)
+        self.assertIn(self.categoria.icono.url, html)
+        # Decorativo: el nombre ya va en el h3, el icono no lo repite.
+        self.assertIn('alt=""', html)
+
+    def test_solo_acepta_formatos_de_icono(self):
+        categoria = Categoria(nombre="Otra")
+        categoria.icono = SimpleUploadedFile("icono.exe", b"MZ", content_type="application/x-msdownload")
+        with self.assertRaises(ValidationError):
+            categoria.full_clean()
+
+
+class PortadaTests(TestCase):
+    """La portada tiene que poder rotar entre varias fotos (punto 21 del pedido)."""
+
+    def setUp(self):
+        self.sitio = ConfiguracionSitio.vigente()
+
+    def _foto(self, nombre, orden=0, activa=True):
+        imagen = ImagenPortada.objects.create(
+            sitio=self.sitio, orden=orden, activa=activa,
+            imagen=SimpleUploadedFile(nombre, b"\xff\xd8\xff", content_type="image/jpeg"),
+        )
+        self.addCleanup(imagen.imagen.delete, save=False)
+        return imagen
+
+    def test_sin_fotos_cargadas_cae_en_la_del_camion(self):
+        html = self.client.get(reverse("web:inicio")).content.decode()
+        self.assertIn("portada-camion", html)
+        self.assertIn("portada__foto--activa", html)
+
+    def test_una_sola_foto_no_carga_el_script_de_rotacion(self):
+        self._foto("camara.jpg")
+        html = self.client.get(reverse("web:inicio")).content.decode()
+        self.assertNotIn("portada-camion", html)
+        self.assertNotIn("js/portada.js", html)
+
+    def test_dos_fotos_rotan_y_solo_una_arranca_visible(self):
+        self._foto("camion.jpg", orden=1)
+        self._foto("camara.jpg", orden=2)
+        html = self.client.get(reverse("web:inicio")).content.decode()
+        self.assertIn("js/portada.js", html)
+        self.assertEqual(html.count("portada__foto--activa"), 1)
+        self.assertEqual(html.count('class="portada__foto'), 2)
+
+    def test_las_fotos_apagadas_no_salen(self):
+        self._foto("visible.jpg", orden=1)
+        self._foto("oculta.jpg", orden=2, activa=False)
+        self.assertEqual(self.sitio.portada_visible.count(), 1)
+
+    def test_se_respeta_el_orden(self):
+        segunda = self._foto("b.jpg", orden=2)
+        primera = self._foto("a.jpg", orden=1)
+        self.assertEqual(
+            list(self.sitio.portada_visible), [primera, segunda]
+        )

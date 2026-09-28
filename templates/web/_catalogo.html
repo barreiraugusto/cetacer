@@ -17,6 +17,10 @@ enlaces recargan y caen en #filtros, no al principio de la sección.{% endcommen
   <div class="categoria" data-categoria="{{ bloque.categoria.slug }}"
        {% if filtro_actual and filtro_actual != bloque.categoria.slug %}hidden{% endif %}>
     <div class="categoria__titulo">
+      {% if bloque.categoria.icono %}
+        {# Decorativo: el nombre de la categoría va al lado, en el h3. #}
+        <img class="categoria__icono" src="{{ bloque.categoria.icono.url }}" alt="" width="34" height="34">
+      {% endif %}
       <h3>{{ bloque.categoria.nombre }}</h3>
       <span class="chip-conteo">{{ bloque.categoria.conteo_texto }}</span>
     </div>

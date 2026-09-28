@@ -9,7 +9,7 @@ from django.forms import inlineformset_factory
 
 from contenido.models import EnlacePagina, Pagina
 from cuentas.models import JERARQUIA, Rol, Usuario
-from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
+from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso, ImagenPortada
 from inscripciones.models import Empresa, Inscripcion, Participante
 
 
@@ -38,7 +38,7 @@ class BaseForm(forms.ModelForm):
 class CategoriaForm(BaseForm):
     class Meta:
         model = Categoria
-        fields = ["nombre", "resumen", "orden", "activa"]
+        fields = ["nombre", "resumen", "icono", "orden", "activa"]
 
 
 class CursoForm(BaseForm):
@@ -231,53 +231,6 @@ class UsuarioForm(BaseForm):
         return usuario
 
 
-class PreinscripcionForm(forms.Form):
-    """Formulario público. No expone estados internos ni montos."""
-
-    comision = forms.ModelChoiceField(
-        label="Fecha a la que querés asistir", queryset=Comision.objects.none(),
-        empty_label="Elegí una fecha",
-    )
-    dni = forms.CharField(label="DNI", max_length=12)
-    apellido = forms.CharField(label="Apellido", max_length=120)
-    nombre = forms.CharField(label="Nombre", max_length=120)
-    telefono = forms.CharField(label="Teléfono / WhatsApp", max_length=40)
-    email = forms.EmailField(label="Correo electrónico", required=False)
-    localidad = forms.CharField(label="Localidad", max_length=120, required=False)
-    empresa = forms.CharField(
-        label="Empresa donde trabajás", max_length=200, required=False,
-        help_text="Opcional. Si trabajás por tu cuenta, dejalo vacío.",
-    )
-
-    def __init__(self, curso, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.curso = curso
-        self.fields["comision"].queryset = curso.comisiones_publicadas()
-        for nombre, campo in self.fields.items():
-            campo.widget.attrs.setdefault("class", "campo-web")
-
-    def clean_dni(self):
-        dni = (self.cleaned_data["dni"] or "").replace(".", "").replace(" ", "").strip()
-        if not dni.isdigit() or not (6 <= len(dni) <= 12):
-            raise forms.ValidationError("Ingresá el DNI sin puntos ni espacios.")
-        return dni
-
-    def clean(self):
-        datos = super().clean()
-        comision, dni = datos.get("comision"), datos.get("dni")
-        if comision:
-            if comision.completa:
-                self.add_error(
-                    "comision",
-                    "Esa fecha ya está completa. Elegí otra o escribinos por WhatsApp.",
-                )
-            elif dni and comision.inscripciones.filter(participante__dni=dni).exists():
-                self.add_error(
-                    "dni", "Ya tenemos una solicitud tuya para esa fecha. Te vamos a contactar."
-                )
-        return datos
-
-
 class PaginaForm(BaseForm):
     class Meta:
         model = Pagina
@@ -304,4 +257,15 @@ class EnlacePaginaForm(BaseForm):
 #: Los enlaces se cargan en la misma pantalla que la página.
 EnlaceFormSet = inlineformset_factory(
     Pagina, EnlacePagina, form=EnlacePaginaForm, extra=3, can_delete=True
+)
+
+
+class ImagenPortadaForm(BaseForm):
+    class Meta:
+        model = ImagenPortada
+        fields = ["imagen", "descripcion", "orden", "activa"]
+
+
+ImagenPortadaFormSet = inlineformset_factory(
+    ConfiguracionSitio, ImagenPortada, form=ImagenPortadaForm, extra=2, can_delete=True
 )
