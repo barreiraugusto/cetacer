@@ -142,6 +142,8 @@ class EncabezadoYPieTests(TestCase):
 
     def test_menu_dice_institucional(self):
         respuesta = self.client.get("/")
+        self.assertContains(respuesta, ">Cursos de capacitación</a>")
+        self.assertNotContains(respuesta, "Calendario de cursos")
         self.assertContains(respuesta, ">Institucional</a>")
         self.assertContains(respuesta, "Institucional e información general")
         self.assertNotContains(respuesta, "Categorías C, D y E")
