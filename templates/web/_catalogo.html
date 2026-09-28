@@ -1,19 +1,21 @@
-{% load web_extras %}
+{% load static web_extras %}
 {% comment %}Grilla de categorías y cursos. La comparten el inicio y /cursos/.
-Sin filtro se ven todas; tocar el filtro activo lo apaga y vuelve a mostrarlas.{% endcomment %}
-<div class="filtros">
+Sin filtro se ven todas; tocar el filtro activo lo apaga y vuelve a mostrarlas.
+Se dibujan siempre todas las categorías y el filtro oculta las demás: así
+filtros.js puede cambiar de filtro sin recargar la página. Sin JavaScript, los
+enlaces recargan y caen en #filtros, no al principio de la sección.{% endcomment %}
+<div class="filtros" id="filtros">
   {% for categoria in filtros %}
-    {% if filtro_actual == categoria.slug %}
-      <a class="filtro filtro--activo" aria-current="true"
-         href="{{ url_base }}#cursos">{{ categoria.nombre }}</a>
-    {% else %}
-      <a class="filtro" href="{{ url_base }}?categoria={{ categoria.slug }}#cursos">{{ categoria.nombre }}</a>
-    {% endif %}
+    <a class="filtro{% if filtro_actual == categoria.slug %} filtro--activo{% endif %}"
+       data-categoria="{{ categoria.slug }}"
+       {% if filtro_actual == categoria.slug %}aria-current="true" href="{{ url_base }}#filtros"{% else %}href="{{ url_base }}?categoria={{ categoria.slug }}#filtros"{% endif %}>{{ categoria.nombre }}</a>
   {% endfor %}
 </div>
+<script src="{% static 'js/filtros.js' %}" defer></script>
 
 {% for bloque in catalogo %}
-  <div class="categoria">
+  <div class="categoria" data-categoria="{{ bloque.categoria.slug }}"
+       {% if filtro_actual and filtro_actual != bloque.categoria.slug %}hidden{% endif %}>
     <div class="categoria__titulo">
       <h3>{{ bloque.categoria.nombre }}</h3>
       <span class="chip-conteo">{{ bloque.categoria.conteo_texto }}</span>

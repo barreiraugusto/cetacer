@@ -218,6 +218,9 @@ img, iframe { max-width: 100%; }
 /* --- Filtros -------------------------------------------------------------- */
 
 .filtros { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 0; }
+/* Al recargar sin JavaScript, #filtros no queda pegado al borde de la ventana. */
+#filtros { scroll-margin-top: 20px; }
+.categoria[hidden] { display: none; }
 .filtro {
   font-size: 15px; font-weight: 600; cursor: pointer;
   padding: 10px 16px; border-radius: 999px; border: 1px solid var(--borde-fuerte);

@@ -61,14 +61,21 @@ class CatalogoTests(TestCase):
         self.assertNotContains(respuesta, "Todas las categorías")
 
     def test_el_filtro_deja_una_sola_categoria(self):
-        respuesta = self.client.get("/cursos/?categoria=mercancias-peligrosas")
-        self.assertNotContains(respuesta, "Curso primera vez")
-        self.assertContains(respuesta, "Curso MMPP")
+        # Todas se dibujan para poder cambiar de filtro sin recargar; las
+        # demás van ocultas.
+        html = self.client.get("/cursos/?categoria=mercancias-peligrosas").content.decode()
+        self.assertRegex(html, r'data-categoria="cargas-generales"\s+hidden')
+        self.assertNotRegex(html, r'data-categoria="mercancias-peligrosas"\s+hidden')
+
+    def test_los_filtros_no_vuelven_al_principio_de_la_seccion(self):
+        respuesta = self.client.get("/")
+        self.assertContains(respuesta, 'id="filtros"')
+        self.assertContains(respuesta, "?categoria=cargas-generales#filtros")
+        self.assertContains(respuesta, "js/filtros.js")
 
     def test_un_filtro_desconocido_muestra_todo(self):
-        respuesta = self.client.get("/cursos/?categoria=todas")
-        self.assertContains(respuesta, "Curso primera vez")
-        self.assertContains(respuesta, "Curso MMPP")
+        html = self.client.get("/cursos/?categoria=todas").content.decode()
+        self.assertNotRegex(html, r'class="categoria"[^>]*hidden')
 
     def test_las_categorias_sin_cursos_no_tienen_filtro(self):
         self.assertNotContains(self.client.get("/cursos/"), "?categoria=vacia")
