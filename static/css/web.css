@@ -242,7 +242,9 @@ img, iframe { max-width: 100%; }
 .categoria__titulo { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 /* El icono lo sube CETACER por categoría; se alinea con el texto del título. */
 .categoria__icono {
-  width: 34px; height: 34px; object-fit: contain;
+  /* Los que mandó CETACER son vehículos de perfil, más anchos que altos:
+     manda el alto y el ancho sale solo, con un tope para los muy apaisados. */
+  height: 36px; width: auto; max-width: 96px; object-fit: contain;
   align-self: center; flex-shrink: 0;
 }
 .categoria__titulo h3 {
