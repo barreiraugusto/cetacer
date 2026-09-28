@@ -49,7 +49,7 @@
     <div class="seccion-form__titulo">4. Publicación</div>
     <p class="seccion-form__ayuda">
       <strong>Borrador</strong>: sólo se ve acá adentro.
-      <strong>Publicada</strong>: aparece en la web y se puede reservar.
+      <strong>Publicada</strong>: aparece en la web.
       <strong>Finalizada</strong>: ya se dictó.
     </p>
     {% include "panel/_campo.html" with campo=form.estado %}
@@ -66,4 +66,18 @@
     {% endif %}
   </div>
 </form>
+
+{% if comision %}
+  <form class="tarjeta formulario" method="post" action="{% url 'panel:comision_eliminar' comision.pk %}"
+        style="margin-top:18px;border-color:#fda29b"
+        onsubmit="return confirm('¿Eliminar la comisión del {{ comision.fecha_texto|escapejs }}? Esta acción no se puede deshacer.')">
+    {% csrf_token %}
+    <div class="tarjeta__titulo" style="color:var(--rojo)">Eliminar comisión</div>
+    <p class="tarjeta__ayuda">
+      Sólo se puede eliminar una comisión que no tenga ninguna inscripción.
+      Si ya tiene gente anotada, pasala a «Cancelada» arriba en lugar de borrarla.
+    </p>
+    <button class="boton boton--peligro" type="submit">Eliminar esta comisión</button>
+  </form>
+{% endif %}
 {% endblock %}

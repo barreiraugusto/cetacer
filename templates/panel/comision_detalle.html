@@ -14,7 +14,9 @@
     ↓ Planilla de firmas
   </a>
   <a class="boton boton--secundario" href="{% url 'panel:asistencia' comision.pk %}">Tomar asistencia</a>
-  <a class="boton boton--secundario" href="{% url 'panel:comision_editar' comision.pk %}">Editar</a>
+  {% if puede_gestionar %}
+    <a class="boton boton--secundario" href="{% url 'panel:comision_editar' comision.pk %}">Editar o eliminar</a>
+  {% endif %}
 {% endblock %}
 
 {% block contenido %}

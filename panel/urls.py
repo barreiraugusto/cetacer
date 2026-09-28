@@ -39,6 +39,7 @@ urlpatterns = [
     path("comisiones/<int:pk>/", views.comision_detalle, name="comision_detalle"),
     path("comisiones/<int:pk>/editar/", views.comision_editar, name="comision_editar"),
     path("comisiones/<int:pk>/estado/", views.comision_cambiar_estado, name="comision_estado"),
+    path("comisiones/<int:pk>/eliminar/", views.comision_eliminar, name="comision_eliminar"),
     path("comisiones/<int:pk>/inscribir/", views.inscribir, name="inscribir"),
     path("comisiones/<int:pk>/asistencia/", views.tomar_asistencia, name="asistencia"),
     path("comisiones/<int:pk>/exportar/", views.exportar_comision, name="exportar_comision"),

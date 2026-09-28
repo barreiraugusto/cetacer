@@ -326,3 +326,48 @@ class AsistenciaTests(BaseDatos):
         self.assertEqual(inscripciones[0].estado, Inscripcion.Estado.ASISTIO)
         self.assertEqual(inscripciones[1].estado, Inscripcion.Estado.AUSENTE)
         self.assertEqual(self.comision.estado, Comision.Estado.FINALIZADA)
+
+
+class EliminarComisionTests(BaseDatos):
+    def _url(self, comision):
+        return reverse("panel:comision_eliminar", args=[comision.pk])
+
+    def test_se_elimina_una_comision_sin_inscripciones(self):
+        self.entrar(Rol.COORDINACION)
+        respuesta = self.client.post(self._url(self.comision))
+        self.assertRedirects(respuesta, reverse("panel:comisiones"))
+        self.assertFalse(Comision.objects.filter(pk=self.comision.pk).exists())
+
+    def test_con_inscripciones_no_se_elimina(self):
+        # Ni siquiera con canceladas: se borrarían en cascada con la comisión.
+        participante = Participante.objects.create(dni="31000001", apellido="A", nombre="B")
+        Inscripcion.objects.create(
+            comision=self.comision, participante=participante,
+            estado=Inscripcion.Estado.CANCELADA,
+        )
+        self.entrar(Rol.DIRECCION)
+        self.client.post(self._url(self.comision))
+        self.assertTrue(Comision.objects.filter(pk=self.comision.pk).exists())
+        self.assertTrue(Inscripcion.objects.filter(participante=participante).exists())
+
+    def test_por_get_no_se_elimina(self):
+        self.entrar(Rol.COORDINACION)
+        self.client.get(self._url(self.comision))
+        self.assertTrue(Comision.objects.filter(pk=self.comision.pk).exists())
+
+    def test_recepcion_no_puede_eliminar(self):
+        self.entrar(Rol.RECEPCION)
+        self.client.post(self._url(self.comision))
+        self.assertTrue(Comision.objects.filter(pk=self.comision.pk).exists())
+
+    def test_la_lista_ofrece_editar_sólo_a_quien_puede(self):
+        editar = reverse("panel:comision_editar", args=[self.comision.pk])
+        self.entrar(Rol.COORDINACION)
+        self.assertContains(self.client.get(reverse("panel:comisiones")), f'href="{editar}"')
+        self.entrar(Rol.RECEPCION)
+        self.assertNotContains(self.client.get(reverse("panel:comisiones")), f'href="{editar}"')
+
+    def test_el_formulario_de_edicion_ofrece_eliminar(self):
+        self.entrar(Rol.COORDINACION)
+        respuesta = self.client.get(reverse("panel:comision_editar", args=[self.comision.pk]))
+        self.assertContains(respuesta, self._url(self.comision))

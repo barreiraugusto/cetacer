@@ -39,7 +39,7 @@
     <thead>
       <tr>
         <th>Curso</th><th>Fecha y horario</th><th>Instructor</th>
-        <th>Ocupación</th><th>Estado</th><th>Lista</th>
+        <th>Ocupación</th><th>Estado</th><th>Lista</th>{% if puede_gestionar %}<th></th>{% endif %}
       </tr>
     </thead>
     <tbody>
@@ -72,9 +72,12 @@
                  href="{% url 'panel:exportar_comision' comision.pk %}?formato=csv">CSV</a>
             </div>
           </td>
+          {% if puede_gestionar %}
+            <td><a href="{% url 'panel:comision_editar' comision.pk %}">Editar</a></td>
+          {% endif %}
         </tr>
       {% empty %}
-        <tr><td colspan="6">
+        <tr><td colspan="{% if puede_gestionar %}7{% else %}6{% endif %}">
           <div class="tabla-vacia">
             <strong>No hay comisiones con esos filtros.</strong>
             Probá cambiando la pestaña o creá una comisión nueva.

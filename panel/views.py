@@ -322,6 +322,11 @@ def pagina_eliminar(request, pk):
 
 # --- Comisiones ------------------------------------------------------------
 
+def _puede_gestionar_comisiones(usuario):
+    """Lo mismo que exige GESTION_COMISIONES, para decidir qué botones mostrar."""
+    return usuario.is_superuser or usuario.alcanza(Rol.COORDINACION)
+
+
 @requiere_panel
 def comisiones_lista(request):
     consulta = comisiones_visibles(
@@ -350,6 +355,7 @@ def comisiones_lista(request):
         "estado_sel": estado,
         "cuando": cuando,
         "q": busqueda,
+        "puede_gestionar": _puede_gestionar_comisiones(request.user),
     })
 
 
@@ -380,6 +386,7 @@ def comision_detalle(request, pk):
         "resumen": resumen,
         "form_inscribir": InscribirForm(),
         "puede_inscribir": request.user.is_superuser or request.user.alcanza(Rol.RECEPCION),
+        "puede_gestionar": _puede_gestionar_comisiones(request.user),
         "estados_comision": Comision.Estado.choices,
     })
 
@@ -407,6 +414,26 @@ def comision_editar(request, pk=None):
         "form": formulario,
         "comision": comision,
     })
+
+
+@GESTION_COMISIONES
+def comision_eliminar(request, pk):
+    comision = get_object_or_404(Comision, pk=pk)
+    if request.method != "POST":
+        return redirect("panel:comision_editar", pk=pk)
+    # Las inscripciones se borran en cascada con la comisión: con gente
+    # anotada se cancela, así queda el historial de quién estuvo.
+    if comision.inscripciones.exists():
+        messages.error(
+            request,
+            "Esa comisión tiene inscripciones. Pasala a «Cancelada» en lugar de "
+            "borrarla para no perder el historial de participantes.",
+        )
+        return redirect("panel:comision_editar", pk=pk)
+    descripcion = str(comision)
+    comision.delete()
+    messages.success(request, f"Comisión «{descripcion}» eliminada.")
+    return redirect("panel:comisiones")
 
 
 @GESTION_COMISIONES
