@@ -3,12 +3,20 @@
 
 {% block contenido %}
 <section class="portada">
-  {# Decorativa: todo lo que dice ya está en el texto de al lado, por eso alt vacío. #}
-  <picture class="portada__fondo">
-    <source srcset="{% static 'img/portada-camion.webp' %}" type="image/webp">
-    <img src="{% static 'img/portada-camion.jpg' %}" width="1600" height="900" alt=""
-         fetchpriority="high">
-  </picture>
+  {# Decorativas: todo lo que dicen ya está en el texto de al lado, por eso alt vacío.
+     Con más de una foto rotan solas; sin ninguna cargada se usa la del camión. #}
+  <div class="portada__fondo" data-rotar="{{ sitio.portada_visible.count }}">
+    {% for foto in sitio.portada_visible %}
+      <img src="{{ foto.imagen.url }}" alt="" class="portada__foto{% if forloop.first %} portada__foto--activa{% endif %}"
+           {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+    {% empty %}
+      <picture>
+        <source srcset="{% static 'img/portada-camion.webp' %}" type="image/webp">
+        <img src="{% static 'img/portada-camion.jpg' %}" width="1600" height="900" alt=""
+             class="portada__foto portada__foto--activa" fetchpriority="high">
+      </picture>
+    {% endfor %}
+  </div>
   <div class="contenedor portada__contenido">
     <div class="volanta">{{ sitio.nombre }} / CAPACITACIÓN</div>
     <h1>{{ sitio.titulo_hero }}<br><span class="destacado">{{ sitio.titulo_hero_destacado }}</span></h1>
@@ -20,6 +28,9 @@
     </div>
   </div>
 </section>
+{% if sitio.portada_visible.count > 1 %}
+  <script src="{% static 'js/portada.js' %}" defer></script>
+{% endif %}
 
 <section id="cursos" class="seccion-gris">
   <div class="contenedor seccion-interior">

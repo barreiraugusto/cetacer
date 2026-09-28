@@ -138,11 +138,20 @@ img, iframe { max-width: 100%; }
   overflow: hidden;
 }
 .portada__fondo { position: absolute; inset: 0; }
-.portada__fondo img {
+.portada__fondo picture { display: contents; }
+/* Las fotos se apilan y se cruzan por opacidad: la activa es la que se ve.
+   Sin JavaScript sólo hay una con la clase, así que la portada queda fija. */
+.portada__foto {
+  position: absolute; inset: 0;
   display: block; width: 100%; height: 100%;
   /* El recorte es vertical: 40% deja entrar el techo del camión sin perder
      la ruta de abajo, que es lo que le da sentido al título. */
   object-fit: cover; object-position: center 40%;
+  opacity: 0; transition: opacity 1.1s ease-in-out;
+}
+.portada__foto--activa { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .portada__foto { transition: none; }
 }
 .portada::after {
   content: ""; position: absolute; inset: 0;
@@ -236,6 +245,11 @@ img, iframe { max-width: 100%; }
 
 .categoria { padding: clamp(28px, 4vw, 44px) 0 0; }
 .categoria__titulo { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+/* El icono lo sube CETACER por categoría; se alinea con el texto del título. */
+.categoria__icono {
+  width: 34px; height: 34px; object-fit: contain;
+  align-self: center; flex-shrink: 0;
+}
 .categoria__titulo h3 {
   font-size: clamp(21px, 2.6vw, 25px); font-weight: 700; color: var(--azul-profundo); margin: 0;
 }

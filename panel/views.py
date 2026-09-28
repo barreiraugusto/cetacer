@@ -29,6 +29,7 @@ from .forms import (
     CursoForm,
     EmpresaForm,
     EnlaceFormSet,
+    ImagenPortadaFormSet,
     InscribirForm,
     InscripcionForm,
     PaginaForm,
@@ -260,7 +261,7 @@ def categorias_lista(request):
 def categoria_editar(request, pk=None):
     categoria = get_object_or_404(Categoria, pk=pk) if pk else None
     if request.method == "POST":
-        formulario = CategoriaForm(request.POST, instance=categoria)
+        formulario = CategoriaForm(request.POST, request.FILES, instance=categoria)
         if formulario.is_valid():
             formulario.save()
             messages.success(request, "Categoría guardada.")
@@ -916,16 +917,22 @@ def usuario_editar(request, pk=None):
 def configuracion(request):
     sitio = ConfiguracionSitio.vigente()
     if request.method == "POST":
-        formulario = ConfiguracionForm(request.POST, instance=sitio)
-        if formulario.is_valid():
-            formulario.save()
+        formulario = ConfiguracionForm(request.POST, request.FILES, instance=sitio)
+        portada = ImagenPortadaFormSet(request.POST, request.FILES, instance=sitio)
+        if formulario.is_valid() and portada.is_valid():
+            with transaction.atomic():
+                formulario.save()
+                portada.save()
             messages.success(request, "Configuración del sitio actualizada.")
             return redirect("panel:configuracion")
+        messages.error(request, "Revisá los campos marcados en rojo.")
     else:
         formulario = ConfiguracionForm(instance=sitio)
+        portada = ImagenPortadaFormSet(instance=sitio)
     return render(request, "panel/configuracion.html", {
         "seccion": "configuracion",
         "form": formulario,
+        "portada": portada,
     })
 
 

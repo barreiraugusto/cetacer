@@ -269,46 +269,37 @@ class WebPublicaTests(BaseDatos):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, self.comision.fecha_texto)
 
-    def test_la_preinscripcion_crea_persona_e_inscripcion(self):
-        respuesta = self.client.post(
-            reverse("web:preinscripcion", kwargs={"slug": self.curso.slug}),
-            {
-                "comision": self.comision.pk, "dni": "33000001", "apellido": "Ledesma",
-                "nombre": "Carlos", "telefono": "343 4111111", "email": "c@ejemplo.com",
-                "localidad": "Paraná", "empresa": "Fletes del Sur",
-            },
-        )
-        self.assertEqual(respuesta.status_code, 302)
-        participante = Participante.objects.get(dni="33000001")
-        inscripcion = Inscripcion.objects.get(participante=participante)
-        self.assertEqual(inscripcion.estado, Inscripcion.Estado.PREINSCRIPTO)
-        self.assertEqual(inscripcion.origen, "web")
-        self.assertEqual(participante.empresa.razon_social, "Fletes del Sur")
+    def test_la_web_no_ofrece_reservar_lugar(self):
+        """CETACER pidió sacar la reserva online: los turnos van por WhatsApp."""
+        for url in (
+            reverse("web:inicio"),
+            reverse("web:catalogo"),
+            reverse("web:curso", kwargs={"slug": self.curso.slug}),
+        ):
+            html = self.client.get(url).content.decode()
+            self.assertNotIn("Reservar", html, f"quedó un botón de reserva en {url}")
+            self.assertNotIn("/inscripcion/", html, f"quedó un enlace de reserva en {url}")
 
-    def test_no_se_puede_reservar_en_una_comision_completa(self):
-        for indice in range(2):
-            participante = Participante.objects.create(
-                dni=f"3400000{indice}", apellido="X", nombre="Y"
-            )
-            Inscripcion.objects.create(comision=self.comision, participante=participante)
-        self.client.post(
-            reverse("web:preinscripcion", kwargs={"slug": self.curso.slug}),
-            {
-                "comision": self.comision.pk, "dni": "33000009", "apellido": "Tarde",
-                "nombre": "Llego", "telefono": "343 4111111", "email": "",
-                "localidad": "", "empresa": "",
-            },
-        )
-        self.assertFalse(Participante.objects.filter(dni="33000009").exists())
+    def test_no_queda_ninguna_ruta_publica_de_reserva(self):
+        """Sacar el botón no alcanza: la dirección tampoco tiene que existir."""
+        from django.urls import NoReverseMatch
 
-    def test_la_preinscripcion_se_puede_apagar_desde_la_configuracion(self):
-        sitio = ConfiguracionSitio.vigente()
-        sitio.inscripcion_online = False
-        sitio.save()
-        respuesta = self.client.get(
-            reverse("web:preinscripcion", kwargs={"slug": self.curso.slug})
+        for nombre in ("web:preinscripcion", "web:preinscripcion_ok"):
+            with self.assertRaises(NoReverseMatch):
+                reverse(nombre, kwargs={"slug": self.curso.slug})
+
+        self.assertEqual(
+            self.client.get(f"/cursos/{self.curso.slug}/inscripcion/").status_code, 404
         )
-        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(self.client.post(f"/cursos/{self.curso.slug}/inscripcion/").status_code, 404)
+
+    def test_la_ficha_no_enlaza_la_boleta_de_pago(self):
+        """La boleta se reemplazó por el texto de ANSV al pie de los cursos."""
+        html = self.client.get(
+            reverse("web:curso", kwargs={"slug": self.curso.slug})
+        ).content.decode()
+        self.assertNotIn("sicapro", html.lower())
+        self.assertNotIn("Boleta de pago", html)
 
 
 class AsistenciaTests(BaseDatos):

@@ -3,7 +3,7 @@
 {% block encabezado %}{% if categoria %}Editar categoría{% else %}Nueva categoría{% endif %}{% endblock %}
 
 {% block contenido %}
-<form class="tarjeta formulario" method="post">
+<form class="tarjeta formulario" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <p class="tarjeta__ayuda">
     El resumen es la bajada que aparece debajo del título de la categoría en la web.
