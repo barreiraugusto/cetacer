@@ -152,7 +152,12 @@ if not DEBUG:
     # formulario. Mientras esté apagado, la sesión viaja sin cifrar.
     HTTPS = env_bool("DJANGO_HTTPS", True)
     SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30 if HTTPS else 0
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = HTTPS
+    # Sin subdominios: mail.cetacer.com y mipanel.cetacer.com son del proveedor
+    # de correo y sólo atienden por HTTP; HSTS los dejaría inaccesibles.
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    # nginx termina el TLS y le habla a gunicorn por HTTP; sin esto Django no
+    # sabría que la petición llegó cifrada y redirigiría a HTTPS en un bucle.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", HTTPS)
     SESSION_COOKIE_SECURE = HTTPS
     CSRF_COOKIE_SECURE = HTTPS

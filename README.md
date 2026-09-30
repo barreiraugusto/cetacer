@@ -160,6 +160,11 @@ bash /srv/cetacer/app/deploy/actualizar.sh
 Los estáticos los sirve whitenoise desde la propia aplicación; nginx sólo se
 encarga de `/media/`, que whitenoise no cubre.
 
+El certificado es de Let's Encrypt y lo gestiona certbot, que agregó el bloque
+443 a la copia instalada de la configuración de nginx y renueva solo con
+`certbot.timer`. Si se reinstala `nginx-cetacer.conf` desde el repositorio hay
+que volver a correr `certbot --nginx -d cetacer.com -d www.cetacer.com`.
+
 ### Copias de seguridad
 
 `cetacer-backup.timer` corre `backup.sh` todos los días a las 3:30. Deja en
