@@ -1,0 +1,10 @@
+# Dispara los chequeos de salud cada 10 minutos.
+[Unit]
+Description=CETACER — disparador del monitoreo del servidor
+
+[Timer]
+OnCalendar=*:0/10
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

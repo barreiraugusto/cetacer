@@ -1,0 +1,22 @@
+# Chequeos de salud con aviso por Telegram. Copiar a /etc/systemd/system/ junto
+# con el .timer y luego: systemctl daemon-reload && systemctl enable --now cetacer-monitor.timer
+[Unit]
+Description=CETACER — monitoreo del servidor con alertas por Telegram
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/srv/cetacer/app/deploy/monitor.sh
+
+# No necesita ser root: el .env es del usuario cetacer y el resto de los
+# chequeos (df, curl, pg_isready, systemctl is-failed) no piden privilegios.
+User=cetacer
+Group=cetacer
+# /var/lib/cetacer-monitor, donde guarda los problemas ya avisados.
+StateDirectory=cetacer-monitor
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true

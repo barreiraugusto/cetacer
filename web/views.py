@@ -1,4 +1,6 @@
 """Vistas de la web pública de CETACER."""
+from django.db import DatabaseError, connection
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
 from contenido.models import Pagina
@@ -70,3 +72,13 @@ def curso_detalle(request, slug):
             categoria=curso.categoria, activo=True
         ).exclude(pk=curso.pk)[:3],
     })
+
+
+def salud(request):
+    """Para el monitoreo: 200 si la aplicación llega a la base, 503 si no."""
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+    except DatabaseError:
+        return JsonResponse({"estado": "error", "base": "error"}, status=503)
+    return JsonResponse({"estado": "ok", "base": "ok"})

@@ -142,6 +142,8 @@ cuanto el dominio tenga certificado hay que volver a ponerlo en `True`.
 | `actualizar.sh` | Despliega una versión nueva: pull, dependencias, migraciones, estáticos y reinicio. |
 | `backup.sh` | Copia la base y `media/`, verifica que se puedan leer y rota las viejas. |
 | `cetacer-backup.service` y `.timer` | Disparan esa copia todos los días a las 3:30. |
+| `monitor.sh` | Chequea disco, aplicación, base, certificado y copias, y avisa por Telegram. |
+| `cetacer-monitor.service` y `.timer` | Disparan esos chequeos cada 10 minutos. |
 
 La instalación queda así:
 
@@ -202,6 +204,58 @@ Y los archivos subidos:
 tar xzf /var/backups/cetacer/diarias/media-FECHA.tar.gz -C /srv/cetacer/app
 chown -R cetacer:cetacer /srv/cetacer/app/media
 ```
+
+### Monitoreo y alertas
+
+`cetacer-monitor.timer` corre `monitor.sh` cada 10 minutos y avisa por Telegram si:
+
+| Clave | Qué chequea | Umbral por defecto |
+| --- | --- | --- |
+| `disco` | Uso del disco raíz. | 85 % |
+| `app` | `GET /salud/` directo a gunicorn por su socket; la vista consulta la base. | distinto de 200 |
+| `postgres` | `pg_isready` contra `DATABASE_URL`. | — |
+| `sitio` | `GET https://cetacer.com/salud/` pasando por nginx, con el certificado verificado. | distinto de 200 |
+| `certificado` | Días que le quedan al certificado (certbot renueva a los 30). | menos de 14 |
+| `backup` | `cetacer-backup.service` terminó con error. | — |
+
+Avisa cuando un problema aparece o se resuelve, no en cada corrida; si sigue
+abierto, lo recuerda cada 2 horas. Para cambiar un umbral, agregar al servicio
+una línea `Environment=UMBRAL_DISCO_PCT=90` (también `UMBRAL_CERT_DIAS` y
+`RECORDATORIO_MIN`).
+
+Puesta en marcha, una sola vez:
+
+1. En Telegram, hablarle a **@BotFather** → `/newbot` y guardar el token. Después
+   mandarle cualquier mensaje al bot desde la cuenta que va a recibir las
+   alertas (o agregarlo a un grupo y escribir ahí): sin eso no puede escribirte.
+2. Obtener el `chat_id` (negativo si es un grupo):
+
+   ```bash
+   curl -s "https://api.telegram.org/bot<TOKEN>/getUpdates" | grep -o '"chat":{"id":-\?[0-9]*'
+   ```
+
+3. Agregar `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` a `/srv/cetacer/.env`.
+4. Probar e instalar, como root:
+
+   ```bash
+   bash /srv/cetacer/app/deploy/monitor.sh --prueba    # tiene que llegar un mensaje 🧪
+   cp /srv/cetacer/app/deploy/cetacer-monitor.{service,timer} /etc/systemd/system/
+   systemctl daemon-reload && systemctl enable --now cetacer-monitor.timer
+   ```
+
+```bash
+systemctl list-timers cetacer-monitor   # cuándo corre la próxima
+systemctl start cetacer-monitor         # correr los chequeos ahora
+journalctl -u cetacer-monitor -n 30     # qué encontró en las últimas corridas
+```
+
+La corrida normal conviene lanzarla con `systemctl start` y no a mano como
+root, para que el archivo de estado (`/var/lib/cetacer-monitor/estado`) quede a
+nombre del usuario `cetacer`.
+
+Si el VPS entero se apaga o pierde red, el script no corre y no avisa. Para eso
+hace falta un monitor externo (UptimeRobot, Better Stack) apuntando a
+`https://cetacer.com/salud/`, que devuelve 503 con la base caída.
 
 ## Diseño
 

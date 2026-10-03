@@ -1,8 +1,10 @@
 """Pruebas de la web pública: catálogo, ficha del curso y filtros de plantilla."""
 from datetime import date, timedelta
 from importlib import import_module
+from unittest import mock
 
 from django.apps import apps
+from django.db import OperationalError
 from django.test import SimpleTestCase, TestCase
 
 from contenido.models import EnlacePagina, Pagina
@@ -196,3 +198,21 @@ class MigracionesDeDatosTests(TestCase):
         fadeeac.refresh_from_db()
         self.assertEqual(fadeeac.url, migracion.FADEEAC_LEGISLACION)
         self.assertEqual(informacion.enlaces.filter(url=migracion.OTRAS_CAMARAS).count(), 1)
+
+
+class SaludTests(TestCase):
+    def test_ok_con_la_base_disponible(self):
+        respuesta = self.client.get("/salud/")
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(respuesta.json(), {"estado": "ok", "base": "ok"})
+
+    def test_503_si_la_base_no_responde(self):
+        # Sin tocar la base, /salud/ daría 200 con PostgreSQL caído y ni el
+        # monitor del servidor ni uno externo tendrían cómo enterarse.
+        with mock.patch(
+            "web.views.connection.cursor",
+            side_effect=OperationalError("connection refused"),
+        ):
+            respuesta = self.client.get("/salud/")
+        self.assertEqual(respuesta.status_code, 503)
+        self.assertEqual(respuesta.json(), {"estado": "error", "base": "error"})
