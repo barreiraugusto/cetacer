@@ -1,5 +1,6 @@
 """Pruebas del panel: manual de uso y administración de usuarios."""
 import re
+from datetime import date
 
 from django.contrib.messages import get_messages
 from django.contrib.staticfiles import finders
@@ -8,6 +9,7 @@ from django.urls import reverse
 
 from cuentas.models import JERARQUIA, Rol, Usuario
 from cuentas.permisos import sincronizar_grupos
+from cursos.models import Categoria, Comision, Curso
 
 CAPITULOS = [
     "ingresar", "agenda", "cursos", "comisiones", "inscribir", "asistencia",
@@ -153,3 +155,22 @@ class SuperusuarioOcultoTests(TestCase):
         respuesta = self.client.post(reverse("panel:usuario_eliminar", args=[self.tecnico.pk]))
         self.assertEqual(respuesta.status_code, 404)
         self.assertTrue(Usuario.objects.filter(pk=self.tecnico.pk).exists())
+
+
+class EditarFechaTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        sincronizar_grupos()
+        cls.direccion = Usuario.objects.create_user(username="marta", password="clave-larga-123")
+        cls.direccion.asignar_rol(Rol.DIRECCION)
+        categoria = Categoria.objects.create(nombre="Cargas Generales")
+        cls.curso = Curso.objects.create(categoria=categoria, nombre="Inicial", precio=1)
+        cls.fecha = Comision.objects.create(
+            curso=cls.curso, fecha_inicio=date(2030, 3, 5), fecha_fin=date(2030, 3, 7)
+        )
+
+    def test_el_formulario_trae_las_fechas_cargadas(self):
+        self.client.force_login(self.direccion)
+        respuesta = self.client.get(reverse("panel:comision_editar", args=[self.fecha.pk]))
+        self.assertContains(respuesta, 'value="2030-03-05"')
+        self.assertContains(respuesta, 'value="2030-03-07"')

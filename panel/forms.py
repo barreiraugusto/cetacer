@@ -71,8 +71,9 @@ class ComisionForm(BaseForm):
             "cupo", "cerrada", "lugar", "instructor", "estado", "observaciones",
         ]
         widgets = {
-            "fecha_inicio": forms.DateInput(attrs={"type": "date"}),
-            "fecha_fin": forms.DateInput(attrs={"type": "date"}),
+            # El selector de fecha del navegador sólo entiende año-mes-día.
+            "fecha_inicio": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+            "fecha_fin": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "hora_inicio": forms.TimeInput(attrs={"type": "time"}),
             "hora_fin": forms.TimeInput(attrs={"type": "time"}),
         }
