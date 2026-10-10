@@ -1,0 +1,35 @@
+<section class="tarjeta manual__capitulo" id="informes">
+  <div class="manual__cabecera">
+    <h2 class="manual__titulo">10. Informes</h2>
+    <span class="distintivo distintivo--azul">Todos los roles</span>
+  </div>
+  <p>
+    Informes resume qué se dictó, cuánta gente pasó y qué se cobró en un período. Al entrar muestra
+    los últimos 90 días.
+  </p>
+  {% include "panel/ayuda/_captura.html" with archivo="informes" ancho=1800 alto=1470 pie="Los informes de un período." %}
+  <ol class="pasos">
+    <li>Elegí las fechas <strong>Desde</strong> y <strong>Hasta</strong>. El período se mide por la fecha de inicio de cada comisión.</li>
+    <li>Tocá <strong>Ver período</strong>.</li>
+  </ol>
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <tbody>
+        <tr><td class="principal-celda">Comisiones</td><td>Cantidad de comisiones con inicio dentro del período, en cualquier estado.</td></tr>
+        <tr><td class="principal-celda">Participantes</td><td>Inscripciones del período, sin contar las canceladas. Debajo, cuántas tienen la asistencia registrada.</td></tr>
+        <tr><td class="principal-celda">Cobrado</td><td>Suma de los montos cargados en las inscripciones con pago «Pagado».</td></tr>
+        <tr><td class="principal-celda">Pagos pendientes</td><td>Inscripciones del período con el pago en «Pendiente».</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="manual__lista">
+    <li><strong>Participantes por curso</strong>: cuántas veces se dictó cada curso, cuánta gente tuvo y cuánto se cobró, ordenado de mayor a menor demanda.</li>
+    <li><strong>Empresas que más mandan gente</strong>: las doce empresas con más inscripciones en el período, con la etiqueta «Socia» cuando corresponde.</li>
+    <li><strong>↓ Exportar el detalle</strong> descarga en Excel todas las inscripciones del período.</li>
+    <li><strong>Imprimir</strong> abre la impresión del navegador. El menú y los botones no salen en el papel.</li>
+  </ul>
+  <p class="nota">
+    La cifra «Cobrado» depende de que se cargue el monto en cada inscripción pagada
+    (ver <a href="#inscribir">Inscribir a alguien</a>).
+  </p>
+</section>

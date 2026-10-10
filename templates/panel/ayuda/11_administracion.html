@@ -1,0 +1,54 @@
+<section class="tarjeta manual__capitulo" id="administracion">
+  <div class="manual__cabecera">
+    <h2 class="manual__titulo">11. Usuarios, roles y configuración</h2>
+    <span class="distintivo distintivo--azul">Sólo Dirección</span>
+  </div>
+
+  <h3>Usuarios y permisos</h3>
+  <p>
+    Cada persona que entra al panel tiene un usuario y un único rol. El rol decide qué puede hacer.
+    La pantalla agrupa a los usuarios por rol, de mayor a menor alcance.
+  </p>
+  {% include "panel/ayuda/_captura.html" with archivo="usuarios" ancho=1800 alto=1350 pie="Los usuarios del panel, agrupados por rol." %}
+
+  <h3>Crear un usuario</h3>
+  <ol class="pasos">
+    <li>En <a href="{% url 'panel:usuarios' %}">Usuarios y permisos</a>, tocá <strong>+ Nuevo usuario</strong>.</li>
+    <li><strong>Quién es</strong>: nombre, apellido y, si querés, correo, teléfono, DNI y cargo.</li>
+    <li><strong>Cómo entra</strong>: el nombre de usuario (sin espacios ni acentos) y la contraseña, dos veces. Tiene que tener al menos 8 caracteres.</li>
+    <li><strong>Qué puede hacer</strong>: elegí el rol. La tabla de la derecha explica cada uno.</li>
+    <li>Tocá <strong>Guardar usuario</strong> y pasale el usuario y la contraseña a la persona.</li>
+  </ol>
+  {% include "panel/ayuda/_captura.html" with archivo="usuario-nuevo" ancho=1800 alto=1470 pie="El formulario de un usuario nuevo." %}
+  <ul class="manual__lista">
+    <li><strong>Cambiar la contraseña de alguien</strong>: editá el usuario y escribí la nueva en los dos campos. Si los dejás vacíos, la contraseña no cambia.</li>
+    <li><strong>Cambiar el rol</strong>: editá el usuario y elegí otro rol.</li>
+    <li><strong>Dar de baja</strong>: desmarcá «activo». La persona ya no puede entrar y se conserva todo lo que cargó. El panel no borra usuarios.</li>
+    <li>Para que alguien aparezca como <strong>instructor a cargo</strong> al armar una comisión, tiene que tener el rol Instructor y estar activo.</li>
+    <li>Si aparece el aviso de usuarios <strong>sin rol asignado</strong>, esos usuarios no pueden entrar al panel hasta que les des uno con «Asignar rol →».</li>
+  </ul>
+
+  <h3>Configuración del sitio</h3>
+  <p>
+    Reúne los textos y datos de contacto que se ven en la web pública. Los cambios se publican al
+    tocar <strong>Guardar configuración</strong>, al pie de la pantalla.
+  </p>
+  {% include "panel/ayuda/_captura.html" with archivo="configuracion" ancho=1800 alto=1650 pie="La configuración del sitio público." %}
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <tbody>
+        <tr><td class="principal-celda">Identidad</td><td>Nombre, número de aniversario, razón social y el texto del cintillo superior de la web.</td></tr>
+        <tr><td class="principal-celda">Portada</td><td>El título principal, que se parte en dos (la segunda parte se muestra en azul), y su bajada.</td></tr>
+        <tr><td class="principal-celda">Contacto</td><td>WhatsApp, teléfonos, correo, ciudad y dirección. La dirección es también la sede que usan las comisiones sin lugar cargado.</td></tr>
+        <tr><td class="principal-celda">Formas de pago</td><td>Alias, banco, titular y una aclaración. Se muestran en la ficha de cada curso, debajo del precio, y son las mismas para todo el catálogo.</td></tr>
+        <tr><td class="principal-celda">Enlaces</td><td>Instagram y el video de los cursos.</td></tr>
+        <tr><td class="principal-celda">Fotos de la portada</td><td>Las imágenes de fondo del inicio de la web.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="manual__lista">
+    <li>El <strong>WhatsApp</strong> va en formato internacional, sin signos ni espacios (por ejemplo 5493434695896). De ese número salen todos los botones «Pedir turno» de la web.</li>
+    <li><strong>Fotos de la portada</strong>: con una sola foto la portada queda fija; con dos o más se van alternando solas. Si no hay ninguna, se usa la foto del camión que trae el sitio. Subí imágenes apaisadas de 1600 px de ancho o más.</li>
+    <li><strong>Ver la web →</strong> abre el sitio para comprobar cómo quedó.</li>
+  </ul>
+</section>

@@ -1,0 +1,84 @@
+<section class="tarjeta manual__capitulo" id="inscribir">
+  <div class="manual__cabecera">
+    <h2 class="manual__titulo">5. Inscribir a alguien</h2>
+    <span class="distintivo distintivo--azul">Desde Recepción</span>
+  </div>
+  <p>
+    Las inscripciones se cargan desde la pantalla de la comisión. Llegás a ella desde Comisiones,
+    desde la Agenda o desde «Abrir» en el Tablero.
+  </p>
+  {% include "panel/ayuda/_captura.html" with archivo="comision-detalle" ancho=1800 alto=1140 pie="La pantalla de una comisión: acciones arriba, indicadores y el formulario para inscribir." %}
+
+  <h3>Paso a paso</h3>
+  <ol class="pasos">
+    <li>En <strong>Inscribir a alguien</strong>, escribí el <strong>DNI</strong>. Los puntos y los espacios se quitan solos.</li>
+    <li>Si la persona <strong>ya cursó</strong> en CETACER, no hace falta nada más: el panel la reconoce por el DNI al guardar. Si escribís teléfono, correo o empresa, sólo se completan los que estaban vacíos; lo que ya estaba cargado no se pisa.</li>
+    <li>Si es una persona <strong>nueva</strong>, completá también apellido y nombre. Sin esos dos datos el panel avisa que el DNI no está registrado y no la inscribe.</li>
+    <li>Elegí la <strong>Empresa</strong> si corresponde. Tiene que estar cargada antes (ver <a href="#personas">Participantes y empresas</a>).</li>
+    <li>Elegí el <strong>Estado</strong> y el <strong>Pago</strong> (las tablas de abajo explican cada opción).</li>
+    <li>Tocá <strong>Inscribir</strong>. Aparece un mensaje verde con el nombre y los lugares que quedan.</li>
+  </ol>
+  {% include "panel/ayuda/_captura.html" with archivo="inscribir" ancho=1368 alto=626 pie="El formulario «Inscribir a alguien», completado para una persona nueva." %}
+
+  <h3>El campo Estado</h3>
+  <p>
+    Indica en qué situación queda la persona dentro de la comisión. Viene en «Confirmado», que es
+    lo habitual al anotar a alguien en el mostrador o por teléfono.
+  </p>
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <thead><tr><th>Estado</th><th>Qué significa</th><th>¿Ocupa cupo?</th></tr></thead>
+      <tbody>
+        <tr><td><span class="distintivo distintivo--ambar">Preinscripto</span></td><td>Pidió el lugar pero todavía no está firme.</td><td>Sí</td></tr>
+        <tr><td><span class="distintivo distintivo--verde">Confirmado</span></td><td>Tiene el lugar asegurado.</td><td>Sí</td></tr>
+        <tr><td><span class="distintivo distintivo--azul">Asistió</span></td><td>Hizo el curso. Se carga al tomar asistencia.</td><td>Sí</td></tr>
+        <tr><td><span class="distintivo distintivo--gris">Ausente</span></td><td>Estaba anotado y no vino. Se carga al tomar asistencia.</td><td>Sí</td></tr>
+        <tr><td><span class="distintivo distintivo--rojo">Cancelada</span></td><td>Se dio de baja. Queda fuera de los totales y de la lista en Excel.</td><td>No: libera el lugar</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="nota">
+    Al inscribir sólo tienen sentido «Preinscripto» y «Confirmado». Los otros tres se usan después.
+  </p>
+
+  <h3>El campo Pago</h3>
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <thead><tr><th>Pago</th><th>Qué significa</th></tr></thead>
+      <tbody>
+        <tr><td><span class="distintivo distintivo--ambar">Pendiente</span></td><td>Todavía no pagó. Suma a «Pagos pendientes» del Tablero y de Informes.</td></tr>
+        <tr><td><span class="distintivo distintivo--verde">Pagado</span></td><td>Pagó. Para que el importe cuente como cobrado, cargá también el monto (ver más abajo).</td></tr>
+        <tr><td><span class="distintivo distintivo--gris">Exento</span></td><td>No tiene que pagar.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Cuando el panel no deja inscribir</h3>
+  <ul class="manual__lista">
+    <li><strong>La comisión llegó al cupo</strong>: en lugar del formulario aparece un aviso. Ampliá el cupo desde «Editar comisión».</li>
+    <li><strong>La comisión está marcada como completa</strong>: desmarcá esa casilla desde «Editar comisión».</li>
+    <li><strong>La persona ya estaba en la comisión</strong>: el panel lo avisa y no la duplica.</li>
+  </ul>
+
+  <h3>La lista de participantes</h3>
+  <p>Debajo del formulario está la lista de la comisión, ordenada por apellido.</p>
+  {% include "panel/ayuda/_captura.html" with archivo="comision-participantes" ancho=1368 alto=870 pie="La lista de participantes de una comisión." %}
+  <p>
+    La columna <strong>Falta</strong> resume qué le falta a cada persona para quedar en regla:
+    «pago», «psicofísico» o «documentación». Cuando no falta nada dice «Al día».
+  </p>
+
+  <h3>Modificar una inscripción</h3>
+  <p>
+    Tocá <strong>Editar</strong> en la fila de la persona. Desde ahí se registra el pago, la
+    documentación y cualquier cambio de estado, incluida la baja.
+  </p>
+  {% include "panel/ayuda/_captura.html" with archivo="inscripcion-editar" ancho=1800 alto=1650 pie="La ficha de una inscripción." %}
+  <ul class="manual__lista">
+    <li><strong>Estado de la inscripción</strong>: para dar de baja a alguien, pasalo a «Cancelada». El lugar queda libre.</li>
+    <li><strong>Pago</strong>: al marcar «Pagado», cargá el <strong>monto abonado</strong> y el <strong>comprobante</strong> (número de boleta e-SICAPRO o recibo interno). El total cobrado de la comisión y de Informes se calcula sumando esos montos: un pago sin monto figura como pagado pero suma cero.</li>
+    <li><strong>Documentación</strong>: marcá «psicofísico vigente» y «documentación completa» cuando la persona los presente. Así desaparecen de la columna «Falta».</li>
+    <li><strong>Notas</strong>: texto libre, sale en la exportación a Excel.</li>
+    <li><strong>Ver ficha de la persona</strong> abre sus datos personales y su historial de cursos.</li>
+  </ul>
+</section>

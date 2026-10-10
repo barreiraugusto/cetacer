@@ -386,3 +386,97 @@ table.tabla .apagado { color: var(--etiqueta); font-size: 13.5px; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .fila-lista:last-child { border-bottom: 0; }
+
+/* --- Manual de uso («Cómo se usa») ---------------------------------------- */
+
+.manual {
+  display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 22px;
+  align-items: start; margin-top: 28px; scroll-margin-top: 96px;
+}
+.manual__indice { position: sticky; top: 96px; padding: 22px 24px; }
+.manual__indice .tarjeta__titulo { margin-bottom: 12px; }
+.manual__indice ol { padding-left: 24px; line-height: 1.45; font-size: 14.5px; }
+.manual__indice li { margin-bottom: 9px; padding-left: 3px; color: var(--etiqueta); }
+.manual__indice .texto-suave { margin-top: 16px; line-height: 1.5; }
+.manual__cuerpo { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+
+.manual__capitulo {
+  scroll-margin-top: 96px; padding: 30px 34px 34px;
+  color: var(--texto); font-size: 15.5px; line-height: 1.65;
+}
+.manual__cabecera {
+  display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
+  justify-content: space-between; padding-bottom: 16px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--borde);
+}
+.manual__titulo { font-size: 22px; font-weight: 700; line-height: 1.25; color: var(--azul-profundo); }
+.manual__capitulo h3 {
+  font-size: 17px; font-weight: 700; line-height: 1.3; color: var(--azul-profundo);
+  margin: 34px 0 12px;
+}
+.manual__cabecera + h3 { margin-top: 0; }
+.manual__capitulo p,
+.manual__capitulo .pasos,
+.manual__capitulo .manual__lista { max-width: 74ch; margin-bottom: 16px; }
+.manual__capitulo .pasos,
+.manual__capitulo .manual__lista { padding-left: 30px; }
+.manual__capitulo .pasos li,
+.manual__capitulo .manual__lista li { margin-bottom: 10px; padding-left: 4px; }
+.manual__capitulo .pasos li::marker { font-weight: 700; color: var(--azul); }
+.manual__capitulo .tabla-envoltorio { margin: 6px 0 20px; }
+.manual__capitulo .nota {
+  background: var(--azul-tinte); border-left: 3px solid var(--azul);
+  padding: 13px 18px; margin: 18px 0; border-radius: var(--radio); font-size: 14.5px;
+}
+.manual__capitulo > :last-child { margin-bottom: 0; }
+.manual__dos {
+  display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 26px;
+  align-items: start; margin-bottom: 20px;
+}
+.manual__barras { max-width: 420px; }
+
+/* Las capturas se muestran a mitad de tamaño; al tocarlas se abren en el visor. */
+.captura { margin: 20px 0 26px; max-width: 440px; }
+.captura--angosta { max-width: 150px; margin-top: 0; }
+.captura a { display: block; position: relative; cursor: zoom-in; }
+.captura a::after {
+  content: "Ampliar"; position: absolute; right: 8px; bottom: 8px;
+  background: rgba(16, 24, 40, 0.78); color: #ffffff; font-size: 12px; font-weight: 700;
+  padding: 3px 9px; border-radius: 999px; line-height: 1.5;
+}
+.captura--angosta a::after { content: none; }
+.captura img {
+  display: block; width: 100%; height: auto; border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-card); box-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
+}
+.captura a:hover img { border-color: var(--azul); }
+.captura figcaption { font-size: 13.5px; line-height: 1.45; color: var(--etiqueta); margin-top: 9px; }
+
+.visor {
+  border: 0; padding: 0; background: transparent; margin: auto;
+  max-width: 96vw; max-height: 96vh; overflow: auto;
+}
+.visor::backdrop { background: rgba(16, 24, 40, 0.78); }
+.visor img { display: block; max-width: 96vw; height: auto; border-radius: var(--radio-card); cursor: zoom-out; }
+.visor__cerrar {
+  position: sticky; top: 8px; float: right; margin: 8px; z-index: 1;
+  background: var(--blanco); border: 1px solid var(--borde-fuerte); border-radius: var(--radio);
+  padding: 6px 12px; font-weight: 700; font-size: 13.5px; cursor: pointer; color: var(--tinta);
+}
+
+@media (max-width: 1080px) {
+  .manual { grid-template-columns: 1fr; }
+  .manual__indice { position: static; }
+  .manual__indice ol { columns: 2; column-gap: 40px; }
+  .manual__indice li { break-inside: avoid; }
+}
+@media (max-width: 640px) {
+  .manual__capitulo { padding: 22px 18px 24px; }
+  .manual__dos { grid-template-columns: 1fr; }
+  .manual__indice ol { columns: 1; }
+}
+@media print {
+  .manual { display: block; }
+  .manual__capitulo { break-inside: auto; margin-bottom: 18px; }
+  .captura { break-inside: avoid; }
+}

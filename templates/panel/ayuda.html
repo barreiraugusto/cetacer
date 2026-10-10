@@ -1,7 +1,12 @@
 {% extends "panel/base.html" %}
+{% load static %}
 {% block title %}Cómo se usa{% endblock %}
 {% block encabezado %}Cómo se usa el panel{% endblock %}
-{% block bajada %}<div class="bajada">Las tres tareas de todos los días, explicadas paso a paso.</div>{% endblock %}
+{% block bajada %}<div class="bajada">Las tres tareas de todos los días y, debajo, el manual completo del panel.</div>{% endblock %}
+
+{% block acciones %}
+  <a class="boton boton--secundario" href="#manual">Ir al manual completo ↓</a>
+{% endblock %}
 
 {% block contenido %}
 <div class="grilla-tres">
@@ -27,8 +32,8 @@
     <ol style="padding-left:18px;line-height:1.9;color:var(--texto)">
       <li>Entrá a la comisión desde <a href="{% url 'panel:comisiones' %}">Comisiones</a> o desde la <a href="{% url 'panel:agenda' %}">Agenda</a>.</li>
       <li>En <strong>Inscribir a alguien</strong>, escribí el DNI.</li>
-      <li>Si ya cursó antes, se completa solo. Si es nuevo, poné apellido y nombre.</li>
-      <li>Elegí el estado del pago y tocá <strong>Inscribir</strong>.</li>
+      <li>Si ya cursó antes, el panel lo reconoce solo. Si es nuevo, poné apellido y nombre.</li>
+      <li>Elegí el estado y el pago, y tocá <strong>Inscribir</strong>.</li>
     </ol>
     <p class="texto-suave" style="margin-top:12px">
       El sistema no deja pasarse del cupo. Si hace falta, ampliá el cupo desde
@@ -50,65 +55,45 @@
   </div>
 </div>
 
-<div class="tarjeta" style="margin-top:18px">
-  <div class="tarjeta__titulo">Qué puede hacer cada rol</div>
-  <p class="tarjeta__ayuda">
-    Los roles se asignan en Usuarios y permisos, y están ordenados de mayor a menor alcance.
-  </p>
-  <div class="tabla-envoltorio" style="border:0">
-    <table class="tabla">
-      <thead><tr><th style="width:50px">#</th><th>Rol</th><th>Qué puede hacer</th></tr></thead>
-      <tbody>
-        {% for nombre, descripcion in roles %}
-          <tr>
-            <td class="apagado">{{ forloop.counter }}</td>
-            <td class="principal-celda">{{ nombre }}</td>
-            <td>{{ descripcion }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<div class="manual" id="manual">
+  <nav class="tarjeta manual__indice no-imprimir" aria-label="Índice del manual">
+    <div class="tarjeta__titulo">Manual completo</div>
+    <ol>
+      <li><a href="#ingresar">Ingresar y orientarse</a></li>
+      <li><a href="#agenda">Agenda</a></li>
+      <li><a href="#cursos">Cursos y categorías</a></li>
+      <li><a href="#comisiones">Comisiones</a></li>
+      <li><a href="#inscribir">Inscribir a alguien</a></li>
+      <li><a href="#asistencia">Asistencia y listas</a></li>
+      <li><a href="#inscripciones">Inscripciones</a></li>
+      <li><a href="#personas">Participantes y empresas</a></li>
+      <li><a href="#paginas">Páginas del sitio</a></li>
+      <li><a href="#informes">Informes</a></li>
+      <li><a href="#administracion">Usuarios, roles y configuración</a></li>
+      <li><a href="#referencia">Referencia</a></li>
+    </ol>
+    <p class="texto-suave">Hacé clic en cualquier captura para verla en grande.</p>
+  </nav>
+
+  <div class="manual__cuerpo">
+    {% include "panel/ayuda/01_ingresar.html" %}
+    {% include "panel/ayuda/02_agenda.html" %}
+    {% include "panel/ayuda/03_cursos.html" %}
+    {% include "panel/ayuda/04_comisiones.html" %}
+    {% include "panel/ayuda/05_inscribir.html" %}
+    {% include "panel/ayuda/06_asistencia.html" %}
+    {% include "panel/ayuda/07_inscripciones.html" %}
+    {% include "panel/ayuda/08_personas.html" %}
+    {% include "panel/ayuda/09_paginas.html" %}
+    {% include "panel/ayuda/10_informes.html" %}
+    {% include "panel/ayuda/11_administracion.html" %}
+    {% include "panel/ayuda/12_referencia.html" %}
   </div>
 </div>
 
-<div class="grilla-dos" style="margin-top:18px">
-  <div class="tarjeta">
-    <div class="tarjeta__titulo">Palabras que vas a ver seguido</div>
-    <div class="tabla-envoltorio" style="border:0">
-      <table class="tabla">
-        <tbody>
-          <tr><td class="principal-celda">Curso</td><td>Lo que se dicta: nombre, precio y requisitos. No tiene fecha.</td></tr>
-          <tr><td class="principal-celda">Comisión</td><td>Un dictado concreto de ese curso: una fecha, un cupo y su lista.</td></tr>
-          <tr><td class="principal-celda">Participante</td><td>La persona. Se identifica por DNI y se reutiliza entre cursos.</td></tr>
-          <tr><td class="principal-celda">Inscripción</td><td>La unión entre una persona y una comisión.</td></tr>
-          <tr><td class="principal-celda">Preinscripto</td><td>Pidió lugar pero todavía no lo confirmamos.</td></tr>
-          <tr><td class="principal-celda">Confirmado</td><td>Tiene el lugar asegurado.</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="tarjeta">
-    <div class="tarjeta__titulo">Los colores de las barras</div>
-    <p class="tarjeta__ayuda">Indican cuánto del cupo está ocupado.</p>
-    <div class="apilar" style="gap:12px">
-      <div>
-        <div class="barra barra--baja"><span style="width:20%"></span></div>
-        <div class="barra-pie">Gris — hay muchos lugares libres</div>
-      </div>
-      <div>
-        <div class="barra barra--en-marcha"><span style="width:50%"></span></div>
-        <div class="barra-pie">Azul — se está llenando</div>
-      </div>
-      <div>
-        <div class="barra barra--casi"><span style="width:85%"></span></div>
-        <div class="barra-pie">Ámbar — quedan pocos lugares</div>
-      </div>
-      <div>
-        <div class="barra barra--completa"><span style="width:100%"></span></div>
-        <div class="barra-pie">Verde — cupo completo</div>
-      </div>
-    </div>
-  </div>
-</div>
+<dialog class="visor" id="visor" aria-label="Captura ampliada">
+  <form method="dialog"><button class="visor__cerrar" type="submit">Cerrar ✕</button></form>
+  <img src="" alt="">
+</dialog>
+<script src="{% static 'js/manual.js' %}" defer></script>
 {% endblock %}

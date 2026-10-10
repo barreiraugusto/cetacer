@@ -1,0 +1,10 @@
+{% comment %}Captura del manual. Recibe archivo (sin extensión), ancho, alto y pie.{% endcomment %}
+{% load static %}
+<figure class="captura{% if angosta %} captura--angosta{% endif %}">
+  <a href="{% static 'img/manual/'|add:archivo|add:'.webp' %}" target="_blank" rel="noopener"
+     data-ampliar title="Ampliar la imagen">
+    <img src="{% static 'img/manual/'|add:archivo|add:'.webp' %}"
+         width="{{ ancho }}" height="{{ alto }}" loading="lazy" alt="{{ pie }}">
+  </a>
+  <figcaption>{{ pie }}</figcaption>
+</figure>

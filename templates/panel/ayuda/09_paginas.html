@@ -1,0 +1,46 @@
+<section class="tarjeta manual__capitulo" id="paginas">
+  <div class="manual__cabecera">
+    <h2 class="manual__titulo">9. Páginas del sitio</h2>
+    <span class="distintivo distintivo--azul">Ver: desde Recepción · Editar: desde Administración</span>
+  </div>
+  <p>
+    Las páginas de contenido son listas de enlaces y documentos que se publican en la web, como
+    «Legislación» o «Información útil». Cada una tiene su propia dirección, del tipo
+    <strong>/info/legislacion/</strong>.
+  </p>
+  {% include "panel/ayuda/_captura.html" with archivo="paginas" ancho=1800 alto=780 pie="Las páginas de contenido cargadas." %}
+
+  <h3>Crear o modificar una página</h3>
+  <ol class="pasos">
+    <li>En <a href="{% url 'panel:paginas' %}">Páginas</a>, tocá <strong>+ Nueva página</strong> o <strong>Editar</strong>.</li>
+    <li>Cargá el <strong>título</strong> y, si querés, la <strong>bajada</strong> (el texto que aparece debajo del título).</li>
+    <li>Dejá vacía la dirección web para que se arme sola a partir del título.</li>
+    <li>En <strong>Enlaces</strong>, completá una fila por cada enlace: título, descripción y, o bien un enlace externo, o bien un archivo PDF subido. Nunca las dos cosas en la misma fila.</li>
+    <li>Tocá <strong>Guardar página</strong>. El cambio se ve en la web de inmediato.</li>
+  </ol>
+  {% include "panel/ayuda/_captura.html" with archivo="pagina-editar" ancho=1800 alto=1725 pie="El formulario de una página, con sus enlaces debajo." %}
+  <ul class="manual__lista">
+    <li><strong>Grupo</strong>: los enlaces que tienen el mismo texto en «grupo» aparecen juntos bajo ese encabezado. Si lo dejás vacío, el enlace va suelto arriba de todo.</li>
+    <li><strong>Orden</strong>: los números más chicos van primero.</li>
+    <li><strong>Visible</strong>: desmarcalo para ocultar un enlace sin borrarlo.</li>
+    <li>Para <strong>borrar un enlace</strong>, marcá su casilla de eliminar y guardá la página.</li>
+    <li>Al pie siempre hay tres filas vacías para sumar enlaces. Si necesitás más, guardá y volvé a entrar.</li>
+    <li><strong>Ver en la web →</strong> abre la página pública en otra pestaña.</li>
+  </ul>
+  <p class="nota">
+    Si un documento importa de verdad, subí el PDF en lugar de enlazarlo: los sitios ajenos dan de
+    baja sus archivos sin avisar.
+  </p>
+  <p class="nota">
+    Las tarjetas del inicio de la web enlazan puntualmente a las páginas con dirección
+    «legislacion» e «informacion-util». Si les cambiás esa dirección, o las despublicás, la tarjeta
+    deja de mostrar el enlace.
+  </p>
+
+  <h3>Despublicar o eliminar</h3>
+  <p>
+    Para sacar una página de la web sin perderla, desmarcá <strong>visible en la web</strong>: queda
+    como «Borrador». <strong>Eliminar esta página</strong>, al pie del formulario, la borra junto
+    con todos sus enlaces y no se puede deshacer.
+  </p>
+</section>

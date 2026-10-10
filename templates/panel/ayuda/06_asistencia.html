@@ -1,0 +1,46 @@
+<section class="tarjeta manual__capitulo" id="asistencia">
+  <div class="manual__cabecera">
+    <h2 class="manual__titulo">6. Asistencia y listas</h2>
+    <span class="distintivo distintivo--azul">Todos los roles</span>
+  </div>
+  <p>
+    Los tres botones están arriba a la derecha en la pantalla de la comisión. Un instructor los
+    tiene disponibles en las comisiones que tiene asignadas.
+  </p>
+
+  <h3>Lista en Excel</h3>
+  <p>
+    <strong>↓ Lista en Excel</strong> descarga la lista de participantes de la comisión. El botón
+    <strong>↓ CSV</strong>, junto a la lista, baja lo mismo en un formato de texto que abre
+    cualquier planilla.
+  </p>
+  <ul class="manual__lista">
+    <li>Trae una fila por persona con: apellido, nombre, DNI, teléfono, correo, localidad, empresa, categoría de licencia, estado, pago, monto, comprobante, psicofísico, documentación, origen, fecha de inscripción y notas.</li>
+    <li>No incluye las inscripciones canceladas.</li>
+  </ul>
+
+  <h3>Planilla de firmas</h3>
+  <p>
+    <strong>↓ Planilla de firmas</strong> descarga una planilla para imprimir y hacer firmar el día
+    del curso. Trae número, apellido y nombre, DNI y empresa, con las columnas «Firma» y
+    «Aclaración» vacías.
+  </p>
+
+  <h3>Tomar asistencia</h3>
+  <ol class="pasos">
+    <li>Abrí la comisión y tocá <strong>Tomar asistencia</strong>.</li>
+    <li>Tildá a quienes vinieron. Los que estaban como «Confirmado» ya vienen tildados; destildá a los que faltaron.</li>
+    <li>Tocá <strong>Guardar asistencia</strong>.</li>
+  </ol>
+  {% include "panel/ayuda/_captura.html" with archivo="asistencia" ancho=1800 alto=1140 pie="La pantalla para tomar asistencia." %}
+  <p class="nota">
+    Al guardar, <strong>todos</strong> los de la lista cambian de estado: los tildados quedan como
+    «Asistió» y el resto como «Ausente», incluidos los preinscriptos que no tildaste. La comisión
+    pasa sola a «Finalizada» y deja de verse en la web. Si te equivocaste, volvé a entrar, corregí
+    las tildes y guardá de nuevo.
+  </p>
+  <p>
+    «Asistió» es lo que cuenta como curso realizado en el historial de cada persona y en la cifra
+    «con asistencia registrada» de Informes.
+  </p>
+</section>

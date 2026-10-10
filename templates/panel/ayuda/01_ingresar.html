@@ -1,0 +1,79 @@
+<section class="tarjeta manual__capitulo" id="ingresar">
+  <div class="manual__cabecera">
+    <h2 class="manual__titulo">1. Ingresar y orientarse</h2>
+    <span class="distintivo distintivo--azul">Todos los roles</span>
+  </div>
+
+  <h3>Entrar al panel</h3>
+  <ol class="pasos">
+    <li>Abrí la dirección del sitio seguida de <strong>/panel/</strong>. Si no tenés la sesión iniciada, aparece la pantalla de ingreso.</li>
+    <li>Escribí tu <strong>usuario</strong> y tu <strong>contraseña</strong>. Los crea Dirección desde «Usuarios y permisos».</li>
+    <li>Tocá <strong>Entrar</strong>. Llegás al Tablero.</li>
+  </ol>
+  {% include "panel/ayuda/_captura.html" with archivo="ingresar" ancho=1800 alto=1050 pie="Pantalla de ingreso al panel." %}
+  <p class="nota">
+    Si aparece «Usuario o contraseña incorrectos», revisá el bloqueo de mayúsculas. Si no recordás
+    la contraseña, pedile a Dirección que te cargue una nueva: el panel no la recupera por correo.
+  </p>
+
+  <h3>El menú</h3>
+  <p>
+    El menú de la izquierda está siempre a la vista y ordena el panel en cuatro grupos. Abajo de todo
+    figuran tu nombre, tu rol y el botón <strong>Salir</strong>, que cierra la sesión.
+  </p>
+  <div class="manual__dos">
+    {% include "panel/ayuda/_captura.html" with archivo="menu" ancho=378 alto=1290 angosta=True pie="El menú, visto con el rol Dirección." %}
+    <div class="tabla-envoltorio" style="border:0">
+      <table class="tabla">
+        <tbody>
+          <tr><td class="principal-celda">Tablero</td><td>Resumen de lo que hay que mirar hoy.</td></tr>
+          <tr><td class="principal-celda">Agenda</td><td>Calendario del mes con las comisiones.</td></tr>
+          <tr><td class="principal-celda">Comisiones</td><td>Las fechas de dictado, con su cupo y su lista de inscriptos.</td></tr>
+          <tr><td class="principal-celda">Cursos</td><td>El catálogo que se muestra en la web: precios, requisitos y categorías.</td></tr>
+          <tr><td class="principal-celda">Páginas</td><td>Páginas de enlaces de la web (Legislación, Información útil). No la ve el rol Instructor.</td></tr>
+          <tr><td class="principal-celda">Inscripciones</td><td>Todas las inscripciones juntas, para buscar, filtrar y exportar.</td></tr>
+          <tr><td class="principal-celda">Participantes</td><td>El padrón de personas y las empresas.</td></tr>
+          <tr><td class="principal-celda">Informes</td><td>Totales por período: dictados, participantes y cobros.</td></tr>
+          <tr><td class="principal-celda">Usuarios y permisos</td><td>Quién entra al panel y con qué rol. Sólo Dirección.</td></tr>
+          <tr><td class="principal-celda">Configuración</td><td>Textos, contacto y fotos de la web pública. Sólo Dirección.</td></tr>
+          <tr><td class="principal-celda">Cómo se usa</td><td>Este manual.</td></tr>
+          <tr><td class="principal-celda">Ver la web</td><td>Abre el sitio público en otra pestaña.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p>
+    Arriba de cada pantalla están el título, una línea que explica qué estás viendo y, a la derecha,
+    los botones de las acciones principales. El azul es siempre la acción de crear algo nuevo y el
+    verde, la descarga a Excel.
+  </p>
+  <p class="nota">
+    Si tocás algo que tu rol no permite, el panel te devuelve al Tablero con el mensaje «Tu rol no
+    tiene acceso a esa sección». No es un error: pedile el cambio a Dirección. En este manual, cada
+    capítulo indica desde qué rol se puede hacer cada cosa.
+  </p>
+
+  <h3>El Tablero</h3>
+  <p>Es la primera pantalla al entrar. De arriba hacia abajo muestra:</p>
+  {% include "panel/ayuda/_captura.html" with archivo="tablero" ancho=1800 alto=1470 pie="El Tablero: indicadores, avisos, próximas comisiones y últimos movimientos." %}
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <tbody>
+        <tr><td class="principal-celda">Comisiones abiertas</td><td>Comisiones publicadas en la web con fecha de hoy en adelante.</td></tr>
+        <tr><td class="principal-celda">Inscriptos próximos 30 días</td><td>Personas anotadas en comisiones que empiezan dentro del próximo mes. No cuenta las canceladas.</td></tr>
+        <tr><td class="principal-celda">Pagos pendientes</td><td>Inscripciones a comisiones futuras con el pago en «Pendiente». El enlace abre la lista de quiénes son.</td></tr>
+        <tr><td class="principal-celda">Solicitudes web sin confirmar</td><td>Preinscripciones con origen «Formulario web» que nadie confirmó todavía. Se pone en rojo cuando hay alguna.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="manual__lista">
+    <li><strong>Avisos</strong> (franjas de color): cosas que piden una acción, con el enlace para resolverlas. Avisan cuando una comisión que empieza en los próximos 14 días sigue en borrador, cuando una comisión publicada llegó al cupo y cuando hay solicitudes web sin confirmar.</li>
+    <li><strong>Próximas comisiones</strong>: las seis fechas más cercanas, con la barra de ocupación. «Abrir» lleva a la lista de inscriptos.</li>
+    <li><strong>Demanda por categoría</strong>: inscriptos de los próximos 60 días, agrupados por categoría de curso.</li>
+    <li><strong>Últimas inscripciones</strong>: las ocho más recientes, cargadas por cualquier persona.</li>
+  </ul>
+  <p class="nota">
+    Con el rol Instructor, el Tablero, la Agenda, Comisiones e Inscripciones muestran únicamente
+    las comisiones que tenés asignadas.
+  </p>
+</section>
