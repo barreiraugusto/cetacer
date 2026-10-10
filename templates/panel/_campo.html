@@ -1,6 +1,6 @@
 {% comment %}Renderiza un campo de formulario con su ayuda y su error.{% endcomment %}
 {% if campo.field.widget.input_type == "checkbox" %}
-  <div class="campo-fila campo-fila--casilla">
+  <div class="campo-fila campo-fila--casilla{% if campo.errors %} campo-fila--error{% endif %}">
     {{ campo }}
     <div>
       <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
@@ -9,7 +9,7 @@
     </div>
   </div>
 {% else %}
-  <div class="campo-fila">
+  <div class="campo-fila{% if campo.errors %} campo-fila--error{% endif %}">
     <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
     {{ campo }}
     {% if campo.help_text %}<div class="ayuda">{{ campo.help_text }}</div>{% endif %}

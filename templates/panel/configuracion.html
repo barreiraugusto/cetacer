@@ -80,8 +80,11 @@
     </p>
     {{ portada.management_form }}
     {% for formulario_imagen in portada %}
-      <div class="seccion-form" style="border:1px solid var(--borde);padding:14px;margin-bottom:12px">
+      <div class="seccion-form bloque-form{% if formulario_imagen.errors %} bloque-form--error{% endif %}">
         {{ formulario_imagen.id }}
+        {% for error in formulario_imagen.non_field_errors %}
+          <div class="error">{{ error }}</div>
+        {% endfor %}
         {% if formulario_imagen.instance.pk and formulario_imagen.instance.imagen %}
           <img src="{{ formulario_imagen.instance.imagen.url }}" alt=""
                style="width:180px;height:100px;object-fit:cover;border-radius:4px;margin-bottom:10px">
@@ -95,9 +98,6 @@
             {% include "panel/_campo.html" with campo=formulario_imagen.DELETE %}
           {% endif %}
         </div>
-        {% for error in formulario_imagen.non_field_errors %}
-          <div class="error">{{ error }}</div>
-        {% endfor %}
       </div>
     {% endfor %}
   </div>

@@ -286,6 +286,41 @@ class PanelPaginasTests(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertFalse(Pagina.objects.filter(titulo="Rota").exists())
 
+    def _enviar_con_enlace(self, **enlace):
+        self._usuario("admin_test", Rol.ADMINISTRACION)
+        self.client.login(username="admin_test", password="clave-de-prueba")
+        datos = {
+            "titulo": "Rota",
+            "orden": 0,
+            "enlaces-TOTAL_FORMS": "1",
+            "enlaces-INITIAL_FORMS": "0",
+            "enlaces-MIN_NUM_FORMS": "0",
+            "enlaces-MAX_NUM_FORMS": "1000",
+            "enlaces-0-orden": "0",
+        }
+        datos.update({f"enlaces-0-{campo}": valor for campo, valor in enlace.items()})
+        return self.client.post("/panel/paginas/nueva/", datos)
+
+    def test_el_enlace_sin_destino_queda_marcado_en_rojo(self):
+        # El error es del enlace entero, no de un campo: tiene que verse en su
+        # bloque, y el cartel de arriba tiene que mandar a mirar los enlaces.
+        respuesta = self._enviar_con_enlace(titulo="Sin destino")
+        self.assertContains(respuesta, "bloque-form--error")
+        self.assertContains(respuesta, "Cargá un enlace externo o subí un documento")
+        self.assertContains(respuesta, "Revisá los enlaces marcados en rojo")
+
+    def test_el_campo_con_error_queda_marcado_en_rojo(self):
+        respuesta = self._enviar_con_enlace(url="https://www.iru.org/")
+        self.assertContains(respuesta, "campo-fila--error")
+        self.assertContains(respuesta, "bloque-form--error")
+
+    def test_un_formulario_sin_errores_no_marca_nada(self):
+        self._usuario("admin_test", Rol.ADMINISTRACION)
+        self.client.login(username="admin_test", password="clave-de-prueba")
+        respuesta = self.client.get("/panel/paginas/nueva/")
+        self.assertNotContains(respuesta, "campo-fila--error")
+        self.assertNotContains(respuesta, "bloque-form--error")
+
     def test_las_filas_extra_vacias_del_formset_no_molestan(self):
         # `/panel/paginas/nueva/` renderiza el formset con `extra=3`: un
         # navegador real manda las tres filas aunque sólo se complete una.

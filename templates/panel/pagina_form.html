@@ -30,8 +30,11 @@
     </p>
     {{ enlaces.management_form }}
     {% for formulario_enlace in enlaces %}
-      <div class="seccion-form" style="border:1px solid var(--borde);padding:14px;margin-bottom:12px">
+      <div class="seccion-form bloque-form{% if formulario_enlace.errors %} bloque-form--error{% endif %}">
         {{ formulario_enlace.id }}
+        {% for error in formulario_enlace.non_field_errors %}
+          <div class="error">{{ error }}</div>
+        {% endfor %}
         <div class="grilla-campos">
           {% include "panel/_campo.html" with campo=formulario_enlace.titulo %}
           {% include "panel/_campo.html" with campo=formulario_enlace.grupo %}
@@ -48,9 +51,6 @@
             {% include "panel/_campo.html" with campo=formulario_enlace.DELETE %}
           {% endif %}
         </div>
-        {% for error in formulario_enlace.non_field_errors %}
-          <div class="error">{{ error }}</div>
-        {% endfor %}
       </div>
     {% endfor %}
   </div>

@@ -264,7 +264,11 @@ table.tabla .apagado { color: var(--etiqueta); font-size: 13.5px; }
 }
 .campo--select { appearance: auto; }
 .campo-fila .ayuda { font-size: 13px; color: var(--etiqueta); margin-top: 5px; line-height: 1.45; }
-.campo-fila .error { font-size: 13.5px; color: var(--rojo); margin-top: 5px; font-weight: 700; }
+.campo-fila .error, .bloque-form > .error {
+  font-size: 13.5px; color: var(--rojo); margin-top: 5px; font-weight: 700;
+}
+.campo-fila--error .campo { border-color: var(--rojo); background: var(--rojo-tinte); }
+.campo-fila--error > label, .campo-fila--error.campo-fila--casilla label { color: var(--rojo); }
 .campo-fila--casilla { display: flex; align-items: flex-start; gap: 10px; }
 .campo-fila--casilla label { margin: 0; font-weight: 600; font-size: 14.5px; }
 .casilla { width: 17px; height: 17px; accent-color: var(--azul); margin-top: 2px; }
@@ -274,6 +278,10 @@ table.tabla .apagado { color: var(--etiqueta); font-size: 13.5px; }
   border-top: 1px solid var(--borde); margin-top: 26px; padding-top: 22px;
 }
 .seccion-form:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+/* Bloque repetido dentro de un formulario: un enlace de una página, una foto de portada. */
+.seccion-form.bloque-form { border: 1px solid var(--borde); padding: 14px; margin-bottom: 12px; }
+.seccion-form.bloque-form--error { border-color: var(--rojo); }
+.bloque-form > .error { margin: 0 0 12px; }
 .seccion-form__titulo {
   font-size: 15px; font-weight: 700; color: var(--azul-profundo); margin-bottom: 3px;
 }

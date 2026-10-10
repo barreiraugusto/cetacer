@@ -301,7 +301,12 @@ def pagina_editar(request, pk=None):
                 enlaces.save()
             messages.success(request, f"Página «{guardada.titulo}» guardada.")
             return redirect("panel:paginas")
-        messages.error(request, "Revisá los campos marcados en rojo.")
+        messages.error(
+            request,
+            "Revisá los campos marcados en rojo."
+            if not formulario.is_valid()
+            else "Revisá los enlaces marcados en rojo, más abajo.",
+        )
     else:
         formulario = PaginaForm(instance=pagina)
         enlaces = EnlaceFormSet(instance=pagina)
@@ -985,7 +990,12 @@ def configuracion(request):
                 portada.save()
             messages.success(request, "Configuración del sitio actualizada.")
             return redirect("panel:configuracion")
-        messages.error(request, "Revisá los campos marcados en rojo.")
+        messages.error(
+            request,
+            "Revisá los campos marcados en rojo."
+            if not formulario.is_valid()
+            else "Revisá las fotos de la portada marcadas en rojo, más abajo.",
+        )
     else:
         formulario = ConfiguracionForm(instance=sitio)
         portada = ImagenPortadaFormSet(instance=sitio)
