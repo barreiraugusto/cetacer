@@ -24,7 +24,7 @@
       {% endif %}
 
       <div class="ficha__bloque caja-fechas">
-        <h2>Fechas disponibles</h2>
+        <h2>Fechas</h2>
         {% if comisiones %}
           <table class="tabla-fechas">
             <thead>
@@ -37,7 +37,7 @@
                   <td>{{ comision.horario_texto }}</td>
                   <td>{{ comision.lugar_texto }}</td>
                   <td>
-                    {{ comision.estado_texto }}
+                    <span class="estado-fecha estado-fecha--{{ comision.estado_clave }}">{{ comision.estado_texto }}</span>
                   </td>
                 </tr>
               {% endfor %}

@@ -279,11 +279,19 @@ img, iframe { max-width: 100%; }
 .dato-valor { font-size: 15.5px; color: var(--texto); margin-top: 3px; }
 .fechas { display: flex; flex-wrap: wrap; gap: 7px; }
 .fecha-chip {
-  font-size: 14.5px; font-weight: 600; color: var(--azul-oscuro);
-  background: var(--azul-tinte); padding: 5px 12px; border-radius: var(--radio);
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: 15px; font-weight: 600; color: var(--tinta);
+  background: #ffffff; border: 1px solid var(--borde); padding: 4px 5px 4px 12px;
+  border-radius: var(--radio);
 }
-.fecha-chip--gris { color: var(--texto-suave); background: #eef0f4; }
-.fecha-chip--completa { color: #854708; background: #fef4e6; }
+.fecha-chip--gris { color: var(--texto-suave); background: #eef0f4; border-color: transparent; padding: 6px 12px; }
+/* Disponible en verde, completo en rojo: es lo primero que busca quien quiere anotarse. */
+.estado-fecha {
+  display: inline-block; padding: 3px 10px; border-radius: 3px; white-space: nowrap;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.01em; color: #ffffff;
+}
+.estado-fecha--disponible { background: #15803d; }
+.estado-fecha--completa { background: #b42318; }
 .ficha__texto strong { color: var(--tinta); }
 .tarjeta-curso__acciones {
   display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
@@ -362,14 +370,6 @@ img, iframe { max-width: 100%; }
 .caja-fechas .tabla-fechas th,
 .caja-fechas .tabla-fechas td { border-bottom-color: rgba(255, 255, 255, 0.16); }
 .caja-fechas .tabla-fechas tr:last-child td { border-bottom: 0; }
-.caja-fechas .cupo-barra { background: rgba(255, 255, 255, 0.22); }
-.caja-fechas .cupo-barra span { background: var(--verde-marca); }
-.caja-fechas .cupo-barra--lleno span { background: #fbbf24; }
-.caja-fechas__cupo { font-size: 13.5px; color: var(--pie-texto); margin-top: 4px; }
-
-.cupo-barra { height: 6px; background: var(--borde); border-radius: 999px; overflow: hidden; width: 90px; }
-.cupo-barra span { display: block; height: 100%; background: var(--azul); }
-.cupo-barra--lleno span { background: #d97706; }
 
 .migas { font-size: 14.5px; color: var(--etiqueta); }
 .migas a { color: var(--etiqueta); }

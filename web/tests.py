@@ -278,3 +278,39 @@ class WebPublicaTests(TestCase):
         ).content.decode()
         self.assertNotIn("sicapro", html.lower())
         self.assertNotIn("Boleta de pago", html)
+
+
+class EstadoDeFechaTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        categoria = Categoria.objects.create(nombre="Cargas Generales")
+        cls.curso = Curso.objects.create(categoria=categoria, nombre="Inicial", precio=1)
+        manana = date.today() + timedelta(days=1)
+        Comision.objects.create(curso=cls.curso, fecha_inicio=manana)
+        Comision.objects.create(curso=cls.curso, fecha_inicio=manana + timedelta(days=7), completa=True)
+        Comision.objects.create(curso=cls.curso, fecha_inicio=manana + timedelta(days=14), visible=False)
+
+    def _paginas(self):
+        return [self.client.get("/"), self.client.get("/cursos/"),
+                self.client.get(self.curso.get_absolute_url())]
+
+    def test_cada_fecha_lleva_su_estado(self):
+        for respuesta in self._paginas():
+            with self.subTest(pagina=respuesta.request["PATH_INFO"]):
+                self.assertContains(respuesta, 'class="estado-fecha estado-fecha--disponible">Disponible<', count=1)
+                self.assertContains(respuesta, 'class="estado-fecha estado-fecha--completa">Completo<', count=1)
+
+    def test_la_fecha_oculta_no_aparece(self):
+        for respuesta in self._paginas():
+            with self.subTest(pagina=respuesta.request["PATH_INFO"]):
+                self.assertNotContains(respuesta, "Oculta")
+                self.assertNotContains(respuesta, "estado-fecha--oculta")
+
+    def test_ya_no_se_habla_de_lugares_ni_de_cupo(self):
+        for respuesta in self._paginas():
+            with self.subTest(pagina=respuesta.request["PATH_INFO"]):
+                html = respuesta.content.decode()
+                self.assertNotRegex(html, r"\d+ lugar")
+                self.assertNotIn("CUPO", html)
+                self.assertNotIn("Cupo", html)
+                self.assertNotIn("cupo-barra", html)

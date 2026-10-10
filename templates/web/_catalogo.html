@@ -46,10 +46,13 @@ enlaces recargan y caen en #filtros, no al principio de la sección.{% endcommen
           </div>
 
           <div>
-            <div class="etiqueta" style="margin-bottom:8px">FECHAS DISPONIBLES</div>
+            <div class="etiqueta" style="margin-bottom:8px">FECHAS</div>
             <div class="fechas">
               {% for comision in curso.comisiones_publicadas %}
-                <span class="fecha-chip">{{ comision.fecha_texto }} · {{ comision.estado_texto }}</span>
+                <span class="fecha-chip">
+                  {{ comision.fecha_texto }}
+                  <span class="estado-fecha estado-fecha--{{ comision.estado_clave }}">{{ comision.estado_texto }}</span>
+                </span>
               {% empty %}
                 <span class="fecha-chip fecha-chip--gris">Consultar por WhatsApp</span>
               {% endfor %}
