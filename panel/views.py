@@ -913,9 +913,14 @@ def informes(request):
 
 # --- Administración --------------------------------------------------------
 
+def _usuarios_del_panel():
+    """Los superusuarios son cuentas técnicas: se administran sólo en /django-admin/."""
+    return Usuario.objects.filter(is_superuser=False)
+
+
 @SOLO_DIRECCION
 def usuarios_lista(request):
-    usuarios = Usuario.objects.prefetch_related("groups").order_by("first_name", "username")
+    usuarios = _usuarios_del_panel().prefetch_related("groups").order_by("first_name", "username")
     por_rol = {rol: [] for rol in JERARQUIA}
     sin_rol = []
     for usuario in usuarios:
@@ -934,7 +939,7 @@ def usuarios_lista(request):
 
 @SOLO_DIRECCION
 def usuario_editar(request, pk=None):
-    usuario = get_object_or_404(Usuario, pk=pk) if pk else None
+    usuario = get_object_or_404(_usuarios_del_panel(), pk=pk) if pk else None
     if request.method == "POST":
         formulario = UsuarioForm(request.POST, instance=usuario)
         if formulario.is_valid():
@@ -951,26 +956,18 @@ def usuario_editar(request, pk=None):
         "seccion": "usuarios",
         "form": formulario,
         "usuario_editado": usuario,
-        "puede_eliminar": bool(usuario) and _puede_eliminar_usuario(request.user, usuario),
+        "puede_eliminar": bool(usuario) and usuario.pk != request.user.pk,
         "descripciones": [(rol.label, DESCRIPCION_ROLES[rol]) for rol in JERARQUIA],
     })
 
 
-def _puede_eliminar_usuario(quien, usuario):
-    """Nadie se borra a sí mismo, y a un superusuario sólo lo borra otro."""
-    return usuario.pk != quien.pk and (quien.is_superuser or not usuario.is_superuser)
-
-
 @SOLO_DIRECCION
 def usuario_eliminar(request, pk):
-    usuario = get_object_or_404(Usuario, pk=pk)
+    usuario = get_object_or_404(_usuarios_del_panel(), pk=pk)
     if request.method != "POST":
         return redirect("panel:usuario_editar", pk=pk)
     if usuario.pk == request.user.pk:
         messages.error(request, "No podés eliminar tu propio usuario.")
-        return redirect("panel:usuario_editar", pk=pk)
-    if not _puede_eliminar_usuario(request.user, usuario):
-        messages.error(request, "Ese usuario es de administración técnica y no se elimina desde el panel.")
         return redirect("panel:usuario_editar", pk=pk)
     nombre = usuario.username
     usuario.delete()

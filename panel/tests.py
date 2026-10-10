@@ -102,10 +102,6 @@ class EliminarUsuarioTests(TestCase):
         self._eliminar(self.administracion, self.recepcion)
         self.assertTrue(Usuario.objects.filter(pk=self.recepcion.pk).exists())
 
-    def test_direccion_no_elimina_a_un_superusuario(self):
-        tecnico = Usuario.objects.create_superuser(username="tecnico", password="clave-larga-123")
-        self._eliminar(self.direccion, tecnico)
-        self.assertTrue(Usuario.objects.filter(pk=tecnico.pk).exists())
 
     def test_el_boton_aparece_al_editar_a_otro_y_no_a_uno_mismo(self):
         self.client.force_login(self.direccion)
@@ -115,3 +111,45 @@ class EliminarUsuarioTests(TestCase):
         self.assertNotContains(propio, "Eliminar este usuario")
         nuevo = self.client.get(reverse("panel:usuario_nuevo"))
         self.assertNotContains(nuevo, "Eliminar este usuario")
+
+
+class SuperusuarioOcultoTests(TestCase):
+    """El superusuario técnico se administra sólo desde /django-admin/."""
+
+    @classmethod
+    def setUpTestData(cls):
+        sincronizar_grupos()
+        cls.direccion = Usuario.objects.create_user(username="marta", password="clave-larga-123")
+        cls.direccion.asignar_rol(Rol.DIRECCION)
+        cls.tecnico = Usuario.objects.create_superuser(
+            username="tecnico", password="clave-larga-123", email="tecnico@ejemplo.com.ar"
+        )
+        cls.tecnico.asignar_rol(Rol.DIRECCION)
+        cls.sin_rol = Usuario.objects.create_superuser(username="raiz", password="clave-larga-123")
+
+    def test_no_figura_en_el_listado_ni_en_el_total(self):
+        self.client.force_login(self.direccion)
+        respuesta = self.client.get(reverse("panel:usuarios"))
+        self.assertNotContains(respuesta, "tecnico")
+        self.assertNotContains(respuesta, "raiz")
+        self.assertEqual(respuesta.context["total"], 1)
+        self.assertEqual(respuesta.context["sin_rol"], [])
+
+    def test_tampoco_lo_ve_otro_superusuario(self):
+        self.client.force_login(self.sin_rol)
+        respuesta = self.client.get(reverse("panel:usuarios"))
+        self.assertNotContains(respuesta, "tecnico@ejemplo.com.ar")
+
+    def test_no_se_puede_editar_desde_el_panel(self):
+        self.client.force_login(self.direccion)
+        url = reverse("panel:usuario_editar", args=[self.tecnico.pk])
+        self.assertEqual(self.client.get(url).status_code, 404)
+        self.assertEqual(self.client.post(url, {"username": "otro"}).status_code, 404)
+        self.tecnico.refresh_from_db()
+        self.assertEqual(self.tecnico.username, "tecnico")
+
+    def test_no_se_puede_eliminar_desde_el_panel(self):
+        self.client.force_login(self.direccion)
+        respuesta = self.client.post(reverse("panel:usuario_eliminar", args=[self.tecnico.pk]))
+        self.assertEqual(respuesta.status_code, 404)
+        self.assertTrue(Usuario.objects.filter(pk=self.tecnico.pk).exists())
