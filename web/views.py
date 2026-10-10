@@ -24,20 +24,15 @@ def _catalogo():
 
 
 def _contexto_catalogo(request):
-    """La grilla y sus filtros. Sólo hay filtro para las categorías con cursos.
+    """La grilla por bloques. Con `?curso=` se ve sólo ese curso.
 
-    Van siempre todas las categorías; la plantilla oculta las que no coinciden
-    con el filtro. Uno que no corresponde a ninguna se ignora.
+    Van siempre todos los cursos; la plantilla oculta los demás. Un curso que
+    no existe o no está publicado se ignora y se ven todos.
     """
-    todas = _catalogo()
-    filtro = request.GET.get("categoria", "")
-    if not any(b["categoria"].slug == filtro for b in todas):
-        filtro = ""
-    return {
-        "catalogo": todas,
-        "filtros": [bloque["categoria"] for bloque in todas],
-        "filtro_actual": filtro,
-    }
+    bloques = _catalogo()
+    elegido = request.GET.get("curso", "")
+    publicados = {curso.slug for bloque in bloques for curso in bloque["cursos"]}
+    return {"catalogo": bloques, "curso_actual": elegido if elegido in publicados else ""}
 
 
 def inicio(request):

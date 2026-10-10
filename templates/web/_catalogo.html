@@ -1,35 +1,39 @@
 {% load static %}
-{% comment %}Grilla de categorías y cursos. La comparten el inicio y /cursos/.
-Sin filtro se ven todas; tocar el filtro activo lo apaga y vuelve a mostrarlas.
-Se dibujan siempre todas las categorías y el filtro oculta las demás: así
-filtros.js puede cambiar de filtro sin recargar la página. Sin JavaScript, los
-enlaces recargan y caen en #filtros, no al principio de la sección.{% endcomment %}
-<div class="filtros" id="filtros">
-  {% for categoria in filtros %}
-    <a class="filtro{% if filtro_actual == categoria.slug %} filtro--activo{% endif %}"
-       data-categoria="{{ categoria.slug }}"
-       {% if filtro_actual == categoria.slug %}aria-current="true" href="{{ url_base }}#filtros"{% else %}href="{{ url_base }}?categoria={{ categoria.slug }}#filtros"{% endif %}>{{ categoria.nombre }}</a>
-  {% endfor %}
-</div>
+{% comment %}Los cursos, agrupados en un bloque por categoría con un botón por curso.
+Sin elegir nada se ven todos; un botón deja a la vista sólo su curso y volver a
+tocarlo los muestra a todos. Se dibujan siempre todas las tarjetas y el botón
+oculta las demás: así filtros.js cambia de curso sin recargar la página. Sin
+JavaScript, los botones son enlaces que recargan y caen en #cursos-lista.{% endcomment %}
 <script src="{% static 'js/filtros.js' %}" defer></script>
-
+<div id="cursos-lista">
 {% for bloque in catalogo %}
-  <div class="categoria" data-categoria="{{ bloque.categoria.slug }}"
-       {% if filtro_actual and filtro_actual != bloque.categoria.slug %}hidden{% endif %}>
+  <div class="bloque bloque--{{ forloop.counter }}">
     <div class="categoria__titulo">
       {% if bloque.categoria.icono %}
         {# Decorativo: el nombre de la categoría va al lado, en el h3. #}
         <img class="categoria__icono" src="{{ bloque.categoria.icono.url }}" alt="" height="36">
       {% endif %}
       <h3>{{ bloque.categoria.nombre }}</h3>
-      <span class="chip-conteo">{{ bloque.categoria.conteo_texto }}</span>
     </div>
     {% if bloque.categoria.resumen %}
       <p class="categoria__resumen">{{ bloque.categoria.resumen }}</p>
     {% endif %}
+    <div class="botones-curso">
+      {% for curso in bloque.cursos %}
+        {% if curso_actual == curso.slug %}
+          <a class="boton-curso boton-curso--activo" aria-current="true" href="{{ url_base }}#cursos-lista" data-curso="{{ curso.slug }}">{{ curso.nombre_boton }}</a>
+        {% else %}
+          <a class="boton-curso" href="{{ url_base }}?curso={{ curso.slug }}#cursos-lista" data-curso="{{ curso.slug }}">{{ curso.nombre_boton }}</a>
+        {% endif %}
+      {% endfor %}
+    </div>
     <div class="grilla-cursos">
       {% for curso in bloque.cursos %}
-        <article class="tarjeta-curso">
+        {% if curso_actual and curso_actual != curso.slug %}
+        <article class="tarjeta-curso" data-curso="{{ curso.slug }}" hidden>
+        {% else %}
+        <article class="tarjeta-curso" data-curso="{{ curso.slug }}">
+        {% endif %}
           <div class="tarjeta-curso__nombre">
             <a href="{{ curso.get_absolute_url }}">{{ curso.nombre }}</a>
           </div>
@@ -73,6 +77,7 @@ enlaces recargan y caen en #filtros, no al principio de la sección.{% endcommen
   </div>
 {% empty %}
   <p class="categoria__resumen" style="margin-top:28px">
-    No hay cursos publicados en esta categoría. Escribinos por WhatsApp y te informamos las próximas fechas.
+    No hay cursos publicados. Escribinos por WhatsApp y te informamos las próximas fechas.
   </p>
 {% endfor %}
+</div>

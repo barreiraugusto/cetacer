@@ -20,10 +20,11 @@ CATALOGO = [
     {
         "nombre": "Cargas Generales",
         "orden": 1,
-        "resumen": "Curso habilitante para la Licencia Nacional de Conducir profesional, categorías C, D y E.",
+        "resumen": "Cursos para obtener, renovar o ampliar la Licencia Nacional de Conducir profesional.",
         "cursos": [
             {
                 "nombre": "Curso primera vez — Cargas Generales",
+                "nombre_corto": "Inicial",
                 "precio": 405000,
                 "requisitos": "Psicofísico vigente, DNI y constancia de pago (e-SICAPRO).",
                 "descripcion": (
@@ -31,16 +32,32 @@ CATALOGO = [
                     "Nacional Habilitante en las categorías de carga general. Incluye normativa "
                     "vigente, seguridad vial, documentación del transporte y manejo defensivo."
                 ),
-            }
+            },
+            {
+                "nombre": "Renovación — Cargas Generales y Transporte de Pasajeros",
+                "nombre_corto": "Renovación",
+                "precio": 115000,
+                "requisitos": "Certificado anterior, psicofísico vigente y DNI.",
+                "descripcion": "Renovación de la Licencia Nacional Habilitante ya obtenida.",
+            },
+            {
+                "nombre": "Renovación + ampliación — Cargas Generales",
+                "nombre_corto": "Ampliación",
+                "precio": None,
+                "consultar": True,
+                "requisitos": "Certificado anterior, psicofísico vigente y DNI.",
+                "descripcion": "Renovación de la habilitación vigente sumando una categoría nueva.",
+            },
         ],
     },
     {
         "nombre": "Mercancías Peligrosas",
         "orden": 2,
-        "resumen": "Formación obligatoria para el transporte de mercancías y residuos peligrosos.",
+        "resumen": "Certificado obligatorio para el transporte de mercancías y residuos peligrosos.",
         "cursos": [
             {
                 "nombre": "Curso primera vez — Mercancías Peligrosas",
+                "nombre_corto": "Primera vez",
                 "precio": 225000,
                 "requisitos": "Licencia profesional vigente, DNI y constancia de pago.",
                 "descripcion": (
@@ -51,6 +68,7 @@ CATALOGO = [
             },
             {
                 "nombre": "Curso actualización — Mercancías Peligrosas",
+                "nombre_corto": "Renovación",
                 "precio": 120000,
                 "requisitos": "Certificado anterior de Mercancías Peligrosas y DNI.",
                 "descripcion": "Actualización de la habilitación para quienes ya tienen el curso básico aprobado.",
@@ -58,29 +76,17 @@ CATALOGO = [
         ],
     },
     {
-        "nombre": "Renovación",
+        "nombre": "Transporte de Pasajeros",
         "orden": 3,
-        "resumen": "Renovación de la habilitación ya obtenida.",
+        "resumen": "Habilitación para el transporte de pasajeros.",
         "cursos": [
             {
-                "nombre": "Renovación — Cargas Generales y Transporte de Pasajeros",
-                "precio": 115000,
-                "requisitos": "Certificado anterior, psicofísico vigente y DNI.",
-                "descripcion": "Renovación de la Licencia Nacional Habilitante ya obtenida.",
-            },
-        ],
-    },
-    {
-        "nombre": "Ampliación",
-        "orden": 4,
-        "resumen": "Ampliación de la habilitación a nuevas categorías.",
-        "cursos": [
-            {
-                "nombre": "Renovación + ampliación — Cargas Generales",
+                "nombre": "Curso primera vez — Transporte de Pasajeros",
+                "nombre_corto": "Primera vez",
                 "precio": None,
                 "consultar": True,
-                "requisitos": "Certificado anterior, psicofísico vigente y DNI.",
-                "descripcion": "Renovación de la habilitación vigente sumando una categoría nueva.",
+                "requisitos": "Psicofísico vigente y DNI.",
+                "descripcion": "Curso básico para quienes tramitan por primera vez la habilitación de pasajeros.",
             },
         ],
     },
@@ -223,6 +229,7 @@ class Command(BaseCommand):
                     nombre=datos_curso["nombre"],
                     defaults={
                         "categoria": categoria,
+                        "nombre_corto": datos_curso.get("nombre_corto", ""),
                         "precio": datos_curso["precio"],
                         "precio_a_consultar": datos_curso.get("consultar", False),
                         "requisitos": datos_curso["requisitos"],

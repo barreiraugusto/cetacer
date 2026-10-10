@@ -213,11 +213,6 @@ class Categoria(models.Model):
     def cursos_publicados(self):
         return self.cursos.filter(activo=True)
 
-    @property
-    def conteo_texto(self):
-        total = self.cursos_publicados.count()
-        return "1 curso" if total == 1 else f"{total} cursos"
-
 
 class Curso(models.Model):
     """Un curso del catálogo. Sus fechas de dictado viven en Comision."""
@@ -226,6 +221,10 @@ class Curso(models.Model):
         Categoria, on_delete=models.PROTECT, related_name="cursos", verbose_name="categoría"
     )
     nombre = models.CharField("nombre", max_length=200)
+    nombre_corto = models.CharField(
+        "nombre corto", max_length=40, blank=True,
+        help_text="Texto del botón del curso en la web. Ej: Inicial, Renovación.",
+    )
     slug = models.SlugField("identificador en la URL", max_length=220, unique=True, blank=True)
     precio = models.DecimalField(
         "precio", max_digits=12, decimal_places=2, null=True, blank=True,
@@ -265,6 +264,10 @@ class Curso(models.Model):
 
     def get_absolute_url(self):
         return reverse("web:curso", kwargs={"slug": self.slug})
+
+    @property
+    def nombre_boton(self):
+        return self.nombre_corto or self.nombre
 
     @property
     def precio_texto(self):

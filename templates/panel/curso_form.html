@@ -11,12 +11,13 @@
 
   <div class="seccion-form">
     <div class="seccion-form__titulo">1. Identificación</div>
-    <p class="seccion-form__ayuda">La categoría define bajo qué título aparece el curso en la web.</p>
+    <p class="seccion-form__ayuda">La categoría define en qué bloque de la web aparece el curso; el nombre corto es el texto de su botón.</p>
     <div class="grilla-campos">
       {% include "panel/_campo.html" with campo=form.categoria %}
       {% include "panel/_campo.html" with campo=form.orden %}
     </div>
     {% include "panel/_campo.html" with campo=form.nombre %}
+    {% include "panel/_campo.html" with campo=form.nombre_corto %}
   </div>
 
   <div class="seccion-form">

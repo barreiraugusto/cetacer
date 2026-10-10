@@ -1,35 +1,42 @@
-// Filtra la grilla de cursos sin recargar la página, para que quien va
-// probando categorías no vuelva cada vez al principio. La dirección se
-// actualiza igual, así un filtro se puede compartir o recargar.
+// Deja a la vista un solo curso sin recargar la página, para que quien va
+// probando botones no vuelva cada vez al principio. La dirección se actualiza
+// igual, así un curso elegido se puede compartir o recargar.
 (function () {
-  var filtros = document.getElementById("filtros");
-  if (!filtros) return;
-  var enlaces = filtros.querySelectorAll(".filtro");
-  var categorias = document.querySelectorAll(".categoria[data-categoria]");
+  var lista = document.getElementById("cursos-lista");
+  if (!lista) return;
+  var botones = lista.querySelectorAll(".boton-curso");
+  var tarjetas = lista.querySelectorAll(".tarjeta-curso[data-curso]");
+  var base = window.location.pathname;
 
   function aplicar(slug) {
-    enlaces.forEach(function (enlace) {
-      var activo = enlace.dataset.categoria === slug;
-      enlace.classList.toggle("filtro--activo", activo);
-      if (activo) enlace.setAttribute("aria-current", "true");
-      else enlace.removeAttribute("aria-current");
+    botones.forEach(function (boton) {
+      var activo = boton.dataset.curso === slug;
+      boton.classList.toggle("boton-curso--activo", activo);
+      if (activo) boton.setAttribute("aria-current", "true");
+      else boton.removeAttribute("aria-current");
+      // El enlace queda coherente por si se abre en otra pestaña.
+      boton.setAttribute(
+        "href",
+        activo ? base + "#cursos-lista" : base + "?curso=" + boton.dataset.curso + "#cursos-lista"
+      );
     });
-    categorias.forEach(function (bloque) {
-      bloque.hidden = Boolean(slug) && bloque.dataset.categoria !== slug;
+    tarjetas.forEach(function (tarjeta) {
+      tarjeta.hidden = Boolean(slug) && tarjeta.dataset.curso !== slug;
     });
   }
 
-  filtros.addEventListener("click", function (evento) {
-    var enlace = evento.target.closest(".filtro");
-    if (!enlace || evento.metaKey || evento.ctrlKey || evento.shiftKey) return;
+  lista.addEventListener("click", function (evento) {
+    var boton = evento.target.closest(".boton-curso");
+    if (!boton || evento.metaKey || evento.ctrlKey || evento.shiftKey) return;
     evento.preventDefault();
-    // Tocar el filtro activo lo apaga y vuelven a verse todas.
-    var slug = enlace.classList.contains("filtro--activo") ? "" : enlace.dataset.categoria;
+    // Tocar el botón activo lo apaga y vuelven a verse todos.
+    var slug = boton.classList.contains("boton-curso--activo") ? "" : boton.dataset.curso;
     aplicar(slug);
     var url = new URL(window.location.href);
-    if (slug) url.searchParams.set("categoria", slug);
-    else url.searchParams.delete("categoria");
-    url.hash = "filtros";
+    if (slug) url.searchParams.set("curso", slug);
+    else url.searchParams.delete("curso");
+    url.searchParams.delete("categoria");
+    url.hash = "cursos-lista";
     history.replaceState(null, "", url);
   });
 })();

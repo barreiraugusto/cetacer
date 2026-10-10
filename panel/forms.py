@@ -44,7 +44,7 @@ class CursoForm(BaseForm):
     class Meta:
         model = Curso
         fields = [
-            "categoria", "nombre", "precio", "precio_a_consultar", "duracion_horario",
+            "categoria", "nombre", "nombre_corto", "precio", "precio_a_consultar", "duracion_horario",
             "requisitos", "descripcion", "orden", "activo",
         ]
         help_texts = {

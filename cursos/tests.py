@@ -34,11 +34,6 @@ class CursoTests(TestCase):
         sin_precio = Curso.objects.create(categoria=self.categoria, nombre="Otro")
         self.assertEqual(sin_precio.precio_texto, "Consultar")
 
-    def test_conteo_de_la_categoria(self):
-        self.assertEqual(self.categoria.conteo_texto, "1 curso")
-        Curso.objects.create(categoria=self.categoria, nombre="Segundo")
-        self.assertEqual(self.categoria.conteo_texto, "2 cursos")
-
 
 class ComisionTests(TestCase):
     def setUp(self):

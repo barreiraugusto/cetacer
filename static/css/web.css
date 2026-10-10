@@ -219,26 +219,32 @@ img, iframe { max-width: 100%; }
 }
 .cursos__video iframe { display: block; width: 100%; height: 100%; border: 0; }
 
-/* --- Filtros -------------------------------------------------------------- */
-
-.filtros { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 0; }
-/* Al recargar sin JavaScript, #filtros no queda pegado al borde de la ventana. */
-#filtros { scroll-margin-top: 20px; }
-.categoria[hidden] { display: none; }
-.filtro {
-  font-size: 15px; font-weight: 600; cursor: pointer;
-  padding: 10px 16px; border-radius: 999px; border: 1px solid var(--borde-fuerte);
-  background: #ffffff; color: var(--texto);
-}
-.filtro:hover { text-decoration: none; color: var(--texto); background: #fafbfc; }
-.filtro--activo {
-  background: var(--azul-profundo); border-color: var(--azul-profundo); color: #ffffff;
-}
-.filtro--activo:hover { color: #ffffff; background: var(--azul-profundo); }
-
 /* --- Catálogo ------------------------------------------------------------- */
 
-.categoria { padding: clamp(28px, 4vw, 44px) 0 0; }
+/* Cada categoría es un bloque con su color; adentro, un botón por curso. */
+.bloque {
+  --acento: var(--azul-profundo);
+  margin-top: 24px; padding: clamp(18px, 3vw, 28px);
+  background: #ffffff; border: 1px solid var(--borde); border-top: 5px solid var(--acento);
+  border-radius: var(--radio-card);
+}
+.bloque--2 { --acento: #b45309; }
+.bloque--3 { --acento: #166534; }
+.bloque--4 { --acento: #6b21a8; }
+/* Al recargar sin JavaScript, la lista no queda pegada al borde de la ventana. */
+#cursos-lista { scroll-margin-top: 20px; }
+.botones-curso { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 20px; }
+.boton-curso {
+  flex: 1 1 170px; min-height: 50px; display: flex; align-items: center; justify-content: center;
+  padding: 10px 16px; text-align: center; font-size: 16.5px; font-weight: 700; line-height: 1.25;
+  color: var(--acento); background: #ffffff; border: 2px solid var(--acento);
+  border-radius: var(--radio);
+}
+.boton-curso:hover { text-decoration: none; color: var(--acento); background: #f4f5f7; }
+.boton-curso--activo, .boton-curso--activo:hover { color: #ffffff; background: var(--acento); }
+.bloque .tarjeta-curso { background: #fafbfc; }
+.tarjeta-curso[hidden] { display: none; }
+
 .categoria__titulo { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 /* El icono lo sube CETACER por categoría; se alinea con el texto del título. */
 .categoria__icono {
@@ -248,14 +254,10 @@ img, iframe { max-width: 100%; }
   align-self: center; flex-shrink: 0;
 }
 .categoria__titulo h3 {
-  font-size: clamp(21px, 2.6vw, 25px); font-weight: 700; color: var(--azul-profundo); margin: 0;
-}
-.chip-conteo {
-  font-size: 13.5px; font-weight: 600; letter-spacing: 0.04em; color: var(--azul);
-  background: var(--azul-tinte); padding: 3px 10px; border-radius: 999px;
+  font-size: clamp(22px, 2.8vw, 27px); font-weight: 700; color: var(--acento, var(--azul-profundo)); margin: 0;
 }
 .categoria__resumen {
-  font-size: 16px; color: var(--texto-suave); max-width: 62ch; margin: 8px 0 20px;
+  font-size: 16px; color: var(--texto-suave); max-width: 62ch; margin: 8px 0 0;
 }
 
 .grilla-cursos {

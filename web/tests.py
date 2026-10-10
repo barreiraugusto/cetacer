@@ -1,4 +1,5 @@
 """Pruebas de la web pública: catálogo, ficha del curso y filtros de plantilla."""
+import re
 from datetime import date, timedelta
 from importlib import import_module
 from unittest import mock
@@ -55,32 +56,6 @@ class CatalogoTests(TestCase):
         Comision.objects.create(
             curso=self.curso, fecha_inicio=date.today() + timedelta(days=5),
         )
-
-    def test_sin_filtro_se_ven_todas_las_categorias(self):
-        respuesta = self.client.get("/cursos/")
-        self.assertContains(respuesta, "Curso primera vez")
-        self.assertContains(respuesta, "Curso MMPP")
-        self.assertNotContains(respuesta, "Todas las categorías")
-
-    def test_el_filtro_deja_una_sola_categoria(self):
-        # Todas se dibujan para poder cambiar de filtro sin recargar; las
-        # demás van ocultas.
-        html = self.client.get("/cursos/?categoria=mercancias-peligrosas").content.decode()
-        self.assertRegex(html, r'data-categoria="cargas-generales"\s+hidden')
-        self.assertNotRegex(html, r'data-categoria="mercancias-peligrosas"\s+hidden')
-
-    def test_los_filtros_no_vuelven_al_principio_de_la_seccion(self):
-        respuesta = self.client.get("/")
-        self.assertContains(respuesta, 'id="filtros"')
-        self.assertContains(respuesta, "?categoria=cargas-generales#filtros")
-        self.assertContains(respuesta, "js/filtros.js")
-
-    def test_un_filtro_desconocido_muestra_todo(self):
-        html = self.client.get("/cursos/?categoria=todas").content.decode()
-        self.assertNotRegex(html, r'class="categoria"[^>]*hidden')
-
-    def test_las_categorias_sin_cursos_no_tienen_filtro(self):
-        self.assertNotContains(self.client.get("/cursos/"), "?categoria=vacia")
 
     def test_no_se_ofrece_reservar_lugar(self):
         for url in ("/", "/cursos/", self.curso.get_absolute_url()):
@@ -314,3 +289,95 @@ class EstadoDeFechaTests(TestCase):
                 self.assertNotIn("CUPO", html)
                 self.assertNotIn("Cupo", html)
                 self.assertNotIn("cupo-barra", html)
+
+
+class BloquesTests(TestCase):
+    """Cada categoría es un bloque y cada curso, un botón que lo deja solo a la vista."""
+
+    @classmethod
+    def setUpTestData(cls):
+        generales = Categoria.objects.create(nombre="Cargas Generales", orden=1)
+        peligrosas = Categoria.objects.create(nombre="Mercancías Peligrosas", orden=2)
+        Categoria.objects.create(nombre="Transporte de Pasajeros", orden=3)
+        cls.inicial = Curso.objects.create(
+            categoria=generales, nombre="Curso primera vez — Cargas Generales",
+            nombre_corto="Inicial", precio=1, orden=1,
+        )
+        cls.renovacion = Curso.objects.create(
+            categoria=generales, nombre="Renovación — Cargas Generales",
+            nombre_corto="Renovación", precio=1, orden=2,
+        )
+        cls.peligrosas = Curso.objects.create(
+            categoria=peligrosas, nombre="Curso primera vez — Mercancías Peligrosas", precio=1,
+        )
+        cls.oculto = Curso.objects.create(
+            categoria=generales, nombre="Viejo", nombre_corto="Viejo", precio=1, activo=False,
+        )
+
+    def _tarjetas_visibles(self, respuesta):
+        html = respuesta.content.decode()
+        return re.findall(r'<article class="tarjeta-curso" data-curso="([^"]+)">', html)
+
+    def _botones(self, respuesta):
+        html = respuesta.content.decode()
+        return re.findall(r'<a class="boton-curso[^>]*data-curso="([^"]+)"[^>]*>([^<]+)</a>', html)
+
+    def test_sin_elegir_se_ven_todos_los_cursos(self):
+        respuesta = self.client.get("/")
+        self.assertEqual(
+            self._tarjetas_visibles(respuesta),
+            [self.inicial.slug, self.renovacion.slug, self.peligrosas.slug],
+        )
+        self.assertNotContains(respuesta, "boton-curso--activo")
+
+    def test_cada_curso_tiene_su_boton_con_el_nombre_corto(self):
+        self.assertEqual(self._botones(self.client.get("/")), [
+            (self.inicial.slug, "Inicial"),
+            (self.renovacion.slug, "Renovación"),
+            (self.peligrosas.slug, "Curso primera vez — Mercancías Peligrosas"),
+        ])
+
+    def test_elegir_un_curso_muestra_solo_ese(self):
+        respuesta = self.client.get("/?curso=" + self.renovacion.slug)
+        self.assertEqual(self._tarjetas_visibles(respuesta), [self.renovacion.slug])
+        self.assertContains(respuesta, "boton-curso--activo", count=1)
+
+    def test_los_bloques_y_sus_botones_siguen_a_la_vista(self):
+        respuesta = self.client.get("/?curso=" + self.renovacion.slug)
+        self.assertContains(respuesta, "Mercancías Peligrosas")
+        self.assertEqual(len(self._botones(respuesta)), 3)
+
+    def test_un_curso_desconocido_o_inactivo_muestra_todo(self):
+        for slug in ("no-existe", self.oculto.slug, ""):
+            with self.subTest(slug=slug):
+                respuesta = self.client.get("/?curso=" + slug)
+                self.assertEqual(len(self._tarjetas_visibles(respuesta)), 3)
+                self.assertNotContains(respuesta, "boton-curso--activo")
+
+    def test_el_filtro_viejo_por_categoria_no_rompe(self):
+        respuesta = self.client.get("/cursos/?categoria=mercancias-peligrosas")
+        self.assertEqual(len(self._tarjetas_visibles(respuesta)), 3)
+
+    def test_un_curso_inactivo_no_tiene_boton(self):
+        self.assertNotIn(self.oculto.slug, dict(self._botones(self.client.get("/"))))
+
+    def test_un_bloque_sin_cursos_visibles_no_aparece(self):
+        self.assertNotContains(self.client.get("/"), "Transporte de Pasajeros")
+
+    def test_el_boton_activo_vuelve_a_mostrar_todo(self):
+        respuesta = self.client.get("/?curso=" + self.renovacion.slug)
+        self.assertContains(
+            respuesta,
+            '<a class="boton-curso boton-curso--activo" aria-current="true" '
+            'href="/#cursos-lista" data-curso="%s">' % self.renovacion.slug,
+        )
+
+    def test_los_botones_no_vuelven_al_principio_de_la_pagina(self):
+        respuesta = self.client.get("/cursos/")
+        self.assertContains(respuesta, 'id="cursos-lista"')
+        self.assertContains(respuesta, "/cursos/?curso=%s#cursos-lista" % self.inicial.slug)
+        self.assertContains(respuesta, "js/filtros.js")
+
+    def test_la_pagina_de_cursos_funciona_igual(self):
+        respuesta = self.client.get("/cursos/?curso=" + self.inicial.slug)
+        self.assertEqual(self._tarjetas_visibles(respuesta), [self.inicial.slug])
