@@ -54,7 +54,6 @@ class CatalogoTests(TestCase):
         Curso.objects.create(categoria=self.peligrosas, nombre="Curso MMPP", precio=1000)
         Comision.objects.create(
             curso=self.curso, fecha_inicio=date.today() + timedelta(days=5),
-            estado=Comision.Estado.PUBLICADA,
         )
 
     def test_sin_filtro_se_ven_todas_las_categorias(self):
@@ -229,7 +228,6 @@ class WebPublicaTests(TestCase):
         )
         cls.comision = Comision.objects.create(
             curso=cls.curso, fecha_inicio=date.today() + timedelta(days=15),
-            estado=Comision.Estado.PUBLICADA,
         )
 
     def test_el_inicio_muestra_los_cursos_activos(self):

@@ -342,8 +342,11 @@ table.tabla .apagado { color: var(--etiqueta); font-size: 13.5px; }
   background: var(--azul-tinte); color: var(--azul-oscuro); margin-bottom: 3px; line-height: 1.3;
 }
 .calendario__evento:hover { text-decoration: none; background: #dde2f6; }
-.calendario__evento--borrador { background: #eef0f4; color: var(--texto-suave); }
-.calendario__evento--cancelada { background: var(--rojo-tinte); color: #912018; text-decoration: line-through; }
+.calendario__evento--disponible { background: var(--verde-tinte); color: #05603a; }
+.calendario__evento--disponible:hover { background: #d3f8e0; }
+.calendario__evento--completa { background: var(--rojo-tinte); color: #912018; }
+.calendario__evento--completa:hover { background: #fee4e2; }
+.calendario__evento--oculta { background: #eef0f4; color: var(--texto-suave); }
 
 /* --- Ingreso -------------------------------------------------------------- */
 
@@ -488,3 +491,8 @@ table.tabla .apagado { color: var(--etiqueta); font-size: 13.5px; }
   .manual__capitulo { break-inside: auto; margin-bottom: 18px; }
   .captura { break-inside: avoid; }
 }
+
+/* Botones para cambiar el estado de una fecha con un clic, en una sola línea. */
+.acciones-fecha { display: flex; gap: 6px; flex-wrap: nowrap; }
+.acciones-fecha .boton { white-space: nowrap; }
+@media (max-width: 700px) { .acciones-fecha { flex-wrap: wrap; } }

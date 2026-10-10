@@ -1,0 +1,21 @@
+{% comment %}Cambia el estado de una fecha con un clic. Recibe `comision`.{% endcomment %}
+<div class="acciones-fecha">
+  <form method="post" action="{% url 'panel:fecha_marcar' comision.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <input type="hidden" name="campo" value="completa">
+    <input type="hidden" name="valor" value="{% if comision.completa %}0{% else %}1{% endif %}">
+    <button class="boton boton--secundario boton--chico" type="submit">
+      {% if comision.completa %}Marcar disponible{% else %}Marcar completa{% endif %}
+    </button>
+  </form>
+  <form method="post" action="{% url 'panel:fecha_marcar' comision.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <input type="hidden" name="campo" value="visible">
+    <input type="hidden" name="valor" value="{% if comision.visible %}0{% else %}1{% endif %}">
+    <button class="boton boton--secundario boton--chico" type="submit">
+      {% if comision.visible %}Ocultar{% else %}Publicar{% endif %}
+    </button>
+  </form>
+</div>

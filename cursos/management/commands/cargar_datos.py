@@ -15,7 +15,6 @@ from contenido.models import EnlacePagina, Pagina
 from cuentas.models import Rol, Usuario
 from cuentas.permisos import sincronizar_grupos
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
-from inscripciones.models import Empresa, Inscripcion, Participante
 
 CATALOGO = [
     {
@@ -26,7 +25,6 @@ CATALOGO = [
             {
                 "nombre": "Curso primera vez — Cargas Generales",
                 "precio": 405000,
-                "cupo_sugerido": 30,
                 "requisitos": "Psicofísico vigente, DNI y constancia de pago (e-SICAPRO).",
                 "descripcion": (
                     "Curso básico obligatorio para quienes tramitan por primera vez la Licencia "
@@ -44,7 +42,6 @@ CATALOGO = [
             {
                 "nombre": "Curso primera vez — Mercancías Peligrosas",
                 "precio": 225000,
-                "cupo_sugerido": 25,
                 "requisitos": "Licencia profesional vigente, DNI y constancia de pago.",
                 "descripcion": (
                     "Habilitación para el transporte de mercancías y residuos peligrosos: "
@@ -55,7 +52,6 @@ CATALOGO = [
             {
                 "nombre": "Curso actualización — Mercancías Peligrosas",
                 "precio": 120000,
-                "cupo_sugerido": 30,
                 "requisitos": "Certificado anterior de Mercancías Peligrosas y DNI.",
                 "descripcion": "Actualización de la habilitación para quienes ya tienen el curso básico aprobado.",
             },
@@ -69,7 +65,6 @@ CATALOGO = [
             {
                 "nombre": "Renovación — Cargas Generales y Transporte de Pasajeros",
                 "precio": 115000,
-                "cupo_sugerido": 35,
                 "requisitos": "Certificado anterior, psicofísico vigente y DNI.",
                 "descripcion": "Renovación de la Licencia Nacional Habilitante ya obtenida.",
             },
@@ -84,7 +79,6 @@ CATALOGO = [
                 "nombre": "Renovación + ampliación — Cargas Generales",
                 "precio": None,
                 "consultar": True,
-                "cupo_sugerido": 30,
                 "requisitos": "Certificado anterior, psicofísico vigente y DNI.",
                 "descripcion": "Renovación de la habilitación vigente sumando una categoría nueva.",
             },
@@ -196,26 +190,6 @@ USUARIOS = [
     ("instructor", "Raúl", "Benítez", Rol.INSTRUCTOR, "Instructor"),
 ]
 
-APELLIDOS = [
-    "Gómez", "Fernández", "Sosa", "Ramírez", "Acosta", "Benítez", "Cabrera", "Ledesma",
-    "Ojeda", "Villalba", "Zárate", "Aguirre", "Maidana", "Escobar", "Ibarra", "Rolón",
-    "Britos", "Duarte", "Miranda", "Alsina", "Correa", "Gauna", "Leiva", "Pérez",
-]
-NOMBRES = [
-    "Juan Carlos", "Miguel Ángel", "Roberto", "Sergio", "Daniel", "Héctor", "Osvaldo",
-    "Fabián", "Marcelo", "Gustavo", "Ramón", "Claudio", "Alejandro", "Walter", "Mariela",
-    "Silvana", "Patricia", "Norma",
-]
-EMPRESAS = [
-    ("Transporte Litoral SRL", True), ("Cargas del Paraná SA", True),
-    ("Logística Entre Ríos SRL", False), ("Transportes Gualeguay SA", True),
-    ("Fletes Diamante", False), ("Río Uruguay Cargas SRL", False),
-]
-LOCALIDADES = [
-    "Paraná", "Concordia", "Gualeguaychú", "Concepción del Uruguay", "Victoria",
-    "Nogoyá", "Villaguay", "Diamante", "Crespo", "La Paz",
-]
-
 
 class Command(BaseCommand):
     help = "Carga el catálogo de cursos, los roles y usuarios de ejemplo."
@@ -223,7 +197,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--demo", action="store_true",
-            help="Agrega comisiones, participantes e inscripciones de prueba.",
+            help="Agrega fechas de prueba, pasadas y futuras.",
         )
         parser.add_argument(
             "--clave", default="cetacer2024",
@@ -254,7 +228,6 @@ class Command(BaseCommand):
                         "categoria": categoria,
                         "precio": datos_curso["precio"],
                         "precio_a_consultar": datos_curso.get("consultar", False),
-                        "cupo_sugerido": datos_curso["cupo_sugerido"],
                         "requisitos": datos_curso["requisitos"],
                         "descripcion": datos_curso["descripcion"],
                         "orden": orden,
@@ -287,9 +260,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS("\nListo."))
         self.stdout.write(f"  Cursos en el catálogo: {Curso.objects.count()}")
-        self.stdout.write(f"  Comisiones: {Comision.objects.count()}")
-        self.stdout.write(f"  Participantes: {Participante.objects.count()}")
-        self.stdout.write(f"  Inscripciones: {Inscripcion.objects.count()}")
+        self.stdout.write(f"  Fechas: {Comision.objects.count()}")
         self.stdout.write(
             f"\n  Usuarios de ejemplo (contraseña «{clave}»): "
             + ", ".join(u[0] for u in USUARIOS)
@@ -337,93 +308,19 @@ class Command(BaseCommand):
                 )
 
     def _cargar_demo(self, cursos):
-        empresas = [
-            Empresa.objects.get_or_create(
-                razon_social=nombre,
-                defaults={"socia": socia, "localidad": random.choice(LOCALIDADES)},
-            )[0]
-            for nombre, socia in EMPRESAS
-        ]
-        instructor = Usuario.objects.filter(username="instructor").first()
-        recepcion = Usuario.objects.filter(username="recepcion").first()
+        """Fechas pasadas y futuras, con algunas completas y alguna oculta."""
         hoy = date.today()
-
-        # Personas del padrón.
-        participantes = []
-        for indice in range(70):
-            dni = str(20000000 + indice * 137 + random.randint(0, 99))
-            participante, _ = Participante.objects.get_or_create(
-                dni=dni,
-                defaults={
-                    "apellido": random.choice(APELLIDOS),
-                    "nombre": random.choice(NOMBRES),
-                    "telefono": f"343 4{random.randint(100000, 999999)}",
-                    "email": f"conductor{indice}@ejemplo.com.ar",
-                    "localidad": random.choice(LOCALIDADES),
-                    "empresa": random.choice(empresas + [None, None]),
-                    "categoria_licencia": random.choice(["C", "D.2", "E.1", "C, E.1"]),
-                },
-            )
-            participantes.append(participante)
-
-        # Comisiones pasadas y futuras.
-        comisiones = []
         for desplazamiento in (-70, -45, -25, -10, 6, 13, 21, 34, 48):
             curso = random.choice(cursos)
             fecha = hoy + timedelta(days=desplazamiento)
-            if desplazamiento < -20:
-                estado = Comision.Estado.FINALIZADA
-            elif desplazamiento < 0:
-                estado = Comision.Estado.FINALIZADA
-            elif desplazamiento < 15:
-                estado = Comision.Estado.PUBLICADA
-            else:
-                estado = random.choice([Comision.Estado.PUBLICADA, Comision.Estado.BORRADOR])
-            comision, creada = Comision.objects.get_or_create(
+            Comision.objects.get_or_create(
                 curso=curso,
                 fecha_inicio=fecha,
                 defaults={
                     "fecha_fin": fecha + timedelta(days=random.choice([0, 0, 1])),
                     "hora_inicio": time(8, 30),
                     "hora_fin": time(16, 30),
-                    "cupo": curso.cupo_sugerido,
-                    "instructor": instructor,
-                    "estado": estado,
+                    "visible": random.random() > 0.2,
+                    "completa": random.random() > 0.7,
                 },
             )
-            if creada:
-                comisiones.append(comision)
-
-        # Inscripciones repartidas por comisión.
-        for comision in comisiones:
-            cantidad = random.randint(int(comision.cupo * 0.35), int(comision.cupo * 0.95))
-            for participante in random.sample(participantes, min(cantidad, len(participantes))):
-                if comision.fecha_inicio < hoy:
-                    estado = random.choices(
-                        [Inscripcion.Estado.ASISTIO, Inscripcion.Estado.AUSENTE],
-                        weights=[9, 1],
-                    )[0]
-                    pago = Inscripcion.Pago.PAGADO
-                else:
-                    estado = random.choices(
-                        [Inscripcion.Estado.CONFIRMADA, Inscripcion.Estado.PREINSCRIPTO],
-                        weights=[7, 3],
-                    )[0]
-                    pago = random.choices(
-                        [Inscripcion.Pago.PAGADO, Inscripcion.Pago.PENDIENTE], weights=[6, 4]
-                    )[0]
-                Inscripcion.objects.get_or_create(
-                    comision=comision,
-                    participante=participante,
-                    defaults={
-                        "estado": estado,
-                        "pago": pago,
-                        "monto": comision.curso.precio if pago == Inscripcion.Pago.PAGADO else None,
-                        "psicofisico_vigente": random.random() > 0.2,
-                        "documentacion_completa": random.random() > 0.3,
-                        "origen": random.choices(
-                            ["panel", "whatsapp", "web"], weights=[5, 4, 2]
-                        )[0],
-                        "creado_por": recepcion,
-                    },
-                )

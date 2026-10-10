@@ -3,13 +3,13 @@
 {% block title %}Agenda{% endblock %}
 {% block encabezado %}Agenda{% endblock %}
 {% block bajada %}
-  <div class="bajada">{{ total }} {{ total|plural:"comisión" }} en {{ mes_actual|date:"F \d\e Y" }}.</div>
+  <div class="bajada">{{ total }} {{ total|plural:"fecha" }} en {{ mes_actual|date:"F \d\e Y" }}.</div>
 {% endblock %}
 {% block acciones %}
   <a class="boton boton--secundario" href="?anio={{ mes_anterior|date:'Y' }}&mes={{ mes_anterior|date:'n' }}">← Mes anterior</a>
   <a class="boton boton--secundario" href="{% url 'panel:agenda' %}">Hoy</a>
   <a class="boton boton--secundario" href="?anio={{ mes_siguiente|date:'Y' }}&mes={{ mes_siguiente|date:'n' }}">Mes siguiente →</a>
-  <a class="boton boton--primario" href="{% url 'panel:comision_nueva' %}">+ Nueva comisión</a>
+  <a class="boton boton--primario" href="{% url 'panel:fecha_nueva' %}">+ Nueva fecha</a>
 {% endblock %}
 
 {% block contenido %}
@@ -26,9 +26,9 @@
     <div class="calendario__dia {% if not celda.del_mes %}calendario__dia--fuera{% endif %} {% if celda.es_hoy %}calendario__dia--hoy{% endif %}">
       <div class="calendario__numero">{{ celda.fecha|date:"j" }}</div>
       {% for comision in celda.comisiones %}
-        <a class="calendario__evento calendario__evento--{{ comision.estado }}"
-           href="{% url 'panel:comision_editar' comision.pk %}"
-           title="{{ comision.curso.nombre }}">
+        <a class="calendario__evento calendario__evento--{{ comision.estado_clave }}"
+           href="{% url 'panel:fecha_editar' comision.pk %}"
+           title="{{ comision.curso.nombre }} — {{ comision.estado_texto }}">
           {{ comision.curso.nombre|truncatechars:26 }}
         </a>
       {% endfor %}
@@ -37,6 +37,6 @@
 </div>
 
 <p class="texto-suave" style="margin-top:14px">
-  Los recuadros grises son comisiones en borrador: todavía no se ven en la web.
+  Verde: disponible. Rojo: completo. Gris: oculta, no se ve en la web. Tocá una fecha para editarla.
 </p>
 {% endblock %}

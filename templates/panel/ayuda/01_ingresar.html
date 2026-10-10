@@ -1,7 +1,7 @@
 <section class="tarjeta manual__capitulo" id="ingresar">
   <div class="manual__cabecera">
     <h2 class="manual__titulo">1. Ingresar y orientarse</h2>
-    <span class="distintivo distintivo--azul">Todos los roles</span>
+    <span class="distintivo distintivo--azul">Dirección y Administración</span>
   </div>
 
   <h3>Entrar al panel</h3>
@@ -18,7 +18,7 @@
 
   <h3>El menú</h3>
   <p>
-    El menú de la izquierda está siempre a la vista y ordena el panel en cuatro grupos. Abajo de todo
+    El menú de la izquierda está siempre a la vista. Abajo de todo
     figuran tu nombre, tu rol y el botón <strong>Salir</strong>, que cierra la sesión.
   </p>
   <div class="manual__dos">
@@ -26,14 +26,11 @@
     <div class="tabla-envoltorio" style="border:0">
       <table class="tabla">
         <tbody>
-          <tr><td class="principal-celda">Tablero</td><td>Resumen de lo que hay que mirar hoy.</td></tr>
-          <tr><td class="principal-celda">Agenda</td><td>Calendario del mes con las comisiones.</td></tr>
-          <tr><td class="principal-celda">Comisiones</td><td>Las fechas de dictado, con su cupo y su lista de inscriptos.</td></tr>
+          <tr><td class="principal-celda">Tablero</td><td>Las próximas fechas y su estado, de un vistazo.</td></tr>
+          <tr><td class="principal-celda">Agenda</td><td>Calendario del mes con las fechas.</td></tr>
+          <tr><td class="principal-celda">Fechas</td><td>Los días en que se dicta cada curso. Acá se suben y se marcan como completas.</td></tr>
           <tr><td class="principal-celda">Cursos</td><td>El catálogo que se muestra en la web: precios, requisitos y categorías.</td></tr>
-          <tr><td class="principal-celda">Páginas</td><td>Páginas de enlaces de la web (Legislación, Información útil). No la ve el rol Instructor.</td></tr>
-          <tr><td class="principal-celda">Inscripciones</td><td>Todas las inscripciones juntas, para buscar, filtrar y exportar.</td></tr>
-          <tr><td class="principal-celda">Participantes</td><td>El padrón de personas y las empresas.</td></tr>
-          <tr><td class="principal-celda">Informes</td><td>Totales por período: dictados, participantes y cobros.</td></tr>
+          <tr><td class="principal-celda">Páginas</td><td>Páginas de enlaces de la web (Legislación, Información útil).</td></tr>
           <tr><td class="principal-celda">Usuarios y permisos</td><td>Quién entra al panel y con qué rol. Sólo Dirección.</td></tr>
           <tr><td class="principal-celda">Configuración</td><td>Textos, contacto y fotos de la web pública. Sólo Dirección.</td></tr>
           <tr><td class="principal-celda">Cómo se usa</td><td>Este manual.</td></tr>
@@ -44,8 +41,7 @@
   </div>
   <p>
     Arriba de cada pantalla están el título, una línea que explica qué estás viendo y, a la derecha,
-    los botones de las acciones principales. El azul es siempre la acción de crear algo nuevo y el
-    verde, la descarga a Excel.
+    los botones de las acciones principales. El azul es siempre la acción de crear algo nuevo.
   </p>
   <p>
     Cuando un formulario no se puede guardar, arriba aparece un cartel rojo y cada campo con un
@@ -54,31 +50,23 @@
   </p>
   <p class="nota">
     Si tocás algo que tu rol no permite, el panel te devuelve al Tablero con el mensaje «Tu rol no
-    tiene acceso a esa sección». No es un error: pedile el cambio a Dirección. En este manual, cada
-    capítulo indica desde qué rol se puede hacer cada cosa.
+    tiene acceso a esa sección». No es un error: pedile el cambio a Dirección.
   </p>
 
   <h3>El Tablero</h3>
-  <p>Es la primera pantalla al entrar. De arriba hacia abajo muestra:</p>
-  {% include "panel/ayuda/_captura.html" with archivo="tablero" ancho=1800 alto=1470 pie="El Tablero: indicadores, avisos, próximas comisiones y últimos movimientos." %}
+  <p>Es la primera pantalla al entrar. Muestra las fechas de hoy en adelante.</p>
+  {% include "panel/ayuda/_captura.html" with archivo="tablero" ancho=1800 alto=1470 pie="El Tablero: indicadores y próximas fechas." %}
   <div class="tabla-envoltorio" style="border:0">
     <table class="tabla">
       <tbody>
-        <tr><td class="principal-celda">Comisiones abiertas</td><td>Comisiones publicadas en la web con fecha de hoy en adelante.</td></tr>
-        <tr><td class="principal-celda">Inscriptos próximos 30 días</td><td>Personas anotadas en comisiones que empiezan dentro del próximo mes. No cuenta las canceladas.</td></tr>
-        <tr><td class="principal-celda">Pagos pendientes</td><td>Inscripciones a comisiones futuras con el pago en «Pendiente». El enlace abre la lista de quiénes son.</td></tr>
-        <tr><td class="principal-celda">Solicitudes web sin confirmar</td><td>Preinscripciones con origen «Formulario web» que nadie confirmó todavía. Se pone en rojo cuando hay alguna.</td></tr>
+        <tr><td class="principal-celda">Fechas publicadas</td><td>Las que se ven en la web, estén disponibles o completas.</td></tr>
+        <tr><td class="principal-celda">Completas</td><td>De las publicadas, las que están marcadas como «Completo».</td></tr>
+        <tr><td class="principal-celda">Ocultas</td><td>Las que están guardadas pero no se ven en la web.</td></tr>
       </tbody>
     </table>
   </div>
-  <ul class="manual__lista">
-    <li><strong>Avisos</strong> (franjas de color): cosas que piden una acción, con el enlace para resolverlas. Avisan cuando una comisión que empieza en los próximos 14 días sigue en borrador, cuando una comisión publicada llegó al cupo y cuando hay solicitudes web sin confirmar.</li>
-    <li><strong>Próximas comisiones</strong>: las seis fechas más cercanas, con la barra de ocupación. «Abrir» lleva a la lista de inscriptos.</li>
-    <li><strong>Demanda por categoría</strong>: inscriptos de los próximos 60 días, agrupados por categoría de curso.</li>
-    <li><strong>Últimas inscripciones</strong>: las ocho más recientes, cargadas por cualquier persona.</li>
-  </ul>
-  <p class="nota">
-    Con el rol Instructor, el Tablero, la Agenda, Comisiones e Inscripciones muestran únicamente
-    las comisiones que tenés asignadas.
+  <p>
+    Debajo están las diez fechas más cercanas, con los mismos botones que la pantalla de
+    <a href="#fechas">Fechas</a>: desde acá se puede marcar una como completa sin ir a ningún otro lado.
   </p>
 </section>

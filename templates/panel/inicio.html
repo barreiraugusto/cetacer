@@ -1,62 +1,76 @@
 {% extends "panel/base.html" %}
 {% block title %}Tablero{% endblock %}
 {% block encabezado %}Hola, {{ user.first_name|default:user.username }}.{% endblock %}
-{% block bajada %}<div class="bajada">Esto es lo que hay que mirar hoy.</div>{% endblock %}
+{% block bajada %}<div class="bajada">Las próximas fechas y cómo se ven en la web.</div>{% endblock %}
 {% block acciones %}
   <a class="boton boton--secundario" href="{% url 'panel:agenda' %}">Ver agenda</a>
-  <a class="boton boton--primario" href="{% url 'panel:comision_nueva' %}">+ Nueva comisión</a>
+  <a class="boton boton--primario" href="{% url 'panel:fecha_nueva' %}">+ Nueva fecha</a>
 {% endblock %}
 
 {% block contenido %}
-
 <div class="grilla-indicadores">
+  <div class="indicador indicador--verde">
+    <div class="indicador__etiqueta">FECHAS PUBLICADAS</div>
+    <div class="indicador__valor">{{ indicadores.publicadas }}</div>
+    <div class="indicador__pie">Se ven en la web, de hoy en adelante</div>
+  </div>
+  <div class="indicador indicador--rojo">
+    <div class="indicador__etiqueta">COMPLETAS</div>
+    <div class="indicador__valor">{{ indicadores.completas }}</div>
+    <div class="indicador__pie">Publicadas y sin lugar</div>
+  </div>
   <div class="indicador">
-    <div class="indicador__etiqueta">COMISIONES ABIERTAS</div>
-    <div class="indicador__valor">{{ indicadores.comisiones_abiertas }}</div>
-    <div class="indicador__pie">Publicadas en la web, con fecha futura</div>
+    <div class="indicador__etiqueta">OCULTAS</div>
+    <div class="indicador__valor">{{ indicadores.ocultas }}</div>
+    <div class="indicador__pie">Guardadas, no se ven en la web</div>
   </div>
 </div>
-<div>
-  <div class="tarjeta">
-    <div class="tarjeta__titulo">Próximas comisiones</div>
-    {% if proximas %}
-      <div class="tabla-envoltorio" style="border:0">
-        <table class="tabla">
-          <thead>
-            <tr><th>Curso</th><th>Fecha</th><th>Estado</th><th></th></tr>
-          </thead>
-          <tbody>
-            {% for comision in proximas %}
-              <tr>
-                <td class="principal-celda">
-                  {{ comision.curso.nombre }}
-                  <div class="apagado">{{ comision.curso.categoria.nombre }}</div>
-                </td>
-                <td>
-                  {{ comision.fecha_texto }}
-                  <div class="apagado">
-                    {% if comision.dias_faltantes == 0 %}Es hoy
-                    {% elif comision.dias_faltantes == 1 %}Mañana
-                    {% else %}En {{ comision.dias_faltantes }} días{% endif %}
-                  </div>
-                </td>
-                <td>{% include "panel/_estado_comision.html" with comision=comision %}</td>
-                <td><a href="{% url 'panel:comision_editar' comision.pk %}">Editar</a></td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% else %}
-      <div class="tabla-vacia">
-        <strong>No hay comisiones cargadas.</strong>
-        Creá la primera para que aparezca en la web con su fecha y su cupo.
-        <div style="margin-top:16px">
-          <a class="boton boton--primario" href="{% url 'panel:comision_nueva' %}">+ Nueva comisión</a>
-        </div>
-      </div>
-    {% endif %}
-  </div>
 
+<div class="tarjeta">
+  <div class="tarjeta__titulo">Próximas fechas</div>
+  <p class="tarjeta__ayuda">
+    Cuando una fecha se llena, tocá «Marcar completa». Si te equivocaste, «Marcar disponible» la vuelve atrás.
+  </p>
+  {% if proximas %}
+    <div class="tabla-envoltorio" style="border:0">
+      <table class="tabla">
+        <thead>
+          <tr><th>Curso</th><th>Fecha</th><th>Estado</th><th>Cambiar</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for comision in proximas %}
+            <tr>
+              <td class="principal-celda">
+                {{ comision.curso.nombre }}
+                <div class="apagado">{{ comision.curso.categoria.nombre }}</div>
+              </td>
+              <td>
+                {{ comision.fecha_texto }}
+                <div class="apagado">
+                  {% if comision.dias_faltantes == 0 %}Es hoy
+                  {% elif comision.dias_faltantes == 1 %}Mañana
+                  {% else %}En {{ comision.dias_faltantes }} días{% endif %}
+                </div>
+              </td>
+              <td>{% include "panel/_estado_fecha.html" %}</td>
+              <td>{% include "panel/_acciones_fecha.html" %}</td>
+              <td><a href="{% url 'panel:fecha_editar' comision.pk %}">Editar</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="texto-suave" style="margin-top:12px">
+      <a href="{% url 'panel:fechas' %}">Ver todas las fechas →</a>
+    </p>
+  {% else %}
+    <div class="tabla-vacia">
+      <strong>No hay fechas próximas cargadas.</strong>
+      Subí la primera para que aparezca en la web.
+      <div style="margin-top:16px">
+        <a class="boton boton--primario" href="{% url 'panel:fecha_nueva' %}">+ Nueva fecha</a>
+      </div>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

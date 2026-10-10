@@ -220,7 +220,7 @@ class Categoria(models.Model):
 
 
 class Curso(models.Model):
-    """Un curso del catálogo. Las fechas concretas viven en Comision."""
+    """Un curso del catálogo. Sus fechas de dictado viven en Comision."""
 
     categoria = models.ForeignKey(
         Categoria, on_delete=models.PROTECT, related_name="cursos", verbose_name="categoría"
@@ -236,14 +236,6 @@ class Curso(models.Model):
     )
     duracion_horario = models.CharField(
         "duración y horario", max_length=200, default="A confirmar al asignar turno"
-    )
-    cupo_sugerido = models.PositiveIntegerField(
-        "cupo sugerido", default=25,
-        help_text="Cupo que se propone al crear una comisión nueva.",
-    )
-    cupo_texto = models.CharField(
-        "texto del cupo en la web", max_length=100, default="Cupo limitado",
-        help_text="Se usa si el curso no tiene comisiones publicadas.",
     )
     requisitos = models.TextField("requisitos", blank=True)
     descripcion = models.TextField("descripción ampliada", blank=True)
@@ -281,11 +273,10 @@ class Curso(models.Model):
         return f"${self.precio:,.0f}".replace(",", ".")
 
     def comisiones_publicadas(self):
-        """Comisiones futuras y visibles, ordenadas por fecha."""
+        """Fechas visibles que todavía no pasaron, ordenadas por día."""
         return self.comisiones.filter(
-            estado__in=[Comision.Estado.PUBLICADA, Comision.Estado.EN_CURSO],
-            fecha_inicio__gte=date.today(),
-        ).order_by("fecha_inicio")
+            visible=True, fecha_inicio__gte=date.today()
+        ).order_by("fecha_inicio", "hora_inicio")
 
     @property
     def tiene_fechas(self):
@@ -300,14 +291,11 @@ class Curso(models.Model):
 
 
 class Comision(models.Model):
-    """Un dictado concreto del curso, con su fecha, cupo e inscriptos."""
+    """Una fecha de dictado de un curso.
 
-    class Estado(models.TextChoices):
-        BORRADOR = "borrador", "Borrador"
-        PUBLICADA = "publicada", "Publicada"
-        EN_CURSO = "en_curso", "En curso"
-        FINALIZADA = "finalizada", "Finalizada"
-        CANCELADA = "cancelada", "Cancelada"
+    En todo lo que ve el usuario se llama «fecha»; el nombre de la clase quedó
+    de cuando además llevaba el cupo y la lista de inscriptos.
+    """
 
     curso = models.ForeignKey(
         Curso, on_delete=models.CASCADE, related_name="comisiones", verbose_name="curso"
@@ -319,37 +307,32 @@ class Comision(models.Model):
     )
     hora_inicio = models.TimeField("hora de inicio", null=True, blank=True)
     hora_fin = models.TimeField("hora de finalización", null=True, blank=True)
-    cupo = models.PositiveIntegerField("cupo", default=25)
-    cerrada = models.BooleanField(
-        "marcar como completa", default=False,
-        help_text="La web la muestra completa y no se inscribe a nadie más, sin tocar el cupo.",
-    )
     lugar = models.CharField(
         "lugar", max_length=200, blank=True,
         help_text="Si se deja vacío se usa la sede de la configuración del sitio.",
     )
-    instructor = models.ForeignKey(
-        "cuentas.Usuario", on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="comisiones_a_cargo", verbose_name="instructor a cargo",
+    visible = models.BooleanField(
+        "visible en la web", default=True,
+        help_text="Destildala para guardar la fecha sin publicarla.",
     )
-    estado = models.CharField(
-        "estado", max_length=20, choices=Estado.choices, default=Estado.BORRADOR
+    completa = models.BooleanField(
+        "completo", default=False,
+        help_text="La web muestra la fecha como «Completo» en lugar de «Disponible».",
     )
-    observaciones = models.TextField("observaciones internas", blank=True)
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "comisión"
-        verbose_name_plural = "comisiones"
+        verbose_name = "fecha"
+        verbose_name_plural = "fechas"
         ordering = ["fecha_inicio", "hora_inicio"]
-        indexes = [models.Index(fields=["fecha_inicio", "estado"])]
+        indexes = [models.Index(fields=["fecha_inicio", "visible"])]
 
     def __str__(self):
         return f"{self.curso.nombre} — {self.fecha_texto}"
 
     def get_absolute_url(self):
-        return reverse("panel:comision_editar", kwargs={"pk": self.pk})
+        return reverse("panel:fecha_editar", kwargs={"pk": self.pk})
 
     @property
     def fecha_texto(self):
@@ -377,41 +360,17 @@ class Comision(models.Model):
         return self.lugar or ConfiguracionSitio.vigente().direccion
 
     @property
-    def inscriptos(self):
-        """Inscripciones que ocupan cupo (todo menos las canceladas)."""
-        return self.inscripciones.exclude(estado="cancelada")
+    def estado_clave(self):
+        """Para elegir color: oculta, completa o disponible."""
+        if not self.visible:
+            return "oculta"
+        return "completa" if self.completa else "disponible"
 
     @property
-    def cantidad_inscriptos(self):
-        return self.inscriptos.count()
-
-    @property
-    def lugares_disponibles(self):
-        return max(self.cupo - self.cantidad_inscriptos, 0)
-
-    @property
-    def completa(self):
-        return self.cerrada or self.cantidad_inscriptos >= self.cupo
-
-    @property
-    def ocupacion_porcentaje(self):
-        if not self.cupo:
-            return 0
-        return min(round(self.cantidad_inscriptos * 100 / self.cupo), 100)
-
-    @property
-    def semaforo(self):
-        """Color de referencia para el panel según la ocupación."""
-        if self.cerrada:
-            return "completa"
-        porcentaje = self.ocupacion_porcentaje
-        if porcentaje >= 100:
-            return "completa"
-        if porcentaje >= 75:
-            return "casi"
-        if porcentaje >= 35:
-            return "en-marcha"
-        return "baja"
+    def estado_texto(self):
+        return {"oculta": "Oculta", "completa": "Completo", "disponible": "Disponible"}[
+            self.estado_clave
+        ]
 
     @property
     def dias_faltantes(self):
@@ -420,7 +379,3 @@ class Comision(models.Model):
     @property
     def es_futura(self):
         return self.fecha_inicio >= date.today()
-
-    @property
-    def visible_en_web(self):
-        return self.estado in {self.Estado.PUBLICADA, self.Estado.EN_CURSO}

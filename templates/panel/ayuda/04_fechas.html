@@ -1,0 +1,71 @@
+<section class="tarjeta manual__capitulo" id="fechas">
+  <div class="manual__cabecera">
+    <h2 class="manual__titulo">4. Fechas</h2>
+    <span class="distintivo distintivo--azul">Dirección y Administración</span>
+  </div>
+  <p>
+    Una <strong>fecha</strong> es un día concreto en que se dicta un curso. Es lo que la gente ve
+    en la web debajo de cada curso, con un cartel verde <strong>Disponible</strong> o rojo
+    <strong>Completo</strong>.
+  </p>
+
+  <h3>La lista de fechas</h3>
+  {% include "panel/ayuda/_captura.html" with archivo="fechas" ancho=1800 alto=1200 pie="La lista de fechas próximas." %}
+  <ul class="manual__lista">
+    <li>La pestaña <strong>Próximas</strong> muestra las fechas de hoy en adelante, siempre ordenadas por día. <strong>Pasadas</strong> guarda las que ya ocurrieron.</li>
+    <li>Podés buscar por el nombre del curso.</li>
+    <li>La columna <strong>Estado</strong> dice cómo está cada fecha, y <strong>Cambiar</strong> tiene los botones para modificarlo con un clic.</li>
+  </ul>
+
+  <h3>Subir una fecha</h3>
+  <ol class="pasos">
+    <li>Tocá <strong>+ Nueva fecha</strong>. El botón está en el Tablero, en la Agenda y en Fechas.</li>
+    <li>Elegí el <strong>curso</strong>.</li>
+    <li>Poné la <strong>fecha de inicio</strong>: podés escribirla o elegirla en el calendario del campo. Si el curso dura más de un día, completá también la fecha de finalización.</li>
+    <li>El horario y el lugar son opcionales. Si dejás el lugar vacío, se usa la sede cargada en Configuración.</li>
+    <li>Tocá <strong>Guardar fecha</strong>. Aparece sola en la web, como «Disponible».</li>
+  </ol>
+  {% include "panel/ayuda/_captura.html" with archivo="fecha-nueva" ancho=1800 alto=1500 pie="El formulario de una fecha nueva." %}
+  <p class="nota">
+    No importa en qué orden cargues las fechas: si agregás una entre otras dos, la web y el panel
+    la ubican sola en su lugar.
+  </p>
+
+  <h3>Disponible, Completo y Oculta</h3>
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <thead><tr><th>Estado</th><th>Qué ve la gente en la web</th><th>Cómo se pone</th></tr></thead>
+      <tbody>
+        <tr><td><span class="distintivo distintivo--verde">Disponible</span></td><td>La fecha con el cartel verde «Disponible».</td><td>Es como queda toda fecha nueva.</td></tr>
+        <tr><td><span class="distintivo distintivo--rojo">Completo</span></td><td>La fecha con el cartel rojo «Completo».</td><td>Botón «Marcar completa», o la casilla «Completo» al editar.</td></tr>
+        <tr><td><span class="distintivo distintivo--gris">Oculta</span></td><td>Nada: la fecha no aparece.</td><td>Botón «Ocultar», o destildando «Visible en la web» al editar.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Marcar una fecha como completa</h3>
+  <ol class="pasos">
+    <li>Buscá la fecha en <a href="{% url 'panel:fechas' %}">Fechas</a> o en el Tablero.</li>
+    <li>Tocá <strong>Marcar completa</strong>. El estado pasa a «Completo» y la web lo muestra al instante.</li>
+    <li>Si te equivocaste o se liberó un lugar, tocá <strong>Marcar disponible</strong>.</li>
+  </ol>
+  {% include "panel/ayuda/_captura.html" with archivo="fecha-acciones" ancho=1300 alto=300 pie="Una fecha con sus botones para cambiar el estado." %}
+
+  <h3>Sacar una fecha de la web</h3>
+  <ul class="manual__lista">
+    <li><strong>Ocultar</strong> la saca de la web pero la deja guardada. Con <strong>Publicar</strong> vuelve a verse, sin tener que cargarla de nuevo.</li>
+    <li>Las fechas <strong>dejan de verse solas</strong> cuando pasa su día de inicio. No hace falta borrarlas.</li>
+    <li>Para borrarla del todo, tocá <strong>Editar</strong> y, al pie, <strong>Eliminar esta fecha</strong>. No se puede deshacer.</li>
+  </ul>
+
+  <h3>Cambiar una fecha</h3>
+  <p>
+    Tocá <strong>Editar</strong> en su fila. Podés cambiar el curso, los días, el horario, el lugar
+    y las dos casillas de publicación. Si te equivocaste de curso al cargarla, alcanza con elegir
+    el correcto y guardar.
+  </p>
+  <p class="nota">
+    El panel no deja guardar una fecha de finalización anterior a la de inicio, ni un horario de fin
+    anterior o igual al de inicio: marca el campo en rojo y explica el problema.
+  </p>
+</section>

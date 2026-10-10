@@ -1,0 +1,3 @@
+{% if comision.estado_clave == "disponible" %}<span class="distintivo distintivo--verde">Disponible</span>
+{% elif comision.estado_clave == "completa" %}<span class="distintivo distintivo--rojo">Completo</span>
+{% else %}<span class="distintivo distintivo--gris">Oculta</span>{% endif %}

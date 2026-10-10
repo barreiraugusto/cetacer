@@ -33,12 +33,12 @@ urlpatterns = [
     path("paginas/<int:pk>/", views.pagina_editar, name="pagina_editar"),
     path("paginas/<int:pk>/eliminar/", views.pagina_eliminar, name="pagina_eliminar"),
 
-    # Comisiones
-    path("comisiones/", views.comisiones_lista, name="comisiones"),
-    path("comisiones/nueva/", views.comision_editar, name="comision_nueva"),
-    path("comisiones/<int:pk>/editar/", views.comision_editar, name="comision_editar"),
-    path("comisiones/<int:pk>/estado/", views.comision_cambiar_estado, name="comision_estado"),
-    path("comisiones/<int:pk>/eliminar/", views.comision_eliminar, name="comision_eliminar"),
+    # Fechas
+    path("fechas/", views.fechas_lista, name="fechas"),
+    path("fechas/nueva/", views.fecha_editar, name="fecha_nueva"),
+    path("fechas/<int:pk>/", views.fecha_editar, name="fecha_editar"),
+    path("fechas/<int:pk>/marcar/", views.fecha_marcar, name="fecha_marcar"),
+    path("fechas/<int:pk>/eliminar/", views.fecha_eliminar, name="fecha_eliminar"),
 
     # Administración
     path("usuarios/", views.usuarios_lista, name="usuarios"),

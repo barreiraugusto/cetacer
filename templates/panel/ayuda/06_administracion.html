@@ -1,6 +1,6 @@
 <section class="tarjeta manual__capitulo" id="administracion">
   <div class="manual__cabecera">
-    <h2 class="manual__titulo">11. Usuarios, roles y configuración</h2>
+    <h2 class="manual__titulo">6. Usuarios y configuración</h2>
     <span class="distintivo distintivo--azul">Sólo Dirección</span>
   </div>
 
@@ -27,9 +27,8 @@
   <ul class="manual__lista">
     <li><strong>Cambiar la contraseña de alguien</strong>: editá el usuario y escribí la nueva en los dos campos. Si los dejás vacíos, la contraseña no cambia.</li>
     <li><strong>Cambiar el rol</strong>: editá el usuario y elegí otro rol.</li>
-    <li><strong>Dar de baja</strong>: desmarcá «activo». La persona ya no puede entrar y se conserva todo lo que cargó. Es lo recomendado para alguien que trabajó en CETACER.</li>
-    <li><strong>Eliminar</strong>: al pie de la pantalla de edición está <strong>Eliminar este usuario</strong>. No se puede deshacer: las inscripciones que cargó se conservan pero dejan de indicar quién las cargó, y sus comisiones quedan sin instructor. No aparece al editar tu propio usuario.</li>
-    <li>Para que alguien aparezca como <strong>instructor a cargo</strong> al armar una comisión, tiene que tener el rol Instructor y estar activo.</li>
+    <li><strong>Dar de baja</strong>: desmarcá «activo». La persona ya no puede entrar y el usuario queda guardado por si vuelve.</li>
+    <li><strong>Eliminar</strong>: al pie de la pantalla de edición está <strong>Eliminar este usuario</strong>. No se puede deshacer. No aparece al editar tu propio usuario.</li>
     <li>Si aparece el aviso de usuarios <strong>sin rol asignado</strong>, esos usuarios no pueden entrar al panel hasta que les des uno con «Asignar rol →».</li>
   </ul>
   {% include "panel/ayuda/_captura.html" with archivo="usuario-eliminar" ancho=1170 alto=311 pie="El recuadro para eliminar, al pie de la edición de un usuario." %}
@@ -45,7 +44,7 @@
       <tbody>
         <tr><td class="principal-celda">Identidad</td><td>Nombre, número de aniversario, razón social y el texto del cintillo superior de la web.</td></tr>
         <tr><td class="principal-celda">Portada</td><td>El título principal, que se parte en dos (la segunda parte se muestra en azul), y su bajada.</td></tr>
-        <tr><td class="principal-celda">Contacto</td><td>WhatsApp, teléfonos, correo, ciudad y dirección. La dirección es también la sede que usan las comisiones sin lugar cargado.</td></tr>
+        <tr><td class="principal-celda">Contacto</td><td>WhatsApp, teléfonos, correo, ciudad y dirección. La dirección es también la sede que usan las fechas sin lugar cargado.</td></tr>
         <tr><td class="principal-celda">Formas de pago</td><td>Alias, banco, titular y una aclaración. Se muestran en la ficha de cada curso, debajo del precio, y son las mismas para todo el catálogo.</td></tr>
         <tr><td class="principal-celda">Enlaces</td><td>Instagram y el video de los cursos.</td></tr>
         <tr><td class="principal-celda">Fotos de la portada</td><td>Las imágenes de fondo del inicio de la web.</td></tr>

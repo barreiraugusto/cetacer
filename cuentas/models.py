@@ -23,11 +23,11 @@ JERARQUIA = [
 ]
 
 DESCRIPCION_ROLES = {
-    Rol.DIRECCION: "Acceso total: cursos, comisiones, inscripciones, usuarios y configuración del sitio.",
-    Rol.ADMINISTRACION: "Gestiona el catálogo completo, precios, comisiones, inscripciones y exportaciones.",
-    Rol.COORDINACION: "Arma comisiones, asigna instructores y administra inscripciones. No edita precios ni usuarios.",
-    Rol.RECEPCION: "Carga participantes, toma inscripciones y descarga listas. No modifica el catálogo.",
-    Rol.INSTRUCTOR: "Ve únicamente sus comisiones asignadas y registra la asistencia.",
+    Rol.DIRECCION: "Acceso total: cursos, fechas, páginas, usuarios y configuración del sitio.",
+    Rol.ADMINISTRACION: "Gestiona cursos, categorías, fechas y páginas. No administra usuarios ni la configuración.",
+    Rol.COORDINACION: "Carga y edita fechas.",
+    Rol.RECEPCION: "Sólo consulta.",
+    Rol.INSTRUCTOR: "Sólo consulta.",
 }
 
 

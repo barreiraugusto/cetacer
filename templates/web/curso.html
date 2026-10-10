@@ -28,7 +28,7 @@
         {% if comisiones %}
           <table class="tabla-fechas">
             <thead>
-              <tr><th>Fecha</th><th>Horario</th><th>Lugar</th><th>Cupo</th></tr>
+              <tr><th>Fecha</th><th>Horario</th><th>Lugar</th><th>Estado</th></tr>
             </thead>
             <tbody>
               {% for comision in comisiones %}
@@ -37,12 +37,7 @@
                   <td>{{ comision.horario_texto }}</td>
                   <td>{{ comision.lugar_texto }}</td>
                   <td>
-                    <div class="cupo-barra {% if comision.completa %}cupo-barra--lleno{% endif %}">
-                      <span style="width:{% if comision.completa %}100{% else %}{{ comision.ocupacion_porcentaje }}{% endif %}%"></span>
-                    </div>
-                    <div class="caja-fechas__cupo">
-                      {% if comision.completa %}Completo{% else %}{{ comision.lugares_disponibles }} lugar{{ comision.lugares_disponibles|pluralize:"es" }}{% endif %}
-                    </div>
+                    {{ comision.estado_texto }}
                   </td>
                 </tr>
               {% endfor %}
@@ -74,9 +69,6 @@
 
       <div class="etiqueta" style="margin-top:18px">DURACIÓN</div>
       <div class="dato-valor">{{ curso.duracion_horario }}</div>
-
-      <div class="etiqueta" style="margin-top:18px">CUPO</div>
-      <div class="dato-valor">{{ curso.cupo_texto }}</div>
 
       <div class="etiqueta" style="margin-top:18px">SEDE</div>
       <div class="dato-valor">{{ sitio.direccion }}</div>

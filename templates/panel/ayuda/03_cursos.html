@@ -1,11 +1,11 @@
 <section class="tarjeta manual__capitulo" id="cursos">
   <div class="manual__cabecera">
     <h2 class="manual__titulo">3. Cursos y categorías</h2>
-    <span class="distintivo distintivo--azul">Ver: todos · Editar: desde Administración</span>
+    <span class="distintivo distintivo--azul">Dirección y Administración</span>
   </div>
   <p>
     Un <strong>curso</strong> es lo que se dicta: su nombre, su precio y sus requisitos. No tiene
-    fecha. Las fechas se cargan aparte, como <a href="#comisiones">comisiones</a>. Lo que cargues
+    fecha. Los días se cargan aparte, en <a href="#fechas">Fechas</a>. Lo que cargues
     en un curso se ve en la web pública apenas guardás.
   </p>
 
@@ -13,7 +13,7 @@
   {% include "panel/ayuda/_captura.html" with archivo="cursos" ancho=1800 alto=1230 pie="El catálogo de cursos." %}
   <ul class="manual__lista">
     <li>Buscá por nombre o por una palabra de los requisitos, o filtrá por categoría, y tocá <strong>Filtrar</strong>. <strong>Limpiar</strong> saca los filtros.</li>
-    <li>La columna <strong>Comisiones</strong> cuenta cuántas fechas tuvo el curso. <strong>+ agregar fecha</strong> abre una comisión nueva con ese curso ya elegido.</li>
+    <li>La columna <strong>Fechas</strong> cuenta cuántas tiene cargadas el curso. <strong>+ agregar fecha</strong> abre una fecha nueva con ese curso ya elegido.</li>
     <li><strong>En la web</strong> dice si el curso está «Visible» u «Oculto» para el público.</li>
     <li><strong>Ver</strong> abre la ficha del curso en la web, tal como la ve la gente.</li>
   </ul>
@@ -23,15 +23,15 @@
     <li>En <a href="{% url 'panel:cursos' %}">Cursos</a>, tocá <strong>+ Nuevo curso</strong>, o <strong>Editar</strong> en la fila de uno existente.</li>
     <li><strong>Identificación</strong>: elegí la categoría (define bajo qué título aparece en la web), el orden y el nombre.</li>
     <li><strong>Precio</strong>: poné sólo el número, sin puntos ni signo (por ejemplo 405000). Si el precio se informa por WhatsApp, marcá «mostrar Consultar en lugar del precio». Una de las dos cosas es obligatoria.</li>
-    <li><strong>Cómo se dicta</strong>: duración y horario, cupo sugerido (el que se propone al abrir una comisión) y el texto del cupo, que la web usa cuando el curso no tiene comisiones publicadas.</li>
+    <li><strong>Cómo se dicta</strong>: el texto de duración y horario que aparece en la tarjeta del curso.</li>
     <li><strong>Contenido</strong>: requisitos y descripción. Se muestran en la ficha del curso.</li>
-    <li><strong>Visibilidad</strong>: desmarcá «activo» para sacarlo de la web sin perder su historial.</li>
+    <li><strong>Visibilidad</strong>: desmarcá «visible en la web» para sacarlo del sitio sin borrarlo.</li>
     <li>Tocá <strong>Guardar curso</strong>.</li>
   </ol>
   {% include "panel/ayuda/_captura.html" with archivo="curso-editar" ancho=1800 alto=1950 pie="El formulario de un curso, dividido en secciones numeradas." %}
   <p class="nota">
-    <strong>Eliminar un curso</strong> sólo es posible si nunca tuvo una comisión. Si ya se dictó
-    alguna vez, desactivalo: deja de verse en la web y se conservan sus comisiones y participantes.
+    <strong>Eliminar un curso</strong> sólo es posible si no tiene fechas cargadas. Para sacarlo de
+    la web sin borrarlo, desactivalo.
   </p>
 
   <h3>Categorías</h3>

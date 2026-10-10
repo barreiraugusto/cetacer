@@ -71,9 +71,8 @@
     {% csrf_token %}
     <div class="tarjeta__titulo" style="color:var(--rojo)">Eliminar usuario</div>
     <p class="tarjeta__ayuda">
-      Se borra el usuario y ya no puede entrar. Las inscripciones que cargó se conservan, pero
-      dejan de indicar quién las cargó, y las comisiones que tenía a cargo quedan sin instructor.
-      Si la persona trabajó en CETACER, conviene desmarcar «activo» arriba en lugar de borrarla.
+      Se borra el usuario y ya no puede entrar. No se puede deshacer. Si sólo querés
+      dejarlo sin acceso por un tiempo, desmarcá «activo» arriba en lugar de borrarlo.
     </p>
     <button class="boton boton--peligro" type="submit">Eliminar este usuario</button>
   </form>

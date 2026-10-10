@@ -1,4 +1,4 @@
-"""Pruebas del catálogo, las comisiones y el cupo."""
+"""Pruebas del catálogo y de las fechas de los cursos."""
 from datetime import date, time, timedelta
 
 from django.core.exceptions import ValidationError
@@ -7,7 +7,6 @@ from django.test import TestCase
 from django.urls import reverse
 
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso, ImagenPortada
-from inscripciones.models import Inscripcion, Participante
 
 
 class CursoTests(TestCase):
@@ -45,37 +44,28 @@ class ComisionTests(TestCase):
     def setUp(self):
         categoria = Categoria.objects.create(nombre="Cargas")
         self.curso = Curso.objects.create(categoria=categoria, nombre="Básico", precio=1000)
+        self.manana = date.today() + timedelta(days=1)
         self.comision = Comision.objects.create(
             curso=self.curso,
             fecha_inicio=date.today() + timedelta(days=10),
             hora_inicio=time(8, 30),
             hora_fin=time(16, 30),
-            cupo=3,
-            estado=Comision.Estado.PUBLICADA,
         )
 
-    def _inscribir(self, dni, estado=Inscripcion.Estado.CONFIRMADA):
-        participante = Participante.objects.create(dni=dni, apellido="Test", nombre=dni)
-        return Inscripcion.objects.create(
-            comision=self.comision, participante=participante, estado=estado
-        )
+    def test_una_fecha_nueva_nace_visible_y_disponible(self):
+        self.assertTrue(self.comision.visible)
+        self.assertFalse(self.comision.completa)
+        self.assertEqual(self.comision.estado_clave, "disponible")
+        self.assertEqual(self.comision.estado_texto, "Disponible")
 
-    def test_cupo_disponible(self):
-        self.assertEqual(self.comision.lugares_disponibles, 3)
-        self._inscribir("10000001")
-        self.assertEqual(self.comision.lugares_disponibles, 2)
-
-    def test_las_canceladas_no_ocupan_cupo(self):
-        self._inscribir("10000001", Inscripcion.Estado.CANCELADA)
-        self.assertEqual(self.comision.cantidad_inscriptos, 0)
-        self.assertEqual(self.comision.lugares_disponibles, 3)
-
-    def test_completa_al_llegar_al_cupo(self):
-        for dni in ("10000001", "10000002", "10000003"):
-            self._inscribir(dni)
-        self.assertTrue(self.comision.completa)
-        self.assertEqual(self.comision.ocupacion_porcentaje, 100)
-        self.assertEqual(self.comision.semaforo, "completa")
+    def test_completa_y_oculta(self):
+        self.comision.completa = True
+        self.assertEqual(self.comision.estado_clave, "completa")
+        self.assertEqual(self.comision.estado_texto, "Completo")
+        # Oculta le gana a completa: lo que importa es que el público no la ve.
+        self.comision.visible = False
+        self.assertEqual(self.comision.estado_clave, "oculta")
+        self.assertEqual(self.comision.estado_texto, "Oculta")
 
     def test_horario_texto(self):
         self.assertEqual(self.comision.horario_texto, "08:30 a 16:30 h")
@@ -84,22 +74,33 @@ class ComisionTests(TestCase):
         self.comision.hora_inicio = self.comision.hora_fin = None
         self.assertEqual(self.comision.horario_texto, self.curso.duracion_horario)
 
-    def test_solo_las_publicadas_futuras_salen_en_la_web(self):
+    def test_solo_las_visibles_salen_en_la_web(self):
         self.assertIn(self.comision, self.curso.comisiones_publicadas())
-        self.comision.estado = Comision.Estado.BORRADOR
+        self.comision.visible = False
         self.comision.save()
         self.assertNotIn(self.comision, self.curso.comisiones_publicadas())
+
+    def test_una_completa_sigue_saliendo_en_la_web(self):
+        self.comision.completa = True
+        self.comision.save()
+        self.assertIn(self.comision, self.curso.comisiones_publicadas())
 
     def test_las_pasadas_no_salen_en_la_web(self):
         self.comision.fecha_inicio = date.today() - timedelta(days=1)
         self.comision.save()
         self.assertNotIn(self.comision, self.curso.comisiones_publicadas())
 
-    def test_marcada_como_completa_sin_llegar_al_cupo(self):
-        self.comision.cerrada = True
-        self.assertTrue(self.comision.completa)
-        self.assertEqual(self.comision.semaforo, "completa")
-        self.assertEqual(self.comision.cupo, 3)
+    def test_la_de_hoy_todavia_sale(self):
+        self.comision.fecha_inicio = date.today()
+        self.comision.save()
+        self.assertIn(self.comision, self.curso.comisiones_publicadas())
+
+    def test_salen_ordenadas_por_fecha_aunque_se_carguen_desordenadas(self):
+        medio = Comision.objects.create(curso=self.curso, fecha_inicio=self.manana + timedelta(days=4))
+        antes = Comision.objects.create(curso=self.curso, fecha_inicio=self.manana)
+        self.assertEqual(
+            list(self.curso.comisiones_publicadas()), [antes, medio, self.comision]
+        )
 
     def test_lugar_cae_a_la_sede_configurada(self):
         self.assertEqual(self.comision.lugar_texto, ConfiguracionSitio.vigente().direccion)

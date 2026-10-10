@@ -11,7 +11,7 @@ from cuentas.models import JERARQUIA, Rol, Usuario
 from cuentas.permisos import sincronizar_grupos
 from cursos.models import Categoria, Comision, Curso
 
-CAPITULOS = ["ingresar", "agenda", "cursos", "comisiones", "paginas", "administracion", "referencia"]
+CAPITULOS = ["ingresar", "agenda", "cursos", "fechas", "paginas", "administracion", "referencia"]
 
 
 class ManualTests(TestCase):
@@ -154,7 +154,7 @@ class SuperusuarioOcultoTests(TestCase):
         self.assertTrue(Usuario.objects.filter(pk=self.tecnico.pk).exists())
 
 
-class EditarFechaTests(TestCase):
+class FechasTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         sincronizar_grupos()
@@ -166,11 +166,141 @@ class EditarFechaTests(TestCase):
             curso=cls.curso, fecha_inicio=date(2030, 3, 5), fecha_fin=date(2030, 3, 7)
         )
 
-    def test_el_formulario_trae_las_fechas_cargadas(self):
+    def setUp(self):
         self.client.force_login(self.direccion)
-        respuesta = self.client.get(reverse("panel:comision_editar", args=[self.fecha.pk]))
+
+    def test_una_fecha_nueva_queda_publicada(self):
+        self.client.post(reverse("panel:fecha_nueva"), {
+            "curso": self.curso.pk, "fecha_inicio": "2030-05-10", "visible": "on",
+        })
+        nueva = Comision.objects.get(fecha_inicio=date(2030, 5, 10))
+        self.assertTrue(nueva.visible)
+        self.assertFalse(nueva.completa)
+
+    def test_el_formulario_nuevo_trae_visible_tildado(self):
+        formulario = self.client.get(reverse("panel:fecha_nueva")).context["form"]
+        self.assertTrue(formulario["visible"].value())
+        self.assertFalse(formulario["completa"].value())
+
+    def test_agregar_fecha_desde_un_curso_lo_trae_elegido(self):
+        url = reverse("panel:fecha_nueva") + f"?curso={self.curso.pk}"
+        self.assertEqual(self.client.get(url).context["form"]["curso"].value(), self.curso.pk)
+        # Un curso que no existe, o un valor cualquiera, no rompe el formulario.
+        for valor in ("9999", "abc", ""):
+            with self.subTest(curso=valor):
+                url = reverse("panel:fecha_nueva") + f"?curso={valor}"
+                self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_el_formulario_trae_las_fechas_cargadas(self):
+        respuesta = self.client.get(reverse("panel:fecha_editar", args=[self.fecha.pk]))
         self.assertContains(respuesta, 'value="2030-03-05"')
         self.assertContains(respuesta, 'value="2030-03-07"')
+
+    def test_marcar_completa_y_volver_a_disponible(self):
+        url = reverse("panel:fecha_marcar", args=[self.fecha.pk])
+        self.client.post(url, {"campo": "completa", "valor": "1"})
+        self.fecha.refresh_from_db()
+        self.assertTrue(self.fecha.completa)
+        self.client.post(url, {"campo": "completa", "valor": "0"})
+        self.fecha.refresh_from_db()
+        self.assertFalse(self.fecha.completa)
+
+    def test_ocultar_y_publicar(self):
+        url = reverse("panel:fecha_marcar", args=[self.fecha.pk])
+        self.client.post(url, {"campo": "visible", "valor": "0"})
+        self.fecha.refresh_from_db()
+        self.assertFalse(self.fecha.visible)
+        self.client.post(url, {"campo": "visible", "valor": "1"})
+        self.fecha.refresh_from_db()
+        self.assertTrue(self.fecha.visible)
+
+    def test_marcar_no_acepta_otros_campos_ni_get(self):
+        url = reverse("panel:fecha_marcar", args=[self.fecha.pk])
+        self.client.post(url, {"campo": "curso", "valor": "1"})
+        self.client.get(url)
+        self.fecha.refresh_from_db()
+        self.assertTrue(self.fecha.visible)
+        self.assertFalse(self.fecha.completa)
+
+    def test_marcar_vuelve_a_donde_estaba(self):
+        respuesta = self.client.post(
+            reverse("panel:fecha_marcar", args=[self.fecha.pk]),
+            {"campo": "completa", "valor": "1", "next": reverse("panel:inicio")},
+        )
+        self.assertRedirects(respuesta, reverse("panel:inicio"))
+
+    def test_marcar_no_redirige_afuera(self):
+        respuesta = self.client.post(
+            reverse("panel:fecha_marcar", args=[self.fecha.pk]),
+            {"campo": "completa", "valor": "1", "next": "https://ejemplo.com/"},
+        )
+        self.assertRedirects(respuesta, reverse("panel:fechas"))
+
+    def test_el_listado_y_el_tablero_ofrecen_las_acciones_rapidas(self):
+        for nombre in ("panel:fechas", "panel:inicio"):
+            with self.subTest(pantalla=nombre):
+                respuesta = self.client.get(reverse(nombre))
+                self.assertContains(respuesta, "Marcar completa")
+                self.assertContains(respuesta, "Ocultar")
+        self.fecha.completa = True
+        self.fecha.visible = False
+        self.fecha.save()
+        respuesta = self.client.get(reverse("panel:fechas"))
+        self.assertContains(respuesta, "Marcar disponible")
+        self.assertContains(respuesta, "Publicar")
+
+    def test_se_elimina_con_post_y_no_con_get(self):
+        url = reverse("panel:fecha_eliminar", args=[self.fecha.pk])
+        self.client.get(url)
+        self.assertTrue(Comision.objects.filter(pk=self.fecha.pk).exists())
+        self.client.post(url)
+        self.assertFalse(Comision.objects.filter(pk=self.fecha.pk).exists())
+
+    def test_el_listado_ordena_por_fecha_y_separa_las_pasadas(self):
+        pasada = Comision.objects.create(curso=self.curso, fecha_inicio=date(2020, 1, 1))
+        antes = Comision.objects.create(curso=self.curso, fecha_inicio=date(2030, 1, 1))
+        proximas = list(self.client.get(reverse("panel:fechas")).context["fechas"])
+        self.assertEqual(proximas, [antes, self.fecha])
+        pasadas = self.client.get(reverse("panel:fechas") + "?cuando=pasadas").context["fechas"]
+        self.assertEqual(list(pasadas), [pasada])
+
+    def test_una_fecha_de_fin_anterior_al_inicio_no_se_guarda(self):
+        respuesta = self.client.post(reverse("panel:fecha_nueva"), {
+            "curso": self.curso.pk, "fecha_inicio": "2030-05-10", "fecha_fin": "2030-05-09",
+        })
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "campo-fila--error")
+        self.assertFalse(Comision.objects.filter(fecha_inicio=date(2030, 5, 10)).exists())
+
+    def test_los_enlaces_viejos_dan_404(self):
+        for ruta in ("comisiones/", f"comisiones/{self.fecha.pk}/", "comisiones/nueva/"):
+            with self.subTest(ruta=ruta):
+                self.assertEqual(self.client.get(f"/panel/{ruta}").status_code, 404)
+
+    def test_nada_dice_comision(self):
+        pantallas = [reverse(n) for n in (
+            "panel:inicio", "panel:fechas", "panel:fecha_nueva", "panel:agenda",
+            "panel:cursos", "panel:curso_nuevo", "panel:usuarios", "panel:configuracion",
+        )]
+        pantallas.append(reverse("panel:fecha_editar", args=[self.fecha.pk]))
+        pantallas.append(reverse("panel:curso_editar", args=[self.curso.pk]))
+        for url in pantallas:
+            with self.subTest(pantalla=url):
+                html = self.client.get(url).content.decode().lower()
+                self.assertNotIn("comisi", html)
+                self.assertNotIn("cupo", html)
+
+    def test_el_tablero_cuenta_publicadas_completas_y_ocultas(self):
+        Comision.objects.create(curso=self.curso, fecha_inicio=date(2030, 6, 1), completa=True)
+        Comision.objects.create(curso=self.curso, fecha_inicio=date(2030, 6, 2), visible=False)
+        Comision.objects.create(curso=self.curso, fecha_inicio=date(2020, 1, 1))
+        indicadores = self.client.get(reverse("panel:inicio")).context["indicadores"]
+        self.assertEqual(indicadores, {"publicadas": 2, "completas": 1, "ocultas": 1})
+
+    def test_la_agenda_muestra_la_fecha_con_el_color_de_su_estado(self):
+        respuesta = self.client.get(reverse("panel:agenda") + "?anio=2030&mes=3")
+        self.assertContains(respuesta, "calendario__evento--disponible")
+        self.assertContains(respuesta, reverse("panel:fecha_editar", args=[self.fecha.pk]))
 
 
 class PanelSinPersonasTests(TestCase):

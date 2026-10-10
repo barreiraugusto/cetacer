@@ -45,8 +45,7 @@ class CursoForm(BaseForm):
         model = Curso
         fields = [
             "categoria", "nombre", "precio", "precio_a_consultar", "duracion_horario",
-            "cupo_sugerido", "cupo_texto", "requisitos", "descripcion",
-            "orden", "activo",
+            "requisitos", "descripcion", "orden", "activo",
         ]
         help_texts = {
             "precio": "Sólo el número. Ej: 405000",
@@ -62,12 +61,12 @@ class CursoForm(BaseForm):
         return datos
 
 
-class ComisionForm(BaseForm):
+class FechaForm(BaseForm):
     class Meta:
         model = Comision
         fields = [
             "curso", "fecha_inicio", "fecha_fin", "hora_inicio", "hora_fin",
-            "cupo", "cerrada", "lugar", "instructor", "estado", "observaciones",
+            "lugar", "visible", "completa",
         ]
         widgets = {
             # El selector de fecha del navegador sólo entiende año-mes-día.
@@ -80,10 +79,6 @@ class ComisionForm(BaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["curso"].queryset = Curso.objects.select_related("categoria")
-        self.fields["instructor"].queryset = Usuario.objects.filter(
-            is_active=True, groups__name=Rol.INSTRUCTOR.value
-        ).distinct()
-        self.fields["instructor"].empty_label = "Sin asignar"
 
     def clean(self):
         datos = super().clean()
@@ -93,14 +88,6 @@ class ComisionForm(BaseForm):
         h1, h2 = datos.get("hora_inicio"), datos.get("hora_fin")
         if h1 and h2 and h2 <= h1:
             self.add_error("hora_fin", "El horario de fin debe ser posterior al de inicio.")
-        cupo = datos.get("cupo")
-        if self.instance.pk and cupo is not None:
-            ocupados = self.instance.cantidad_inscriptos
-            if cupo < ocupados:
-                self.add_error(
-                    "cupo",
-                    f"Ya hay {ocupados} inscriptos en esta comisión: el cupo no puede ser menor.",
-                )
         return datos
 
 

@@ -32,14 +32,9 @@
   <div class="seccion-form">
     <div class="seccion-form__titulo">3. Cómo se dicta</div>
     <p class="seccion-form__ayuda">
-      Estos textos aparecen en la tarjeta del curso. Las fechas concretas se cargan
-      aparte, en cada comisión.
+      Este texto aparece en la tarjeta del curso. Los días concretos se cargan aparte, en Fechas.
     </p>
-    <div class="grilla-campos">
-      {% include "panel/_campo.html" with campo=form.duracion_horario %}
-      {% include "panel/_campo.html" with campo=form.cupo_sugerido %}
-      {% include "panel/_campo.html" with campo=form.cupo_texto %}
-    </div>
+    {% include "panel/_campo.html" with campo=form.duracion_horario %}
   </div>
 
   <div class="seccion-form">
@@ -55,8 +50,7 @@
   <div class="seccion-form">
     <div class="seccion-form__titulo">5. Visibilidad</div>
     <p class="seccion-form__ayuda">
-      Si desactivás el curso deja de verse en la web, pero se conserva el historial
-      de comisiones y participantes.
+      Si desactivás el curso deja de verse en la web, pero queda guardado con sus fechas.
     </p>
     {% include "panel/_campo.html" with campo=form.activo %}
   </div>
@@ -65,7 +59,7 @@
     <button class="boton boton--primario" type="submit">Guardar curso</button>
     <a class="boton boton--secundario" href="{% url 'panel:cursos' %}">Cancelar</a>
     {% if curso %}
-      <a class="boton boton--secundario derecha" href="{% url 'panel:comision_nueva' %}?curso={{ curso.pk }}">
+      <a class="boton boton--secundario derecha" href="{% url 'panel:fecha_nueva' %}?curso={{ curso.pk }}">
         + Agregar una fecha
       </a>
     {% endif %}
@@ -79,8 +73,8 @@
     {% csrf_token %}
     <div class="tarjeta__titulo" style="color:var(--rojo)">Eliminar curso</div>
     <p class="tarjeta__ayuda">
-      Sólo se puede eliminar un curso que no tenga ninguna comisión cargada.
-      Si ya se dictó alguna vez, desactivalo arriba en lugar de borrarlo.
+      Sólo se puede eliminar un curso que no tenga fechas cargadas.
+      Si sólo querés sacarlo de la web, desactivalo arriba en lugar de borrarlo.
     </p>
     <button class="boton boton--peligro" type="submit">Eliminar este curso</button>
   </form>

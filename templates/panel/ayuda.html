@@ -2,27 +2,37 @@
 {% load static %}
 {% block title %}Cómo se usa{% endblock %}
 {% block encabezado %}Cómo se usa el panel{% endblock %}
-{% block bajada %}<div class="bajada">Las tres tareas de todos los días y, debajo, el manual completo del panel.</div>{% endblock %}
+{% block bajada %}<div class="bajada">Las dos tareas de todos los días y, debajo, el manual completo del panel.</div>{% endblock %}
 
 {% block acciones %}
   <a class="boton boton--secundario" href="#manual">Ir al manual completo ↓</a>
 {% endblock %}
 
 {% block contenido %}
-<div class="grilla-tres">
+<div class="grilla-dos">
 
   <div class="tarjeta">
-    <div class="tarjeta__titulo">1. Abrir una fecha de curso</div>
-    <p class="tarjeta__ayuda">Para que la gente pueda anotarse.</p>
+    <div class="tarjeta__titulo">1. Subir una fecha</div>
+    <p class="tarjeta__ayuda">Para que la gente la vea en la web.</p>
     <ol style="padding-left:18px;line-height:1.9;color:var(--texto)">
-      <li>Andá a <a href="{% url 'panel:comisiones' %}">Comisiones</a> y tocá <strong>Nueva comisión</strong>.</li>
-      <li>Elegí el curso, poné la fecha, el horario y el cupo.</li>
-      <li>Dejá el estado en <strong>Publicada</strong> para que se vea en la web.</li>
-      <li>Guardá. La fecha aparece sola en la página de inicio.</li>
+      <li>Andá a <a href="{% url 'panel:fechas' %}">Fechas</a> y tocá <strong>+ Nueva fecha</strong>.</li>
+      <li>Elegí el curso y poné el día.</li>
+      <li>Tocá <strong>Guardar fecha</strong>.</li>
     </ol>
     <p class="texto-suave" style="margin-top:12px">
-      Si todavía no está confirmada, dejala en <strong>Borrador</strong>: la ves acá
-      pero no en la web.
+      Queda publicada como «Disponible», ordenada sola entre las demás.
+    </p>
+  </div>
+
+  <div class="tarjeta">
+    <div class="tarjeta__titulo">2. Marcar una fecha como completa</div>
+    <p class="tarjeta__ayuda">Cuando ya no quedan lugares.</p>
+    <ol style="padding-left:18px;line-height:1.9;color:var(--texto)">
+      <li>Buscá la fecha en <a href="{% url 'panel:fechas' %}">Fechas</a> o en el <a href="{% url 'panel:inicio' %}">Tablero</a>.</li>
+      <li>Tocá <strong>Marcar completa</strong>.</li>
+    </ol>
+    <p class="texto-suave" style="margin-top:12px">
+      La web la muestra en rojo como «Completo». Para volver atrás, tocá «Marcar disponible».
     </p>
   </div>
 
@@ -35,9 +45,9 @@
       <li><a href="#ingresar">Ingresar y orientarse</a></li>
       <li><a href="#agenda">Agenda</a></li>
       <li><a href="#cursos">Cursos y categorías</a></li>
-      <li><a href="#comisiones">Comisiones</a></li>
+      <li><a href="#fechas">Fechas</a></li>
       <li><a href="#paginas">Páginas del sitio</a></li>
-      <li><a href="#administracion">Usuarios, roles y configuración</a></li>
+      <li><a href="#administracion">Usuarios y configuración</a></li>
       <li><a href="#referencia">Referencia</a></li>
     </ol>
     <p class="texto-suave">Hacé clic en cualquier captura para verla en grande.</p>
@@ -47,10 +57,10 @@
     {% include "panel/ayuda/01_ingresar.html" %}
     {% include "panel/ayuda/02_agenda.html" %}
     {% include "panel/ayuda/03_cursos.html" %}
-    {% include "panel/ayuda/04_comisiones.html" %}
-    {% include "panel/ayuda/09_paginas.html" %}
-    {% include "panel/ayuda/11_administracion.html" %}
-    {% include "panel/ayuda/12_referencia.html" %}
+    {% include "panel/ayuda/04_fechas.html" %}
+    {% include "panel/ayuda/05_paginas.html" %}
+    {% include "panel/ayuda/06_administracion.html" %}
+    {% include "panel/ayuda/07_referencia.html" %}
   </div>
 </div>
 

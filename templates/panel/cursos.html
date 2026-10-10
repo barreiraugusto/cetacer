@@ -33,7 +33,7 @@
 <div class="tabla-envoltorio">
   <table class="tabla">
     <thead>
-      <tr><th>Curso</th><th>Categoría</th><th>Precio</th><th>Cupo sugerido</th><th>Comisiones</th><th>En la web</th><th></th></tr>
+      <tr><th>Curso</th><th>Categoría</th><th>Precio</th><th>Fechas</th><th>En la web</th><th></th></tr>
     </thead>
     <tbody>
       {% for curso in cursos %}
@@ -44,10 +44,9 @@
           </td>
           <td>{{ curso.categoria.nombre }}</td>
           <td class="principal-celda">{{ curso.precio_texto }}</td>
-          <td>{{ curso.cupo_sugerido }}</td>
           <td>
             {{ curso.total_comisiones }}
-            <a class="apagado" href="{% url 'panel:comision_nueva' %}?curso={{ curso.pk }}">+ agregar fecha</a>
+            <a class="apagado" href="{% url 'panel:fecha_nueva' %}?curso={{ curso.pk }}">+ agregar fecha</a>
           </td>
           <td>
             {% if curso.activo %}<span class="distintivo distintivo--verde">Visible</span>
@@ -59,7 +58,7 @@
           </td>
         </tr>
       {% empty %}
-        <tr><td colspan="7">
+        <tr><td colspan="6">
           <div class="tabla-vacia">
             <strong>No hay cursos que coincidan.</strong>
             Creá el primero y va a aparecer solo en la web pública.

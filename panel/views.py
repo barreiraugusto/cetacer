@@ -5,9 +5,10 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from contenido.models import Pagina
-from cuentas.models import DESCRIPCION_ROLES, JERARQUIA, Rol, Usuario
+from cuentas.models import DESCRIPCION_ROLES, JERARQUIA, Usuario
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
 
 from .accesos import (
@@ -15,44 +16,52 @@ from .accesos import (
     GESTION_COMISIONES,
     LECTURA_INSTITUCIONAL,
     SOLO_DIRECCION,
-    comisiones_visibles,
     requiere_panel,
 )
 from .forms import (
     CategoriaForm,
-    ComisionForm,
     ConfiguracionForm,
     CursoForm,
     EnlaceFormSet,
+    FechaForm,
     ImagenPortadaFormSet,
     PaginaForm,
     UsuarioForm,
 )
 
 
+def _volver(request, por_defecto):
+    """Vuelve a `next` si es una dirección propia; si no, al destino por defecto."""
+    destino = request.POST.get("next")
+    if destino and url_has_allowed_host_and_scheme(
+        destino, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return redirect(destino)
+    return redirect(por_defecto)
+
+
 # --- Tablero ---------------------------------------------------------------
 
 @requiere_panel
 def inicio(request):
-    """Tablero de entrada: las próximas fechas, en un vistazo."""
-    hoy = date.today()
-    comisiones = comisiones_visibles(
-        request.user, Comision.objects.select_related("curso", "curso__categoria")
+    """Tablero de entrada: las próximas fechas y su estado, en un vistazo."""
+    proximas = Comision.objects.select_related("curso", "curso__categoria").filter(
+        fecha_inicio__gte=date.today()
     )
     return render(request, "panel/inicio.html", {
         "seccion": "inicio",
         "indicadores": {
-            "comisiones_abiertas": comisiones.filter(
-                fecha_inicio__gte=hoy, estado=Comision.Estado.PUBLICADA
-            ).count(),
+            "publicadas": proximas.filter(visible=True).count(),
+            "completas": proximas.filter(visible=True, completa=True).count(),
+            "ocultas": proximas.filter(visible=False).count(),
         },
-        "proximas": comisiones.filter(fecha_inicio__gte=hoy).order_by("fecha_inicio")[:6],
+        "proximas": proximas.order_by("fecha_inicio", "hora_inicio")[:10],
     })
 
 
 @requiere_panel
 def agenda(request):
-    """Calendario mensual de comisiones."""
+    """Calendario mensual de fechas."""
     hoy = date.today()
     try:
         anio = int(request.GET.get("anio", hoy.year))
@@ -65,13 +74,13 @@ def agenda(request):
     anterior_mes = primero.month - 1 or 12
     anterior = date(primero.year - (primero.month == 1), anterior_mes, 1)
 
-    comisiones = comisiones_visibles(
-        request.user, Comision.objects.select_related("curso", "curso__categoria")
-    ).filter(fecha_inicio__gte=primero, fecha_inicio__lt=siguiente).order_by("fecha_inicio")
+    fechas = Comision.objects.select_related("curso").filter(
+        fecha_inicio__gte=primero, fecha_inicio__lt=siguiente
+    ).order_by("fecha_inicio", "hora_inicio")
 
     por_dia = {}
-    for comision in comisiones:
-        por_dia.setdefault(comision.fecha_inicio.day, []).append(comision)
+    for fecha in fechas:
+        por_dia.setdefault(fecha.fecha_inicio.day, []).append(fecha)
 
     # Grilla de 6 semanas arrancando en lunes.
     desplazamiento = primero.weekday()
@@ -91,7 +100,7 @@ def agenda(request):
         "mes_anterior": anterior,
         "mes_siguiente": siguiente,
         "celdas": celdas,
-        "total": comisiones.count(),
+        "total": fechas.count(),
     })
 
 
@@ -147,8 +156,8 @@ def curso_eliminar(request, pk):
     if curso.comisiones.exists():
         messages.error(
             request,
-            "Ese curso tiene comisiones cargadas. Desactivalo en lugar de borrarlo "
-            "para no perder el historial de participantes.",
+            "Ese curso tiene fechas cargadas. Borralas primero, o desactivá el curso "
+            "para que deje de verse en la web.",
         )
         return redirect("panel:curso_editar", pk=pk)
     nombre = curso.nombre
@@ -233,91 +242,75 @@ def pagina_eliminar(request, pk):
     return redirect("panel:paginas")
 
 
-# --- Comisiones ------------------------------------------------------------
-
-def _puede_gestionar_comisiones(usuario):
-    """Lo mismo que exige GESTION_COMISIONES, para decidir qué botones mostrar."""
-    return usuario.is_superuser or usuario.alcanza(Rol.COORDINACION)
-
+# --- Fechas ----------------------------------------------------------------
 
 @requiere_panel
-def comisiones_lista(request):
-    consulta = comisiones_visibles(
-        request.user,
-        Comision.objects.select_related("curso", "curso__categoria", "instructor"),
-    )
-    estado = request.GET.get("estado", "")
-    cuando = request.GET.get("cuando", "proximas")
+def fechas_lista(request):
+    consulta = Comision.objects.select_related("curso", "curso__categoria")
+    cuando = "pasadas" if request.GET.get("cuando") == "pasadas" else "proximas"
     busqueda = request.GET.get("q", "").strip()
-    if estado:
-        consulta = consulta.filter(estado=estado)
     if cuando == "proximas":
-        consulta = consulta.filter(fecha_inicio__gte=date.today())
-    elif cuando == "pasadas":
+        consulta = consulta.filter(fecha_inicio__gte=date.today()).order_by(
+            "fecha_inicio", "hora_inicio"
+        )
+    else:
         consulta = consulta.filter(fecha_inicio__lt=date.today()).order_by("-fecha_inicio")
     if busqueda:
         consulta = consulta.filter(curso__nombre__icontains=busqueda)
-    return render(request, "panel/comisiones.html", {
-        "seccion": "comisiones",
-        "comisiones": consulta,
-        "estados": Comision.Estado.choices,
-        "estado_sel": estado,
+    return render(request, "panel/fechas.html", {
+        "seccion": "fechas",
+        "fechas": consulta,
         "cuando": cuando,
         "q": busqueda,
-        "puede_gestionar": _puede_gestionar_comisiones(request.user),
     })
 
 
 @GESTION_COMISIONES
-def comision_editar(request, pk=None):
-    comision = get_object_or_404(Comision, pk=pk) if pk else None
+def fecha_editar(request, pk=None):
+    fecha = get_object_or_404(Comision, pk=pk) if pk else None
     if request.method == "POST":
-        formulario = ComisionForm(request.POST, instance=comision)
+        formulario = FechaForm(request.POST, instance=fecha)
         if formulario.is_valid():
-            guardada = formulario.save()
-            messages.success(request, "Comisión guardada.")
-            return redirect("panel:comisiones")
+            formulario.save()
+            messages.success(request, "Fecha guardada.")
+            return redirect("panel:fechas")
         messages.error(request, "Revisá los campos marcados en rojo.")
     else:
-        inicial = {}
-        curso_id = request.GET.get("curso")
-        if curso_id:
-            curso = Curso.objects.filter(pk=curso_id).first()
-            if curso:
-                inicial = {"curso": curso, "cupo": curso.cupo_sugerido}
-        formulario = ComisionForm(instance=comision, initial=inicial)
-    return render(request, "panel/comision_form.html", {
-        "seccion": "comisiones",
+        # «+ agregar fecha» desde un curso lo trae ya elegido.
+        elegido = request.GET.get("curso", "")
+        curso = Curso.objects.filter(pk=elegido).first() if elegido.isdigit() else None
+        inicial = {"curso": curso} if curso else {}
+        formulario = FechaForm(instance=fecha, initial=inicial)
+    return render(request, "panel/fecha_form.html", {
+        "seccion": "fechas",
         "form": formulario,
-        "comision": comision,
+        "comision": fecha,
     })
 
 
 @GESTION_COMISIONES
-def comision_eliminar(request, pk):
-    comision = get_object_or_404(Comision, pk=pk)
-    if request.method != "POST":
-        return redirect("panel:comision_editar", pk=pk)
-    descripcion = str(comision)
-    comision.delete()
-    messages.success(request, f"Comisión «{descripcion}» eliminada.")
-    return redirect("panel:comisiones")
+def fecha_marcar(request, pk):
+    """Cambia «visible» o «completa» con un clic, desde el listado o el Tablero."""
+    fecha = get_object_or_404(Comision.objects.select_related("curso"), pk=pk)
+    campo = request.POST.get("campo")
+    if request.method == "POST" and campo in {"visible", "completa"}:
+        setattr(fecha, campo, request.POST.get("valor") == "1")
+        fecha.save(update_fields=[campo, "actualizado"])
+        messages.success(
+            request, f"{fecha.curso.nombre}, {fecha.fecha_texto}: {fecha.estado_texto.lower()}."
+        )
+    return _volver(request, "panel:fechas")
 
 
 @GESTION_COMISIONES
-def comision_cambiar_estado(request, pk):
-    comision = get_object_or_404(Comision, pk=pk)
+def fecha_eliminar(request, pk):
+    fecha = get_object_or_404(Comision.objects.select_related("curso"), pk=pk)
     if request.method != "POST":
-        return redirect("panel:comisiones")
-    nuevo = request.POST.get("estado")
-    validos = {valor for valor, _ in Comision.Estado.choices}
-    if nuevo not in validos:
-        messages.error(request, "Ese estado no existe.")
-    else:
-        comision.estado = nuevo
-        comision.save(update_fields=["estado", "actualizado"])
-        messages.success(request, f"La comisión pasó a «{comision.get_estado_display()}».")
-    return redirect("panel:comisiones")
+        return redirect("panel:fecha_editar", pk=pk)
+    descripcion = str(fecha)
+    fecha.delete()
+    messages.success(request, f"Fecha «{descripcion}» eliminada.")
+    return redirect("panel:fechas")
 
 
 # --- Administración --------------------------------------------------------

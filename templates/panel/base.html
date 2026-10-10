@@ -31,8 +31,8 @@
       </a>
 
       <div class="menu__titulo">CAPACITACIÓN</div>
-      <a href="{% url 'panel:comisiones' %}" class="{% if seccion == 'comisiones' %}activo{% endif %}">
-        {% include "panel/iconos.html" with icono="comision" %} Comisiones
+      <a href="{% url 'panel:fechas' %}" class="{% if seccion == 'fechas' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="comision" %} Fechas
       </a>
       <a href="{% url 'panel:cursos' %}" class="{% if seccion == 'cursos' %}activo{% endif %}">
         {% include "panel/iconos.html" with icono="libro" %} Cursos

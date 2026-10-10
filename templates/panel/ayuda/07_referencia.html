@@ -1,0 +1,51 @@
+<section class="tarjeta manual__capitulo" id="referencia">
+  <div class="manual__cabecera">
+    <h2 class="manual__titulo">7. Referencia</h2>
+  </div>
+
+  <h3>Qué puede hacer cada rol</h3>
+  <p>
+    Los roles están ordenados de mayor a menor alcance: quien tiene un rol de arriba puede hacer
+    todo lo de los de abajo.
+  </p>
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <thead><tr><th style="width:50px">#</th><th>Rol</th><th>Qué puede hacer</th></tr></thead>
+      <tbody>
+        {% for nombre, descripcion in roles %}
+          <tr>
+            <td class="apagado">{{ forloop.counter }}</td>
+            <td class="principal-celda">{{ nombre }}</td>
+            <td>{{ descripcion }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Quién puede hacer cada tarea</h3>
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <thead><tr><th>Tarea</th><th>Rol</th></tr></thead>
+      <tbody>
+        <tr><td>Subir, editar, ocultar y eliminar fechas, y marcarlas como completas</td><td class="principal-celda">Administración y Dirección</td></tr>
+        <tr><td>Crear y editar cursos, categorías y páginas del sitio</td><td class="principal-celda">Administración y Dirección</td></tr>
+        <tr><td>Administrar usuarios y la configuración del sitio</td><td class="principal-celda">Sólo Dirección</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Palabras que vas a ver seguido</h3>
+  <div class="tabla-envoltorio" style="border:0">
+    <table class="tabla">
+      <tbody>
+        <tr><td class="principal-celda">Curso</td><td>Lo que se dicta: nombre, precio y requisitos. No tiene día.</td></tr>
+        <tr><td class="principal-celda">Categoría</td><td>El bloque bajo el que se agrupan los cursos en la web.</td></tr>
+        <tr><td class="principal-celda">Fecha</td><td>Un día concreto en que se dicta un curso.</td></tr>
+        <tr><td class="principal-celda">Disponible</td><td>La fecha se ve en la web y tiene lugar. Cartel verde.</td></tr>
+        <tr><td class="principal-celda">Completo</td><td>La fecha se ve en la web pero ya no tiene lugar. Cartel rojo.</td></tr>
+        <tr><td class="principal-celda">Oculta</td><td>La fecha está guardada en el panel y no se ve en la web.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -74,12 +74,3 @@ SOLO_DIRECCION = requiere_rol(Rol.DIRECCION)
 GESTION_CATALOGO = requiere_nivel(Rol.ADMINISTRACION)
 GESTION_COMISIONES = requiere_nivel(Rol.COORDINACION)
 LECTURA_INSTITUCIONAL = requiere_nivel(Rol.RECEPCION)
-
-
-def comisiones_visibles(usuario, queryset):
-    """Un instructor sólo ve sus propias comisiones; el resto ve todas."""
-    if usuario.is_superuser:
-        return queryset
-    if usuario.tiene_rol(Rol.INSTRUCTOR):
-        return queryset.filter(instructor=usuario)
-    return queryset

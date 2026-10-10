@@ -19,8 +19,8 @@ class CursoAdmin(admin.ModelAdmin):
 
 @admin.register(Comision)
 class ComisionAdmin(admin.ModelAdmin):
-    list_display = ("curso", "fecha_inicio", "cupo", "cantidad_inscriptos", "estado")
-    list_filter = ("estado", "curso__categoria")
+    list_display = ("curso", "fecha_inicio", "visible", "completa")
+    list_filter = ("visible", "completa", "curso__categoria")
     date_hierarchy = "fecha_inicio"
 
 

@@ -43,19 +43,13 @@ enlaces recargan y caen en #filtros, no al principio de la sección.{% endcommen
               <div class="etiqueta">DURACIÓN</div>
               <div class="dato-valor">{{ curso.duracion_horario }}</div>
             </div>
-            <div>
-              <div class="etiqueta">CUPO</div>
-              <div class="dato-valor">{{ curso.cupo_texto }}</div>
-            </div>
           </div>
 
           <div>
             <div class="etiqueta" style="margin-bottom:8px">FECHAS DISPONIBLES</div>
             <div class="fechas">
               {% for comision in curso.comisiones_publicadas %}
-                <span class="fecha-chip {% if comision.completa %}fecha-chip--completa{% endif %}">
-                  {{ comision.fecha_texto }}{% if comision.completa %} · completo{% else %} · {{ comision.lugares_disponibles }} lugar{{ comision.lugares_disponibles|pluralize:"es" }}{% endif %}
-                </span>
+                <span class="fecha-chip">{{ comision.fecha_texto }} · {{ comision.estado_texto }}</span>
               {% empty %}
                 <span class="fecha-chip fecha-chip--gris">Consultar por WhatsApp</span>
               {% endfor %}
