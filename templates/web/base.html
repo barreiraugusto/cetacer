@@ -24,10 +24,9 @@
   <div class="contenedor encabezado__interior">
     <div class="marca">
       <a class="marca__enlace" href="{% url 'web:inicio' %}">
-        <img class="marca__logo" src="{% static 'img/logo-cetacer-color-sin-razon.svg' %}"
+        <img class="marca__logo" src="{% static 'img/logo-cetacer-color.svg' %}"
              width="573" height="200"
-             alt="{{ sitio.nombre }}{% if sitio.aniversario %} — {{ sitio.aniversario }}{% endif %}">
-        <span class="marca__razon">Cámara Empresaria del Transporte Automotor de Cargas de Entre Ríos</span>
+             alt="{{ sitio.nombre }} — Cámara Empresaria del Transporte Automotor de Cargas de Entre Ríos{% if sitio.aniversario %} — {{ sitio.aniversario }} años{% endif %}">
       </a>
     </div>
     <nav class="navegacion" aria-label="Principal">

@@ -97,16 +97,18 @@ class CatalogoTests(TestCase):
         self.assertContains(respuesta, "<strong>CERTIFICADO DE CARGAS</strong>")
         self.assertContains(respuesta, 'href="https://sicapro.com.ar/consultasonline.aspx"')
 
-    def test_el_encabezado_muestra_la_razon_social(self):
-        # Va como texto, no dentro de la imagen, para que se lea en el celular.
+    def test_el_encabezado_usa_el_logo_con_la_razon_social(self):
         for url in ("/", "/cursos/", self.curso.get_absolute_url()):
             with self.subTest(url=url):
                 respuesta = self.client.get(url)
-                self.assertContains(respuesta, "logo-cetacer-color-sin-razon")
+                self.assertContains(respuesta, 'src="/static/img/logo-cetacer-color.svg"')
+                self.assertNotContains(respuesta, "logo-cetacer-color-sin-razon")
+                # La razón social está dibujada en el logo: no se repite como texto,
+                # pero sí va en el alt para quien no ve la imagen.
+                self.assertNotContains(respuesta, "marca__razon")
                 self.assertContains(
                     respuesta,
-                    '<span class="marca__razon">Cámara Empresaria del Transporte '
-                    "Automotor de Cargas de Entre Ríos</span>",
+                    "Cámara Empresaria del Transporte Automotor de Cargas de Entre Ríos",
                 )
 
     def test_la_ficha_no_repite_la_categoria_arriba_del_titulo(self):
