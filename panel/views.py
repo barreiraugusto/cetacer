@@ -946,8 +946,31 @@ def usuario_editar(request, pk=None):
         "seccion": "usuarios",
         "form": formulario,
         "usuario_editado": usuario,
+        "puede_eliminar": bool(usuario) and _puede_eliminar_usuario(request.user, usuario),
         "descripciones": [(rol.label, DESCRIPCION_ROLES[rol]) for rol in JERARQUIA],
     })
+
+
+def _puede_eliminar_usuario(quien, usuario):
+    """Nadie se borra a sí mismo, y a un superusuario sólo lo borra otro."""
+    return usuario.pk != quien.pk and (quien.is_superuser or not usuario.is_superuser)
+
+
+@SOLO_DIRECCION
+def usuario_eliminar(request, pk):
+    usuario = get_object_or_404(Usuario, pk=pk)
+    if request.method != "POST":
+        return redirect("panel:usuario_editar", pk=pk)
+    if usuario.pk == request.user.pk:
+        messages.error(request, "No podés eliminar tu propio usuario.")
+        return redirect("panel:usuario_editar", pk=pk)
+    if not _puede_eliminar_usuario(request.user, usuario):
+        messages.error(request, "Ese usuario es de administración técnica y no se elimina desde el panel.")
+        return redirect("panel:usuario_editar", pk=pk)
+    nombre = usuario.username
+    usuario.delete()
+    messages.success(request, f"Usuario «{nombre}» eliminado.")
+    return redirect("panel:usuarios")
 
 
 @SOLO_DIRECCION

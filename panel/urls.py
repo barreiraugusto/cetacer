@@ -64,6 +64,7 @@ urlpatterns = [
     path("usuarios/", views.usuarios_lista, name="usuarios"),
     path("usuarios/nuevo/", views.usuario_editar, name="usuario_nuevo"),
     path("usuarios/<int:pk>/", views.usuario_editar, name="usuario_editar"),
+    path("usuarios/<int:pk>/eliminar/", views.usuario_eliminar, name="usuario_eliminar"),
     path("configuracion/", views.configuracion, name="configuracion"),
     path("ayuda/", views.ayuda, name="ayuda"),
 ]

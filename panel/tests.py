@@ -1,11 +1,12 @@
-"""Pruebas del manual de uso del panel («Cómo se usa»)."""
+"""Pruebas del panel: manual de uso y administración de usuarios."""
 import re
 
+from django.contrib.messages import get_messages
 from django.contrib.staticfiles import finders
 from django.test import TestCase
 from django.urls import reverse
 
-from cuentas.models import JERARQUIA, Usuario
+from cuentas.models import JERARQUIA, Rol, Usuario
 from cuentas.permisos import sincronizar_grupos
 
 CAPITULOS = [
@@ -58,3 +59,59 @@ class ManualTests(TestCase):
         self.assertRedirects(
             respuesta, f"{reverse('panel:login')}?next={reverse('panel:ayuda')}"
         )
+
+
+class EliminarUsuarioTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        sincronizar_grupos()
+        cls.direccion = cls._crear("marta", Rol.DIRECCION)
+        cls.administracion = cls._crear("luis", Rol.ADMINISTRACION)
+        cls.recepcion = cls._crear("diego", Rol.RECEPCION)
+
+    @staticmethod
+    def _crear(nombre, rol):
+        usuario = Usuario.objects.create_user(username=nombre, password="clave-larga-123")
+        usuario.asignar_rol(rol)
+        return usuario
+
+    def _eliminar(self, quien, a_quien, metodo="post"):
+        self.client.force_login(quien)
+        return getattr(self.client, metodo)(reverse("panel:usuario_eliminar", args=[a_quien.pk]))
+
+    def _mensajes(self, respuesta):
+        return [str(m) for m in get_messages(respuesta.wsgi_request)]
+
+    def test_direccion_elimina_a_otro_usuario(self):
+        respuesta = self._eliminar(self.direccion, self.recepcion)
+        self.assertRedirects(respuesta, reverse("panel:usuarios"))
+        self.assertFalse(Usuario.objects.filter(pk=self.recepcion.pk).exists())
+        self.assertIn("Usuario «diego» eliminado.", self._mensajes(respuesta))
+
+    def test_por_get_no_elimina(self):
+        respuesta = self._eliminar(self.direccion, self.recepcion, metodo="get")
+        self.assertRedirects(respuesta, reverse("panel:usuario_editar", args=[self.recepcion.pk]))
+        self.assertTrue(Usuario.objects.filter(pk=self.recepcion.pk).exists())
+
+    def test_nadie_se_elimina_a_si_mismo(self):
+        respuesta = self._eliminar(self.direccion, self.direccion)
+        self.assertRedirects(respuesta, reverse("panel:usuario_editar", args=[self.direccion.pk]))
+        self.assertTrue(Usuario.objects.filter(pk=self.direccion.pk).exists())
+
+    def test_otros_roles_no_pueden_eliminar(self):
+        self._eliminar(self.administracion, self.recepcion)
+        self.assertTrue(Usuario.objects.filter(pk=self.recepcion.pk).exists())
+
+    def test_direccion_no_elimina_a_un_superusuario(self):
+        tecnico = Usuario.objects.create_superuser(username="tecnico", password="clave-larga-123")
+        self._eliminar(self.direccion, tecnico)
+        self.assertTrue(Usuario.objects.filter(pk=tecnico.pk).exists())
+
+    def test_el_boton_aparece_al_editar_a_otro_y_no_a_uno_mismo(self):
+        self.client.force_login(self.direccion)
+        ajeno = self.client.get(reverse("panel:usuario_editar", args=[self.recepcion.pk]))
+        self.assertContains(ajeno, "Eliminar este usuario")
+        propio = self.client.get(reverse("panel:usuario_editar", args=[self.direccion.pk]))
+        self.assertNotContains(propio, "Eliminar este usuario")
+        nuevo = self.client.get(reverse("panel:usuario_nuevo"))
+        self.assertNotContains(nuevo, "Eliminar este usuario")
