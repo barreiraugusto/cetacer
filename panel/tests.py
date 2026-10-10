@@ -383,6 +383,14 @@ class PermisosTests(TestCase):
             with self.subTest(pantalla=nombre):
                 self.assertEqual(self.client.get(reverse(nombre)).status_code, 403)
 
+    def test_un_usuario_sin_rol_recibe_una_explicacion(self):
+        # Les pasa a quienes tenían un rol que ya no existe: que sepan a quién pedirle.
+        self.client.force_login(self.sin_rol)
+        respuesta = self.client.get(reverse("panel:inicio"))
+        self.assertContains(respuesta, "no tiene un rol asignado", status_code=403)
+        self.assertContains(respuesta, "Dirección", status_code=403)
+        self.assertContains(respuesta, reverse("panel:logout"), status_code=403)
+
     def test_un_usuario_sin_rol_no_puede_cambiar_una_fecha(self):
         self.client.force_login(self.sin_rol)
         self.client.post(

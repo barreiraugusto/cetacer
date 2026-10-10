@@ -1,0 +1,31 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sin acceso — CETACER</title>
+  <link rel="stylesheet" href="{% static 'css/panel.css' %}">
+</head>
+<body>
+<div class="ingreso__caja" style="min-height:100vh">
+  <div class="ingreso__form">
+    <h2>No podés entrar al panel</h2>
+    {% if user.is_authenticated %}
+      <p class="bajada">
+        Tu usuario <strong>{{ user.username }}</strong> no tiene un rol asignado.
+        Pedile a Dirección que te asigne uno desde «Usuarios y permisos».
+      </p>
+      <form method="post" action="{% url 'panel:logout' %}" style="margin-top:22px">
+        {% csrf_token %}
+        <button class="boton boton--secundario" type="submit">Salir</button>
+      </form>
+    {% else %}
+      <p class="bajada">No tenés permiso para ver esta página.</p>
+    {% endif %}
+    <p class="texto-suave" style="margin-top:22px">
+      <a href="{% url 'web:inicio' %}">← Volver a la web pública</a>
+    </p>
+  </div>
+</div>
+</body>
+</html>
