@@ -324,7 +324,8 @@ class Command(BaseCommand):
                     "fecha_fin": fecha + timedelta(days=random.choice([0, 0, 1])),
                     "hora_inicio": time(8, 30),
                     "hora_fin": time(16, 30),
-                    "visible": random.random() > 0.2,
-                    "completa": random.random() > 0.7,
+                    # Fijas, para que la demo muestre siempre los tres estados.
+                    "visible": desplazamiento != 48,
+                    "completa": desplazamiento in (-25, 13),
                 },
             )

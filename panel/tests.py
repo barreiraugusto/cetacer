@@ -53,6 +53,13 @@ class ManualTests(TestCase):
             with self.subTest(captura=ruta):
                 self.assertIsNotNone(finders.find(ruta), f"Falta el archivo {ruta}")
 
+    def test_el_manual_no_menciona_lo_que_se_saco(self):
+        html = self._manual(JERARQUIA[0]).content.decode().lower()
+        for palabra in ("comisi", "inscrip", "participante", "asistencia", "cupo",
+                        "instructor", "informes", "recepción", "coordinación"):
+            with self.subTest(palabra=palabra):
+                self.assertNotIn(palabra, html)
+
     def test_sin_sesion_pide_ingresar(self):
         respuesta = self.client.get(reverse("panel:ayuda"))
         self.assertRedirects(

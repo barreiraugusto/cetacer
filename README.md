@@ -1,8 +1,11 @@
 # CETACER — sitio web y panel de capacitación
 
 Sitio público y panel de administración para la Cámara Empresaria del Transporte
-Automotor de Cargas de Entre Ríos. Reemplaza el sitio actual (cetacer.com) y suma
-la gestión de cursos, fechas, inscriptos y exportación de listas de participantes.
+Automotor de Cargas de Entre Ríos. Reemplaza el sitio anterior y suma un panel
+para mantener los cursos y subir sus fechas, marcando cuáles están completas.
+
+El sitio no lleva el registro de quienes cursan: CETACER lo carga en el sistema
+nacional de la fundación.
 
 ## Puesta en marcha
 
@@ -19,8 +22,8 @@ python manage.py runserver
 - Panel: http://127.0.0.1:8000/panel/
 
 `cargar_datos` crea un usuario por rol con la contraseña `cetacer2024`
-(`direccion`, `administracion`, `coordinacion`, `recepcion`, `instructor`).
-Sin `--demo` sólo carga el catálogo y los usuarios, sin inscriptos de prueba.
+(`direccion` y `administracion`). Sin `--demo` sólo carga el catálogo y los
+usuarios, sin fechas de prueba.
 
 **Cambiá esas contraseñas antes de poner el sitio en producción.**
 
@@ -28,20 +31,20 @@ Sin `--demo` sólo carga el catálogo y los usuarios, sin inscriptos de prueba.
 
 | Comando | Para qué sirve |
 |---|---|
-| `python manage.py init_roles` | Crea o actualiza los cinco grupos con sus permisos. Es idempotente: corrélo de nuevo después de agregar modelos. |
+| `python manage.py init_roles` | Crea o actualiza los grupos de los dos roles con sus permisos. Es idempotente: corrélo de nuevo después de agregar modelos. |
 | `python manage.py cargar_datos` | Carga el catálogo real de cursos y un usuario por rol. |
-| `python manage.py cargar_datos --demo` | Suma comisiones, participantes e inscripciones de prueba. |
-| `python manage.py test` | Corre las 94 pruebas. |
+| `python manage.py cargar_datos --demo` | Suma fechas de prueba, pasadas y futuras. |
+| `python manage.py test` | Corre las pruebas. |
 
 ## Estructura
 
 ```
 config/          Configuración del proyecto
 cuentas/         Usuario propio y jerarquía de roles (grupos de Django)
-cursos/          Categorías, cursos, comisiones y configuración del sitio
+cursos/          Categorías, cursos, fechas y configuración del sitio
 contenido/       Páginas institucionales de enlaces, editables desde el panel
-inscripciones/   Empresas, participantes e inscripciones
-panel/           Panel de administración (vistas, formularios, exportaciones)
+inscripciones/   Sólo migraciones históricas: el registro de personas se eliminó
+panel/           Panel de administración (vistas y formularios)
 web/             Sitio público
 templates/       Plantillas (web/ y panel/)
 static/css/      web.css y panel.css
@@ -49,13 +52,15 @@ static/css/      web.css y panel.css
 
 ### Cómo se relacionan los datos
 
-- **Curso** — lo que se dicta: nombre, precio, requisitos. No tiene fecha.
-- **Comisión** — un dictado concreto de ese curso: fecha, horario, cupo e instructor.
-- **Participante** — la persona, identificada por DNI y reutilizada entre cursos.
-- **Inscripción** — une un participante con una comisión, con su estado y su pago.
+- **Categoría** — un bloque de la web (Cargas Generales, Mercancías Peligrosas).
+- **Curso** — lo que se dicta: nombre, precio, requisitos. No tiene día. Su
+  «nombre corto» es el texto de su botón en la web.
+- **Fecha** — un día concreto en que se dicta ese curso. En el código es el
+  modelo `Comision`; el nombre quedó de cuando además llevaba cupo e inscriptos.
 
-Separar curso de comisión es lo que permite repetir el mismo curso todos los meses
-sin volver a cargar precio ni requisitos, y tener el historial de quién cursó qué.
+Cada fecha tiene dos casillas: **visible en la web** y **completo**. La web la
+muestra como «Disponible» hasta que se marca completa, y deja de mostrarla sola
+cuando pasa su día de inicio.
 
 ## Jerarquía de usuarios
 
@@ -65,28 +70,7 @@ Se apoya en los grupos nativos de Django. La matriz de permisos vive en
 | Rol | Alcance |
 |---|---|
 | Dirección | Todo, incluidos usuarios y configuración del sitio. |
-| Administración | Catálogo completo, precios, comisiones, inscripciones y exportaciones. |
-| Coordinación | Comisiones, instructores e inscripciones. No toca precios ni usuarios. |
-| Recepción | Carga participantes, toma inscripciones y descarga listas. |
-| Instructor | Sólo sus comisiones asignadas, para tomar asistencia. |
-
-Un instructor no ve las comisiones de otros: la consulta se filtra en
-`panel/accesos.py::comisiones_visibles`.
-
-## Exportaciones
-
-Todas salen en Excel (.xlsx) y en CSV, y siempre respetan los filtros que haya
-puestos en pantalla.
-
-- **Lista de participantes de una comisión** — con encabezado institucional, curso,
-  fecha, lugar y cupo.
-- **Planilla de firmas** — la misma lista con columnas en blanco para firmar el día
-  del curso.
-- **Listado general de inscripciones** — con filtros por curso, estado, pago y fechas.
-- **Padrón de participantes** — una fila por persona, con la cantidad de cursos hechos.
-
-El CSV se genera con punto y coma y un único BOM para que Excel en español lo abra
-bien al hacer doble clic.
+| Administración | Cursos, categorías, fechas y páginas. |
 
 ## Páginas de contenido
 
