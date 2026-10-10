@@ -281,18 +281,21 @@ img, iframe { max-width: 100%; }
 .dato-precio { font-size: 19px; font-weight: 700; color: var(--tinta); margin-top: 3px; }
 .dato-valor { font-size: 15.5px; color: var(--texto); margin-top: 3px; }
 .fechas { display: flex; flex-wrap: wrap; gap: 7px; }
+/* Cada fecha es una cajita: el día arriba y, debajo, su estado a todo el ancho. */
 .fecha-chip {
-  display: inline-flex; align-items: center; gap: 9px;
+  display: inline-flex; flex-direction: column; align-items: stretch; text-align: center;
   font-size: 15px; font-weight: 600; color: var(--tinta);
-  background: #ffffff; border: 1px solid var(--borde); padding: 4px 5px 4px 12px;
-  border-radius: var(--radio);
+  background: #ffffff; border: 1px solid var(--borde); border-radius: var(--radio);
+  overflow: hidden;
 }
+.fecha-chip__dia { padding: 6px 14px; white-space: nowrap; }
 .fecha-chip--gris { color: var(--texto-suave); background: #eef0f4; border-color: transparent; padding: 6px 12px; }
 /* Disponible en verde, completo en rojo: es lo primero que busca quien quiere anotarse. */
 .estado-fecha {
   display: inline-block; padding: 3px 10px; border-radius: 3px; white-space: nowrap;
   font-size: 13px; font-weight: 700; letter-spacing: 0.01em; color: #ffffff;
 }
+.fecha-chip .estado-fecha { display: block; border-radius: 0; padding: 4px 14px; font-size: 13.5px; }
 .estado-fecha--disponible { background: #15803d; }
 .estado-fecha--completa { background: #b42318; }
 .ficha__texto strong { color: var(--tinta); }

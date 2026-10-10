@@ -54,7 +54,7 @@ JavaScript, los botones son enlaces que recargan y caen en #cursos-lista.{% endc
             <div class="fechas">
               {% for comision in curso.comisiones_publicadas %}
                 <span class="fecha-chip">
-                  {{ comision.fecha_texto }}
+                  <span class="fecha-chip__dia">{{ comision.fecha_texto }}</span>
                   <span class="estado-fecha estado-fecha--{{ comision.estado_clave }}">{{ comision.estado_texto }}</span>
                 </span>
               {% empty %}
