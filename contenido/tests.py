@@ -226,17 +226,10 @@ class PanelPaginasTests(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, "Legislación")
 
-    def test_recepcion_entra_al_listado(self):
-        self._usuario("recepcion_test", Rol.RECEPCION)
-        self.client.login(username="recepcion_test", password="clave-de-prueba")
-        respuesta = self.client.get("/panel/paginas/")
-        self.assertEqual(respuesta.status_code, 200)
-
-    def test_instructor_no_entra(self):
-        self._usuario("instructor_test", Rol.INSTRUCTOR)
-        self.client.login(username="instructor_test", password="clave-de-prueba")
-        respuesta = self.client.get("/panel/paginas/")
-        self.assertEqual(respuesta.status_code, 302)
+    def test_un_usuario_sin_rol_no_entra(self):
+        Usuario.objects.create_user(username="sin_rol", password="clave-de-prueba")
+        self.client.login(username="sin_rol", password="clave-de-prueba")
+        self.assertNotEqual(self.client.get("/panel/paginas/").status_code, 200)
 
     def test_anonimo_va_al_login(self):
         respuesta = self.client.get("/panel/paginas/")

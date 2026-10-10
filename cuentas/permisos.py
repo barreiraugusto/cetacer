@@ -12,7 +12,6 @@ from .models import Rol
 
 TODOS = ("add", "change", "delete", "view")
 LECTURA = ("view",)
-ALTA_Y_EDICION = ("add", "change", "view")
 
 #: rol -> {"app.modelo": (acciones,)}
 MATRIZ = {
@@ -21,59 +20,24 @@ MATRIZ = {
         "cursos.categoria": TODOS,
         "cursos.curso": TODOS,
         "cursos.comision": TODOS,
-        "inscripciones.empresa": TODOS,
-        "inscripciones.participante": TODOS,
-        "inscripciones.inscripcion": TODOS,
         "cuentas.usuario": TODOS,
         "auth.group": LECTURA,
         "contenido.pagina": TODOS,
         "contenido.enlacepagina": TODOS,
     },
     Rol.ADMINISTRACION: {
-        "cursos.configuracionsitio": ("change", "view"),
+        "cursos.configuracionsitio": LECTURA,
         "cursos.categoria": TODOS,
         "cursos.curso": TODOS,
         "cursos.comision": TODOS,
-        "inscripciones.empresa": TODOS,
-        "inscripciones.participante": TODOS,
-        "inscripciones.inscripcion": TODOS,
-        "cuentas.usuario": LECTURA,
         "contenido.pagina": TODOS,
         "contenido.enlacepagina": TODOS,
-    },
-    Rol.COORDINACION: {
-        "cursos.configuracionsitio": LECTURA,
-        "cursos.categoria": LECTURA,
-        "cursos.curso": ("change", "view"),
-        "cursos.comision": TODOS,
-        "inscripciones.empresa": ALTA_Y_EDICION,
-        "inscripciones.participante": ALTA_Y_EDICION,
-        "inscripciones.inscripcion": TODOS,
-        "contenido.pagina": LECTURA,
-        "contenido.enlacepagina": LECTURA,
-    },
-    Rol.RECEPCION: {
-        "cursos.configuracionsitio": LECTURA,
-        "cursos.categoria": LECTURA,
-        "cursos.curso": LECTURA,
-        "cursos.comision": LECTURA,
-        "inscripciones.empresa": ALTA_Y_EDICION,
-        "inscripciones.participante": ALTA_Y_EDICION,
-        "inscripciones.inscripcion": ALTA_Y_EDICION,
-        "contenido.pagina": LECTURA,
-        "contenido.enlacepagina": LECTURA,
-    },
-    Rol.INSTRUCTOR: {
-        "cursos.curso": LECTURA,
-        "cursos.comision": LECTURA,
-        "inscripciones.participante": LECTURA,
-        "inscripciones.inscripcion": ("change", "view"),
     },
 }
 
 
 def sincronizar_grupos(verbose=False):
-    """Crea (o actualiza) los cinco grupos con sus permisos. Idempotente."""
+    """Crea (o actualiza) los grupos de los roles con sus permisos. Idempotente."""
     resultado = []
     for rol, modelos in MATRIZ.items():
         grupo, creado = Group.objects.get_or_create(name=rol.value)

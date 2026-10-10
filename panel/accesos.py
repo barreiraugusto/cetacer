@@ -71,6 +71,4 @@ def requiere_panel(vista):
 
 # Atajos de lectura para las vistas.
 SOLO_DIRECCION = requiere_rol(Rol.DIRECCION)
-GESTION_CATALOGO = requiere_nivel(Rol.ADMINISTRACION)
-GESTION_COMISIONES = requiere_nivel(Rol.COORDINACION)
-LECTURA_INSTITUCIONAL = requiere_nivel(Rol.RECEPCION)
+GESTION = requiere_nivel(Rol.ADMINISTRACION)

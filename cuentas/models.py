@@ -3,31 +3,19 @@ from django.db import models
 
 
 class Rol(models.TextChoices):
-    """Jerarquía de acceso al panel. Cada valor es el nombre de un grupo de Django."""
+    """Roles del panel. Cada valor es el nombre de un grupo de Django."""
 
     DIRECCION = "Dirección", "Dirección"
     ADMINISTRACION = "Administración", "Administración"
-    COORDINACION = "Coordinación", "Coordinación"
-    RECEPCION = "Recepción", "Recepción"
-    INSTRUCTOR = "Instructor", "Instructor"
 
 
 #: Orden jerárquico, de mayor a menor alcance. Un rol "alcanza" a todos los
 #: que están por debajo suyo en esta lista.
-JERARQUIA = [
-    Rol.DIRECCION,
-    Rol.ADMINISTRACION,
-    Rol.COORDINACION,
-    Rol.RECEPCION,
-    Rol.INSTRUCTOR,
-]
+JERARQUIA = [Rol.DIRECCION, Rol.ADMINISTRACION]
 
 DESCRIPCION_ROLES = {
     Rol.DIRECCION: "Acceso total: cursos, fechas, páginas, usuarios y configuración del sitio.",
     Rol.ADMINISTRACION: "Gestiona cursos, categorías, fechas y páginas. No administra usuarios ni la configuración.",
-    Rol.COORDINACION: "Carga y edita fechas.",
-    Rol.RECEPCION: "Sólo consulta.",
-    Rol.INSTRUCTOR: "Sólo consulta.",
 }
 
 

@@ -185,9 +185,6 @@ PAGINAS = [
 USUARIOS = [
     ("direccion", "Marta", "Gaitán", Rol.DIRECCION, "Gerencia"),
     ("administracion", "Luis", "Peralta", Rol.ADMINISTRACION, "Administración"),
-    ("coordinacion", "Silvia", "Roldán", Rol.COORDINACION, "Coordinación de capacitación"),
-    ("recepcion", "Diego", "Ferreyra", Rol.RECEPCION, "Mesa de entrada"),
-    ("instructor", "Raúl", "Benítez", Rol.INSTRUCTOR, "Instructor"),
 ]
 
 

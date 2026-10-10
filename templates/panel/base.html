@@ -37,11 +37,9 @@
       <a href="{% url 'panel:cursos' %}" class="{% if seccion == 'cursos' %}activo{% endif %}">
         {% include "panel/iconos.html" with icono="libro" %} Cursos
       </a>
-      {% if user.is_superuser or rol_actual.value != "Instructor" %}
-        <a href="{% url 'panel:paginas' %}" class="{% if seccion == 'paginas' %}activo{% endif %}">
-          {% include "panel/iconos.html" with icono="lista" %} Páginas
-        </a>
-      {% endif %}
+      <a href="{% url 'panel:paginas' %}" class="{% if seccion == 'paginas' %}activo{% endif %}">
+        {% include "panel/iconos.html" with icono="lista" %} Páginas
+      </a>
 
       <div class="menu__titulo">INSTITUCIÓN</div>
       {% if user.is_superuser or rol_actual.value == "Dirección" %}

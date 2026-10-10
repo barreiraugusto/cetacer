@@ -17,19 +17,19 @@ class JerarquiaTests(TestCase):
             usuario.asignar_rol(rol)
         return usuario
 
-    def test_sincronizar_grupos_crea_los_cinco_roles(self):
-        self.assertEqual(Group.objects.filter(name__in=[r.value for r in Rol]).count(), 5)
+    def test_sincronizar_grupos_crea_los_dos_roles(self):
+        self.assertEqual(Group.objects.filter(name__in=[r.value for r in Rol]).count(), 2)
 
     def test_sincronizar_grupos_es_idempotente(self):
-        antes = Group.objects.get(name=Rol.RECEPCION.value).permissions.count()
+        antes = Group.objects.get(name=Rol.ADMINISTRACION.value).permissions.count()
         sincronizar_grupos()
-        despues = Group.objects.get(name=Rol.RECEPCION.value).permissions.count()
+        despues = Group.objects.get(name=Rol.ADMINISTRACION.value).permissions.count()
         self.assertEqual(antes, despues)
 
     def test_rol_devuelve_el_grupo_asignado(self):
-        usuario = self._usuario("silvia", Rol.COORDINACION)
-        self.assertEqual(usuario.rol, Rol.COORDINACION)
-        self.assertEqual(usuario.rol_nombre, "Coordinación")
+        usuario = self._usuario("silvia", Rol.ADMINISTRACION)
+        self.assertEqual(usuario.rol, Rol.ADMINISTRACION)
+        self.assertEqual(usuario.rol_nombre, "Administración")
 
     def test_usuario_sin_grupo_no_tiene_rol(self):
         self.assertIsNone(self._usuario("nadie").rol)
@@ -40,19 +40,27 @@ class JerarquiaTests(TestCase):
 
     def test_alcanza_respeta_el_orden_de_la_jerarquia(self):
         direccion = self._usuario("marta", Rol.DIRECCION)
-        recepcion = self._usuario("diego", Rol.RECEPCION)
+        administracion = self._usuario("luis", Rol.ADMINISTRACION)
         # Dirección alcanza todos los niveles de abajo.
-        self.assertTrue(direccion.alcanza(Rol.RECEPCION))
+        self.assertTrue(direccion.alcanza(Rol.ADMINISTRACION))
         self.assertTrue(direccion.alcanza(Rol.DIRECCION))
-        # Recepción no alcanza los de arriba.
-        self.assertFalse(recepcion.alcanza(Rol.COORDINACION))
-        self.assertTrue(recepcion.alcanza(Rol.RECEPCION))
+        # Administración no alcanza el de arriba.
+        self.assertFalse(administracion.alcanza(Rol.DIRECCION))
+        self.assertTrue(administracion.alcanza(Rol.ADMINISTRACION))
 
     def test_asignar_rol_reemplaza_el_anterior(self):
-        usuario = self._usuario("cambia", Rol.RECEPCION)
-        usuario.asignar_rol(Rol.ADMINISTRACION)
+        usuario = self._usuario("cambia", Rol.ADMINISTRACION)
+        usuario.asignar_rol(Rol.DIRECCION)
         self.assertEqual(usuario.groups.count(), 1)
-        self.assertEqual(usuario.rol, Rol.ADMINISTRACION)
+        self.assertEqual(usuario.rol, Rol.DIRECCION)
+
+    def test_un_grupo_de_un_rol_eliminado_no_da_acceso(self):
+        from django.contrib.auth.models import Group
+
+        usuario = self._usuario("viejo")
+        usuario.groups.add(Group.objects.create(name="Recepción"))
+        self.assertIsNone(usuario.rol)
+        self.assertFalse(usuario.alcanza(Rol.ADMINISTRACION))
 
     def test_iniciales_y_nombre_completo(self):
         usuario = self._usuario("ana")

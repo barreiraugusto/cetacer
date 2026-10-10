@@ -66,7 +66,7 @@ class EliminarUsuarioTests(TestCase):
         sincronizar_grupos()
         cls.direccion = cls._crear("marta", Rol.DIRECCION)
         cls.administracion = cls._crear("luis", Rol.ADMINISTRACION)
-        cls.recepcion = cls._crear("diego", Rol.RECEPCION)
+        cls.recepcion = cls._crear("diego", Rol.ADMINISTRACION)
 
     @staticmethod
     def _crear(nombre, rol):
@@ -328,3 +328,58 @@ class PanelSinPersonasTests(TestCase):
         respuesta = self.client.get(reverse("panel:inicio"))
         for texto in ("INSCRIPTOS", "PAGOS PENDIENTES", "SOLICITUDES WEB", "Últimas inscripciones"):
             self.assertNotContains(respuesta, texto)
+
+
+class PermisosTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        sincronizar_grupos()
+        cls.administracion = Usuario.objects.create_user(username="luis", password="clave-larga-123")
+        cls.administracion.asignar_rol(Rol.ADMINISTRACION)
+        cls.sin_rol = Usuario.objects.create_user(username="viejo", password="clave-larga-123")
+        categoria = Categoria.objects.create(nombre="Cargas Generales")
+        curso = Curso.objects.create(categoria=categoria, nombre="Inicial", precio=1)
+        cls.fecha = Comision.objects.create(curso=curso, fecha_inicio=date(2030, 3, 5))
+
+    def test_administracion_gestiona_fechas_cursos_y_paginas(self):
+        self.client.force_login(self.administracion)
+        for nombre in ("panel:inicio", "panel:agenda", "panel:fechas", "panel:fecha_nueva",
+                       "panel:cursos", "panel:curso_nuevo", "panel:categorias",
+                       "panel:categoria_nueva", "panel:paginas", "panel:pagina_nueva", "panel:ayuda"):
+            with self.subTest(pantalla=nombre):
+                self.assertEqual(self.client.get(reverse(nombre)).status_code, 200)
+
+    def test_administracion_marca_una_fecha_como_completa(self):
+        self.client.force_login(self.administracion)
+        self.client.post(
+            reverse("panel:fecha_marcar", args=[self.fecha.pk]), {"campo": "completa", "valor": "1"}
+        )
+        self.fecha.refresh_from_db()
+        self.assertTrue(self.fecha.completa)
+
+    def test_administracion_no_toca_usuarios_ni_configuracion(self):
+        self.client.force_login(self.administracion)
+        for nombre in ("panel:usuarios", "panel:usuario_nuevo", "panel:configuracion"):
+            with self.subTest(pantalla=nombre):
+                self.assertRedirects(self.client.get(reverse(nombre)), reverse("panel:inicio"))
+
+    def test_el_menu_de_administracion_no_ofrece_usuarios_ni_configuracion(self):
+        self.client.force_login(self.administracion)
+        respuesta = self.client.get(reverse("panel:inicio"))
+        self.assertNotContains(respuesta, "Usuarios y permisos")
+        self.assertNotContains(respuesta, reverse("panel:configuracion"))
+        self.assertContains(respuesta, reverse("panel:paginas"))
+
+    def test_un_usuario_sin_rol_no_entra_y_no_rompe(self):
+        self.client.force_login(self.sin_rol)
+        for nombre in ("panel:inicio", "panel:fechas", "panel:ayuda"):
+            with self.subTest(pantalla=nombre):
+                self.assertEqual(self.client.get(reverse(nombre)).status_code, 403)
+
+    def test_un_usuario_sin_rol_no_puede_cambiar_una_fecha(self):
+        self.client.force_login(self.sin_rol)
+        self.client.post(
+            reverse("panel:fecha_marcar", args=[self.fecha.pk]), {"campo": "completa", "valor": "1"}
+        )
+        self.fecha.refresh_from_db()
+        self.assertFalse(self.fecha.completa)

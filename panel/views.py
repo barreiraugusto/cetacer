@@ -12,9 +12,7 @@ from cuentas.models import DESCRIPCION_ROLES, JERARQUIA, Usuario
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
 
 from .accesos import (
-    GESTION_CATALOGO,
-    GESTION_COMISIONES,
-    LECTURA_INSTITUCIONAL,
+    GESTION,
     SOLO_DIRECCION,
     requiere_panel,
 )
@@ -126,7 +124,7 @@ def cursos_lista(request):
     })
 
 
-@GESTION_CATALOGO
+@GESTION
 def curso_editar(request, pk=None):
     curso = get_object_or_404(Curso, pk=pk) if pk else None
     if request.method == "POST":
@@ -148,7 +146,7 @@ def curso_editar(request, pk=None):
     })
 
 
-@GESTION_CATALOGO
+@GESTION
 def curso_eliminar(request, pk):
     curso = get_object_or_404(Curso, pk=pk)
     if request.method != "POST":
@@ -174,7 +172,7 @@ def categorias_lista(request):
     })
 
 
-@GESTION_CATALOGO
+@GESTION
 def categoria_editar(request, pk=None):
     categoria = get_object_or_404(Categoria, pk=pk) if pk else None
     if request.method == "POST":
@@ -192,7 +190,7 @@ def categoria_editar(request, pk=None):
     })
 
 
-@LECTURA_INSTITUCIONAL
+@GESTION
 def paginas_lista(request):
     return render(request, "panel/paginas.html", {
         "seccion": "paginas",
@@ -200,7 +198,7 @@ def paginas_lista(request):
     })
 
 
-@GESTION_CATALOGO
+@GESTION
 def pagina_editar(request, pk=None):
     """La página y sus enlaces se guardan juntos o no se guarda nada."""
     pagina = get_object_or_404(Pagina, pk=pk) if pk else None
@@ -231,7 +229,7 @@ def pagina_editar(request, pk=None):
     })
 
 
-@GESTION_CATALOGO
+@GESTION
 def pagina_eliminar(request, pk):
     pagina = get_object_or_404(Pagina, pk=pk)
     if request.method != "POST":
@@ -265,7 +263,7 @@ def fechas_lista(request):
     })
 
 
-@GESTION_COMISIONES
+@GESTION
 def fecha_editar(request, pk=None):
     fecha = get_object_or_404(Comision, pk=pk) if pk else None
     if request.method == "POST":
@@ -288,7 +286,7 @@ def fecha_editar(request, pk=None):
     })
 
 
-@GESTION_COMISIONES
+@GESTION
 def fecha_marcar(request, pk):
     """Cambia «visible» o «completa» con un clic, desde el listado o el Tablero."""
     fecha = get_object_or_404(Comision.objects.select_related("curso"), pk=pk)
@@ -302,7 +300,7 @@ def fecha_marcar(request, pk):
     return _volver(request, "panel:fechas")
 
 
-@GESTION_COMISIONES
+@GESTION
 def fecha_eliminar(request, pk):
     fecha = get_object_or_404(Comision.objects.select_related("curso"), pk=pk)
     if request.method != "POST":
