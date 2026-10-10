@@ -31,6 +31,12 @@
     Si un documento importa de verdad, subí el PDF en lugar de enlazarlo: los sitios ajenos dan de
     baja sus archivos sin avisar.
   </p>
+  <p>
+    Si a un enlace le falta el destino, o tiene enlace externo y archivo a la vez, la página no se
+    guarda: arriba aparece «Revisá los enlaces marcados en rojo, más abajo» y el enlace con el
+    problema queda recuadrado en rojo, con la explicación.
+  </p>
+  {% include "panel/ayuda/_captura.html" with archivo="enlace-error" ancho=1107 alto=687 pie="Un enlace sin destino, marcado en rojo al intentar guardar." %}
   <p class="nota">
     Las tarjetas del inicio de la web enlazan puntualmente a las páginas con dirección
     «legislacion» e «informacion-util». Si les cambiás esa dirección, o las despublicás, la tarjeta
