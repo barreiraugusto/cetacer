@@ -27,10 +27,9 @@
       <div class="calendario__numero">{{ celda.fecha|date:"j" }}</div>
       {% for comision in celda.comisiones %}
         <a class="calendario__evento calendario__evento--{{ comision.estado }}"
-           href="{% url 'panel:comision_detalle' comision.pk %}"
-           title="{{ comision.curso.nombre }} — {{ comision.cantidad_inscriptos }} de {{ comision.cupo }}">
+           href="{% url 'panel:comision_editar' comision.pk %}"
+           title="{{ comision.curso.nombre }}">
           {{ comision.curso.nombre|truncatechars:26 }}
-          <div style="font-weight:400;opacity:.8">{{ comision.cantidad_inscriptos }}/{{ comision.cupo }}</div>
         </a>
       {% endfor %}
     </div>

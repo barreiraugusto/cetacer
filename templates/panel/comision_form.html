@@ -61,11 +61,6 @@
   <div class="acciones-form">
     <button class="boton boton--primario" type="submit">Guardar comisión</button>
     <a class="boton boton--secundario" href="{% url 'panel:comisiones' %}">Cancelar</a>
-    {% if comision %}
-      <a class="boton boton--secundario derecha" href="{% url 'panel:comision_detalle' comision.pk %}">
-        Ver inscriptos ({{ comision.cantidad_inscriptos }})
-      </a>
-    {% endif %}
   </div>
 </form>
 
@@ -75,10 +70,7 @@
         onsubmit="return confirm('¿Eliminar la comisión del {{ comision.fecha_texto|escapejs }}? Esta acción no se puede deshacer.')">
     {% csrf_token %}
     <div class="tarjeta__titulo" style="color:var(--rojo)">Eliminar comisión</div>
-    <p class="tarjeta__ayuda">
-      Sólo se puede eliminar una comisión que no tenga ninguna inscripción.
-      Si ya tiene gente anotada, pasala a «Cancelada» arriba en lugar de borrarla.
-    </p>
+    <p class="tarjeta__ayuda">Esta acción no se puede deshacer.</p>
     <button class="boton boton--peligro" type="submit">Eliminar esta comisión</button>
   </form>
 {% endif %}

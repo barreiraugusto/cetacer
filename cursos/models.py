@@ -349,7 +349,7 @@ class Comision(models.Model):
         return f"{self.curso.nombre} — {self.fecha_texto}"
 
     def get_absolute_url(self):
-        return reverse("panel:comision_detalle", kwargs={"pk": self.pk})
+        return reverse("panel:comision_editar", kwargs={"pk": self.pk})
 
     @property
     def fecha_texto(self):

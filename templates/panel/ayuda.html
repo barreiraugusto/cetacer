@@ -26,33 +26,6 @@
     </p>
   </div>
 
-  <div class="tarjeta">
-    <div class="tarjeta__titulo">2. Anotar a alguien</div>
-    <p class="tarjeta__ayuda">Desde el mostrador o por teléfono.</p>
-    <ol style="padding-left:18px;line-height:1.9;color:var(--texto)">
-      <li>Entrá a la comisión desde <a href="{% url 'panel:comisiones' %}">Comisiones</a> o desde la <a href="{% url 'panel:agenda' %}">Agenda</a>.</li>
-      <li>En <strong>Inscribir a alguien</strong>, escribí el DNI.</li>
-      <li>Si ya cursó antes, el panel lo reconoce solo. Si es nuevo, poné apellido y nombre.</li>
-      <li>Elegí el estado y el pago, y tocá <strong>Inscribir</strong>.</li>
-    </ol>
-    <p class="texto-suave" style="margin-top:12px">
-      El sistema no deja pasarse del cupo. Si hace falta, ampliá el cupo desde
-      «Editar» de la comisión.
-    </p>
-  </div>
-
-  <div class="tarjeta">
-    <div class="tarjeta__titulo">3. Descargar la lista</div>
-    <p class="tarjeta__ayuda">Para presentar o para trabajar en Excel.</p>
-    <ol style="padding-left:18px;line-height:1.9;color:var(--texto)">
-      <li>Abrí la comisión y tocá <strong>Lista en Excel</strong>.</li>
-      <li>Si la querés para hacer firmar, usá <strong>Planilla de firmas</strong>.</li>
-      <li>Para listados de varios cursos, andá a <a href="{% url 'panel:inscripciones' %}">Inscripciones</a>, filtrá y tocá <strong>Exportar a Excel</strong>.</li>
-    </ol>
-    <p class="texto-suave" style="margin-top:12px">
-      La exportación siempre respeta los filtros que tengas puestos en pantalla.
-    </p>
-  </div>
 </div>
 
 <div class="manual" id="manual">
@@ -63,12 +36,7 @@
       <li><a href="#agenda">Agenda</a></li>
       <li><a href="#cursos">Cursos y categorías</a></li>
       <li><a href="#comisiones">Comisiones</a></li>
-      <li><a href="#inscribir">Inscribir a alguien</a></li>
-      <li><a href="#asistencia">Asistencia y listas</a></li>
-      <li><a href="#inscripciones">Inscripciones</a></li>
-      <li><a href="#personas">Participantes y empresas</a></li>
       <li><a href="#paginas">Páginas del sitio</a></li>
-      <li><a href="#informes">Informes</a></li>
       <li><a href="#administracion">Usuarios, roles y configuración</a></li>
       <li><a href="#referencia">Referencia</a></li>
     </ol>
@@ -80,12 +48,7 @@
     {% include "panel/ayuda/02_agenda.html" %}
     {% include "panel/ayuda/03_cursos.html" %}
     {% include "panel/ayuda/04_comisiones.html" %}
-    {% include "panel/ayuda/05_inscribir.html" %}
-    {% include "panel/ayuda/06_asistencia.html" %}
-    {% include "panel/ayuda/07_inscripciones.html" %}
-    {% include "panel/ayuda/08_personas.html" %}
     {% include "panel/ayuda/09_paginas.html" %}
-    {% include "panel/ayuda/10_informes.html" %}
     {% include "panel/ayuda/11_administracion.html" %}
     {% include "panel/ayuda/12_referencia.html" %}
   </div>

@@ -10,7 +10,6 @@ from django.forms import inlineformset_factory
 from contenido.models import EnlacePagina, Pagina
 from cuentas.models import JERARQUIA, Rol, Usuario
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso, ImagenPortada
-from inscripciones.models import Empresa, Inscripcion, Participante
 
 
 class BaseForm(forms.ModelForm):
@@ -101,73 +100,6 @@ class ComisionForm(BaseForm):
                 self.add_error(
                     "cupo",
                     f"Ya hay {ocupados} inscriptos en esta comisión: el cupo no puede ser menor.",
-                )
-        return datos
-
-
-class EmpresaForm(BaseForm):
-    class Meta:
-        model = Empresa
-        fields = ["razon_social", "cuit", "telefono", "email", "localidad", "socia", "notas"]
-
-
-class ParticipanteForm(BaseForm):
-    class Meta:
-        model = Participante
-        fields = [
-            "dni", "apellido", "nombre", "fecha_nacimiento", "telefono", "email",
-            "localidad", "empresa", "categoria_licencia", "observaciones",
-        ]
-        widgets = {"fecha_nacimiento": forms.DateInput(attrs={"type": "date"})}
-
-    def clean_dni(self):
-        return (self.cleaned_data["dni"] or "").replace(".", "").replace(" ", "").strip()
-
-
-class InscripcionForm(BaseForm):
-    class Meta:
-        model = Inscripcion
-        fields = [
-            "estado", "pago", "monto", "comprobante",
-            "psicofisico_vigente", "documentacion_completa", "notas",
-        ]
-
-
-class InscribirForm(forms.Form):
-    """Alta rápida desde la ficha de la comisión: busca el DNI o crea la persona."""
-
-    dni = forms.CharField(label="DNI", max_length=12, widget=forms.TextInput(
-        attrs={"class": "campo", "placeholder": "Sin puntos", "autofocus": "autofocus"}))
-    apellido = forms.CharField(label="Apellido", max_length=120, required=False,
-        widget=forms.TextInput(attrs={"class": "campo"}))
-    nombre = forms.CharField(label="Nombre", max_length=120, required=False,
-        widget=forms.TextInput(attrs={"class": "campo"}))
-    telefono = forms.CharField(label="Teléfono", max_length=40, required=False,
-        widget=forms.TextInput(attrs={"class": "campo"}))
-    email = forms.EmailField(label="Correo", required=False,
-        widget=forms.EmailInput(attrs={"class": "campo"}))
-    empresa = forms.ModelChoiceField(
-        label="Empresa", queryset=Empresa.objects.all(), required=False,
-        empty_label="Sin empresa", widget=forms.Select(attrs={"class": "campo campo--select"}))
-    estado = forms.ChoiceField(
-        label="Estado", choices=Inscripcion.Estado.choices,
-        initial=Inscripcion.Estado.CONFIRMADA,
-        widget=forms.Select(attrs={"class": "campo campo--select"}))
-    pago = forms.ChoiceField(
-        label="Pago", choices=Inscripcion.Pago.choices, initial=Inscripcion.Pago.PENDIENTE,
-        widget=forms.Select(attrs={"class": "campo campo--select"}))
-
-    def clean_dni(self):
-        return (self.cleaned_data["dni"] or "").replace(".", "").replace(" ", "").strip()
-
-    def clean(self):
-        datos = super().clean()
-        dni = datos.get("dni")
-        if dni and not Participante.objects.filter(dni=dni).exists():
-            # Persona nueva: hace falta el nombre para poder darla de alta.
-            if not datos.get("apellido") or not datos.get("nombre"):
-                raise forms.ValidationError(
-                    "Ese DNI no está registrado. Completá apellido y nombre para darlo de alta."
                 )
         return datos
 

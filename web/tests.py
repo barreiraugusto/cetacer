@@ -6,6 +6,7 @@ from unittest import mock
 from django.apps import apps
 from django.db import OperationalError
 from django.test import SimpleTestCase, TestCase
+from django.urls import reverse
 
 from contenido.models import EnlacePagina, Pagina
 from cursos.models import Categoria, Comision, ConfiguracionSitio, Curso
@@ -216,3 +217,66 @@ class SaludTests(TestCase):
             respuesta = self.client.get("/salud/")
         self.assertEqual(respuesta.status_code, 503)
         self.assertEqual(respuesta.json(), {"estado": "error", "base": "error"})
+
+
+class WebPublicaTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        categoria = Categoria.objects.create(nombre="Cargas Generales")
+        cls.curso = Curso.objects.create(
+            categoria=categoria, nombre="Curso primera vez", precio=405000,
+            requisitos="Psicofísico vigente.",
+        )
+        cls.comision = Comision.objects.create(
+            curso=cls.curso, fecha_inicio=date.today() + timedelta(days=15),
+            estado=Comision.Estado.PUBLICADA,
+        )
+
+    def test_el_inicio_muestra_los_cursos_activos(self):
+        respuesta = self.client.get(reverse("web:inicio"))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "Curso primera vez")
+        self.assertContains(respuesta, "$405.000")
+
+    def test_un_curso_desactivado_no_aparece(self):
+        self.curso.activo = False
+        self.curso.save()
+        respuesta = self.client.get(reverse("web:inicio"))
+        self.assertNotContains(respuesta, "Curso primera vez")
+
+    def test_la_ficha_del_curso_lista_las_fechas_publicadas(self):
+        respuesta = self.client.get(reverse("web:curso", kwargs={"slug": self.curso.slug}))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, self.comision.fecha_texto)
+
+    def test_la_web_no_ofrece_reservar_lugar(self):
+        """CETACER pidió sacar la reserva online: los turnos van por WhatsApp."""
+        for url in (
+            reverse("web:inicio"),
+            reverse("web:catalogo"),
+            reverse("web:curso", kwargs={"slug": self.curso.slug}),
+        ):
+            html = self.client.get(url).content.decode()
+            self.assertNotIn("Reservar", html, f"quedó un botón de reserva en {url}")
+            self.assertNotIn("/inscripcion/", html, f"quedó un enlace de reserva en {url}")
+
+    def test_no_queda_ninguna_ruta_publica_de_reserva(self):
+        """Sacar el botón no alcanza: la dirección tampoco tiene que existir."""
+        from django.urls import NoReverseMatch
+
+        for nombre in ("web:preinscripcion", "web:preinscripcion_ok"):
+            with self.assertRaises(NoReverseMatch):
+                reverse(nombre, kwargs={"slug": self.curso.slug})
+
+        self.assertEqual(
+            self.client.get(f"/cursos/{self.curso.slug}/inscripcion/").status_code, 404
+        )
+        self.assertEqual(self.client.post(f"/cursos/{self.curso.slug}/inscripcion/").status_code, 404)
+
+    def test_la_ficha_no_enlaza_la_boleta_de_pago(self):
+        """La boleta se reemplazó por el texto de ANSV al pie de los cursos."""
+        html = self.client.get(
+            reverse("web:curso", kwargs={"slug": self.curso.slug})
+        ).content.decode()
+        self.assertNotIn("sicapro", html.lower())
+        self.assertNotIn("Boleta de pago", html)

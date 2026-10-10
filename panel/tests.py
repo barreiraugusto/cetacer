@@ -11,10 +11,7 @@ from cuentas.models import JERARQUIA, Rol, Usuario
 from cuentas.permisos import sincronizar_grupos
 from cursos.models import Categoria, Comision, Curso
 
-CAPITULOS = [
-    "ingresar", "agenda", "cursos", "comisiones", "inscribir", "asistencia",
-    "inscripciones", "personas", "paginas", "informes", "administracion", "referencia",
-]
+CAPITULOS = ["ingresar", "agenda", "cursos", "comisiones", "paginas", "administracion", "referencia"]
 
 
 class ManualTests(TestCase):
@@ -51,7 +48,7 @@ class ManualTests(TestCase):
     def test_todas_las_capturas_existen(self):
         html = self._manual(JERARQUIA[0]).content.decode()
         capturas = set(re.findall(r'src="/static/(img/manual/[^"]+)"', html))
-        self.assertGreater(len(capturas), 20)
+        self.assertGreater(len(capturas), 10)
         for ruta in sorted(capturas):
             with self.subTest(captura=ruta):
                 self.assertIsNotNone(finders.find(ruta), f"Falta el archivo {ruta}")
@@ -174,3 +171,30 @@ class EditarFechaTests(TestCase):
         respuesta = self.client.get(reverse("panel:comision_editar", args=[self.fecha.pk]))
         self.assertContains(respuesta, 'value="2030-03-05"')
         self.assertContains(respuesta, 'value="2030-03-07"')
+
+
+class PanelSinPersonasTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        sincronizar_grupos()
+        cls.direccion = Usuario.objects.create_user(username="marta", password="clave-larga-123")
+        cls.direccion.asignar_rol(Rol.DIRECCION)
+
+    def setUp(self):
+        self.client.force_login(self.direccion)
+
+    def test_las_pantallas_de_personas_ya_no_existen(self):
+        for ruta in ("inscripciones/", "participantes/", "empresas/", "informes/",
+                     "inscripciones/exportar/", "participantes/nuevo/"):
+            with self.subTest(ruta=ruta):
+                self.assertEqual(self.client.get(f"/panel/{ruta}").status_code, 404)
+
+    def test_el_menu_no_las_ofrece(self):
+        respuesta = self.client.get(reverse("panel:inicio"))
+        for texto in ("Inscripciones", "Participantes", "Informes", "PERSONAS"):
+            self.assertNotContains(respuesta, texto)
+
+    def test_el_tablero_no_habla_de_inscriptos_ni_pagos(self):
+        respuesta = self.client.get(reverse("panel:inicio"))
+        for texto in ("INSCRIPTOS", "PAGOS PENDIENTES", "SOLICITUDES WEB", "Últimas inscripciones"):
+            self.assertNotContains(respuesta, texto)
