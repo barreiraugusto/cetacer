@@ -211,11 +211,12 @@ img, iframe { max-width: 100%; }
 
 /* --- Encabezado de cursos ------------------------------------------------ */
 
+/* La bajada y el video ocupan el mismo ancho que los bloques de cursos de abajo. */
 .cursos__bajada {
-  font-size: 17.5px; line-height: 1.55; color: var(--texto-suave); max-width: 66ch; margin: 12px 0 0;
+  font-size: 17.5px; line-height: 1.55; color: var(--texto-suave); margin: 12px 0 0;
 }
 .cursos__video {
-  margin-top: 24px; max-width: 880px; aspect-ratio: 16 / 9;
+  margin-top: 24px; aspect-ratio: 16 / 9;
   border-radius: var(--radio-card); overflow: hidden; background: var(--azul-profundo);
 }
 .cursos__video iframe { display: block; width: 100%; height: 100%; border: 0; }
