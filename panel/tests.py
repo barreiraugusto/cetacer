@@ -109,6 +109,28 @@ class EliminarUsuarioTests(TestCase):
         self.assertTrue(Usuario.objects.filter(pk=self.recepcion.pk).exists())
 
 
+    def test_al_editar_un_usuario_sin_rol_no_viene_ninguno_elegido(self):
+        # Si viniera «Dirección» preseleccionado, guardar sin mirar daría acceso total.
+        sin_rol = Usuario.objects.create_user(username="viejo", password="clave-larga-123")
+        self.client.force_login(self.direccion)
+        url = reverse("panel:usuario_editar", args=[sin_rol.pk])
+        respuesta = self.client.get(url)
+        self.assertContains(respuesta, '<option value="" selected>')
+        respuesta = self.client.post(url, {"username": "viejo", "rol": "", "is_active": "on"})
+        self.assertEqual(respuesta.status_code, 200)
+        sin_rol.refresh_from_db()
+        self.assertIsNone(sin_rol.rol)
+
+    def test_un_usuario_nuevo_tampoco_trae_rol_elegido(self):
+        self.client.force_login(self.direccion)
+        respuesta = self.client.get(reverse("panel:usuario_nuevo"))
+        self.assertContains(respuesta, '<option value="" selected>')
+
+    def test_al_editar_un_usuario_con_rol_viene_el_suyo(self):
+        self.client.force_login(self.direccion)
+        respuesta = self.client.get(reverse("panel:usuario_editar", args=[self.administracion.pk]))
+        self.assertContains(respuesta, '<option value="Administración" selected>')
+
     def test_el_boton_aparece_al_editar_a_otro_y_no_a_uno_mismo(self):
         self.client.force_login(self.direccion)
         ajeno = self.client.get(reverse("panel:usuario_editar", args=[self.recepcion.pk]))
@@ -224,7 +246,8 @@ class FechasTests(TestCase):
     def test_marcar_no_acepta_otros_campos_ni_get(self):
         url = reverse("panel:fecha_marcar", args=[self.fecha.pk])
         self.client.post(url, {"campo": "curso", "valor": "1"})
-        self.client.get(url)
+        self.client.get(url + "?campo=completa&valor=1")
+        self.client.get(url + "?campo=visible&valor=0")
         self.fecha.refresh_from_db()
         self.assertTrue(self.fecha.visible)
         self.assertFalse(self.fecha.completa)
@@ -390,6 +413,15 @@ class PermisosTests(TestCase):
         self.assertContains(respuesta, "no tiene un rol asignado", status_code=403)
         self.assertContains(respuesta, "Dirección", status_code=403)
         self.assertContains(respuesta, reverse("panel:logout"), status_code=403)
+
+    def test_al_recibir_un_rol_no_arrastra_avisos_viejos(self):
+        self.client.force_login(self.sin_rol)
+        for _ in range(3):
+            self.client.get(reverse("panel:inicio"))
+        self.sin_rol.asignar_rol(Rol.ADMINISTRACION)
+        respuesta = self.client.get(reverse("panel:inicio"))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertNotContains(respuesta, "rol asignado")
 
     def test_un_usuario_sin_rol_no_puede_cambiar_una_fecha(self):
         self.client.force_login(self.sin_rol)

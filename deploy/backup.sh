@@ -25,7 +25,7 @@ if [[ -z "${DATABASE_URL:-}" ]]; then
 fi
 
 FECHA=$(date +%F)
-# El dump lleva los datos personales de todos los participantes: que nazca
+# El dump lleva los usuarios del panel con sus contraseñas cifradas: que nazca
 # legible sólo por root, sin depender de los permisos del directorio.
 umask 077
 install -d -m 700 "$DESTINO" "$DESTINO/diarias" "$DESTINO/mensuales"

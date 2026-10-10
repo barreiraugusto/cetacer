@@ -1,8 +1,10 @@
 """Cada curso suma un nombre corto y la web pasa a agruparlos en bloques.
 
 Los cursos de «Renovación» y «Ampliación» se mudan a «Cargas Generales», que
-queda con tres botones: Inicial, Renovación y Ampliación. Las categorías y
-cursos se buscan por identificador; lo que no está, se saltea.
+queda con tres botones: Inicial, Renovación y Ampliación. Las categorías se
+buscan por identificador y lo que no está se saltea. El nombre corto se pone
+sólo cuando no hay duda de qué curso es; si la hay queda vacío, el botón usa
+el nombre completo y se corrige desde el panel.
 """
 from django.db import migrations, models
 
@@ -11,31 +13,36 @@ def reagrupar(apps, schema_editor):
     Categoria = apps.get_model("cursos", "Categoria")
     Curso = apps.get_model("cursos", "Curso")
 
-    def nombrar(curso, texto, orden=None):
-        # Un nombre corto ya cargado a mano no se pisa.
-        if not curso.nombre_corto:
-            curso.nombre_corto = texto
-        if orden is not None:
-            curso.orden = orden
-        curso.save()
+    def nombrar(cursos, texto, orden):
+        """Sólo si es el único curso del grupo: con dos no se sabe cuál es cuál."""
+        if len(cursos) == 1:
+            cursos[0].nombre_corto = texto
+            cursos[0].orden = orden
+            cursos[0].save()
 
-    generales = Categoria.objects.filter(slug="cargas-generales").first()
+    # Mudar cursos a una categoría oculta los sacaría de la web.
+    generales = Categoria.objects.filter(slug="cargas-generales", activa=True).first()
     if generales:
-        for curso in Curso.objects.filter(categoria=generales):
-            nombrar(curso, "Inicial", 1)
+        nombrar(list(Curso.objects.filter(categoria=generales)), "Inicial", 1)
         for slug, texto, orden in (("renovacion", "Renovación", 2), ("ampliacion", "Ampliación", 3)):
             vieja = Categoria.objects.filter(slug=slug).first()
             if not vieja:
                 continue
-            for curso in Curso.objects.filter(categoria=vieja):
+            mudados = list(Curso.objects.filter(categoria=vieja))
+            for curso in mudados:
                 curso.categoria = generales
-                nombrar(curso, texto, orden)
+                curso.save()
+            nombrar(mudados, texto, orden)
             vieja.activa = False
             vieja.save()
 
-    for curso in Curso.objects.filter(categoria__slug="mercancias-peligrosas"):
-        primera = "primera vez" in curso.nombre.lower()
-        nombrar(curso, "Primera vez" if primera else "Renovación")
+    peligrosas = Curso.objects.filter(categoria__slug="mercancias-peligrosas")
+    nombrar([c for c in peligrosas if "primera vez" in c.nombre.lower()], "Primera vez", 1)
+    nombrar(
+        [c for c in peligrosas
+         if "renovaci" in c.nombre.lower() or "actualizaci" in c.nombre.lower()],
+        "Renovación", 2,
+    )
 
 
 class Migration(migrations.Migration):

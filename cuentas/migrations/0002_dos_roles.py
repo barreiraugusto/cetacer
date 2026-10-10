@@ -14,7 +14,10 @@ def reducir(apps, schema_editor):
     if coordinacion:
         administracion, _ = Group.objects.get_or_create(name="Administración")
         for usuario in Usuario.objects.filter(groups=coordinacion):
-            usuario.groups.set([administracion])
+            # Quien además tenía Dirección (sólo se arma desde /django-admin/)
+            # conserva Dirección: no se lo degrada.
+            if not usuario.groups.filter(name="Dirección").exists():
+                usuario.groups.add(administracion)
     Group.objects.filter(name__in=["Coordinación", "Recepción", "Instructor"]).delete()
 
 

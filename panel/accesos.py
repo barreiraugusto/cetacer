@@ -60,10 +60,7 @@ def requiere_panel(vista):
             return redirect_to_login(request.get_full_path())
         if request.user.is_superuser or request.user.rol is not None:
             return vista(request, *args, **kwargs)
-        messages.error(
-            request,
-            "Tu usuario todavía no tiene un rol asignado. Contactá a Dirección.",
-        )
+        # templates/403.html explica qué pasa y a quién pedirle el rol.
         raise PermissionDenied("Usuario sin rol")
 
     return envoltorio

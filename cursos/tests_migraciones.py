@@ -90,8 +90,10 @@ class FechasVisibleYCompletaTests(MigracionTestCase):
     def test_una_publicada_con_lugar_queda_disponible(self):
         self.assertFalse(self._fecha(self.publicada).completa)
 
-    def test_un_cupo_en_cero_no_la_deja_completa(self):
-        self.assertFalse(self._fecha(self.sin_cupo).completa)
+    def test_un_cupo_en_cero_sigue_completa_como_la_mostraba_la_web(self):
+        # Con cupo 0 la web ya decía «Completo»: la migración no cambia lo que
+        # ve el público. Si era un error de carga, se arregla con un clic.
+        self.assertTrue(self._fecha(self.sin_cupo).completa)
 
 
 class ReagruparCursosTests(MigracionTestCase):
@@ -113,7 +115,6 @@ class ReagruparCursosTests(MigracionTestCase):
         curso(generales, "Curso Primera vez — Cargas Generales y/o Pasajeros", "inicial")
         curso(peligrosas, "Curso primera vez — Mercancías Peligrosas", "mp-primera")
         curso(peligrosas, "Curso Renovación — Mercancías Peligrosas", "mp-renovacion")
-        curso(peligrosas, "Curso actualización — Mercancías Peligrosas", "mp-actualizacion")
         curso(categoria("Renovación", "renovacion", 3), "Renovación — Cargas Generales y/o Pasajeros", "renovacion")
         curso(categoria("Ampliación", "ampliacion", 4), "Ampliación — Cargas Generales y/o Pasajeros", "ampliacion")
         otra = categoria("Transporte de Pasajeros", "transporte-de-pasajeros", 5)
@@ -136,7 +137,6 @@ class ReagruparCursosTests(MigracionTestCase):
     def test_peligrosas_recibe_sus_nombres_cortos(self):
         self.assertEqual(self._curso("mp-primera").nombre_corto, "Primera vez")
         self.assertEqual(self._curso("mp-renovacion").nombre_corto, "Renovación")
-        self.assertEqual(self._curso("mp-actualizacion").nombre_corto, "Renovación")
 
     def test_las_categorias_vaciadas_se_ocultan(self):
         Categoria = self.apps.get_model("cursos", "Categoria")
@@ -164,6 +164,66 @@ class ReagruparSinCargasGeneralesTests(MigracionTestCase):
         Curso.objects.create(categoria=otra, nombre="Renovación", slug="renovacion")
 
     def test_sin_cargas_generales_no_mueve_nada(self):
+        Curso = self.apps.get_model("cursos", "Curso")
+        curso = Curso.objects.select_related("categoria").get(slug="renovacion")
+        self.assertEqual(curso.categoria.slug, "renovacion")
+        self.assertTrue(curso.categoria.activa)
+
+
+class ReagruparConVariosCursosTests(MigracionTestCase):
+    """Si no se puede saber qué curso es cuál, el nombre corto queda vacío."""
+
+    desde = [("cursos", "0010_sacar_cupo_instructor_y_estado")]
+    hasta = [("cursos", "0011_nombre_corto_y_bloques")]
+
+    def armar(self, apps):
+        Categoria = apps.get_model("cursos", "Categoria")
+        Curso = apps.get_model("cursos", "Curso")
+        generales = Categoria.objects.create(nombre="Cargas Generales", slug="cargas-generales")
+        peligrosas = Categoria.objects.create(nombre="Mercancías Peligrosas", slug="mercancias-peligrosas")
+        renovacion = Categoria.objects.create(nombre="Renovación", slug="renovacion")
+        Curso.objects.create(categoria=generales, nombre="Curso primera vez", slug="g1")
+        Curso.objects.create(categoria=generales, nombre="Otro curso", slug="g2")
+        Curso.objects.create(categoria=renovacion, nombre="Renovación A", slug="r1")
+        Curso.objects.create(categoria=renovacion, nombre="Renovación B", slug="r2")
+        Curso.objects.create(categoria=peligrosas, nombre="Curso básico nuevo", slug="p1")
+        Curso.objects.create(categoria=peligrosas, nombre="Curso Renovación", slug="p3")
+        Curso.objects.create(categoria=peligrosas, nombre="Curso actualización", slug="p4")
+
+    def _curso(self, slug):
+        return self.apps.get_model("cursos", "Curso").objects.select_related("categoria").get(slug=slug)
+
+    def test_dos_cursos_en_cargas_generales_no_reciben_inicial(self):
+        self.assertEqual(self._curso("g1").nombre_corto, "")
+        self.assertEqual(self._curso("g2").nombre_corto, "")
+
+    def test_dos_cursos_de_renovacion_se_mudan_sin_nombre_corto(self):
+        for slug in ("r1", "r2"):
+            self.assertEqual(self._curso(slug).categoria.slug, "cargas-generales")
+            self.assertEqual(self._curso(slug).nombre_corto, "")
+
+    def test_un_curso_de_peligrosas_que_no_se_reconoce_queda_sin_nombre_corto(self):
+        self.assertEqual(self._curso("p1").nombre_corto, "")
+
+    def test_dos_renovaciones_de_peligrosas_quedan_sin_nombre_corto(self):
+        self.assertEqual(self._curso("p3").nombre_corto, "")
+        self.assertEqual(self._curso("p4").nombre_corto, "")
+
+
+class ReagruparConCargasGeneralesOcultaTests(MigracionTestCase):
+    """Mudar cursos a una categoría oculta los sacaría de la web: no se mudan."""
+
+    desde = [("cursos", "0010_sacar_cupo_instructor_y_estado")]
+    hasta = [("cursos", "0011_nombre_corto_y_bloques")]
+
+    def armar(self, apps):
+        Categoria = apps.get_model("cursos", "Categoria")
+        Curso = apps.get_model("cursos", "Curso")
+        Categoria.objects.create(nombre="Cargas Generales", slug="cargas-generales", activa=False)
+        renovacion = Categoria.objects.create(nombre="Renovación", slug="renovacion")
+        Curso.objects.create(categoria=renovacion, nombre="Renovación", slug="renovacion")
+
+    def test_los_cursos_se_quedan_donde_estan(self):
         Curso = self.apps.get_model("cursos", "Curso")
         curso = Curso.objects.select_related("categoria").get(slug="renovacion")
         self.assertEqual(curso.categoria.slug, "renovacion")

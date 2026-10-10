@@ -102,7 +102,9 @@ class UsuarioForm(BaseForm):
 
     rol = forms.ChoiceField(
         label="Rol en el panel",
-        choices=[(r.value, r.label) for r in JERARQUIA],
+        # Arranca sin ninguno elegido: si viniera el primero, guardar sin mirar
+        # le daría Dirección a quien no tiene rol.
+        choices=[("", "— Elegí un rol —")] + [(r.value, r.label) for r in JERARQUIA],
         widget=forms.Select(attrs={"class": "campo campo--select"}),
     )
     password1 = forms.CharField(

@@ -13,6 +13,11 @@ class DosRolesTests(MigracionTestCase):
             grupo, _ = Group.objects.get_or_create(name=nombre)
             Usuario.objects.create(username=nombre).groups.add(grupo)
         Usuario.objects.create(username="sin-grupo")
+        # Sólo se arma desde /django-admin/, pero no tiene que perder Dirección.
+        doble = Usuario.objects.create(username="doble")
+        doble.groups.set(Group.objects.filter(name__in=["Dirección", "Coordinación"]))
+        mezcla = Usuario.objects.create(username="mezcla")
+        mezcla.groups.set(Group.objects.filter(name__in=["Coordinación", "Recepción"]))
 
     def _grupos(self, username):
         Usuario = self.apps.get_model("cuentas", "Usuario")
@@ -35,3 +40,9 @@ class DosRolesTests(MigracionTestCase):
         self.assertEqual(
             sorted(Group.objects.values_list("name", flat=True)), ["Administración", "Dirección"]
         )
+
+    def test_quien_ademas_tenia_direccion_la_conserva(self):
+        self.assertEqual(self._grupos("doble"), ["Dirección"])
+
+    def test_coordinacion_con_otro_rol_eliminado_queda_en_administracion(self):
+        self.assertEqual(self._grupos("mezcla"), ["Administración"])

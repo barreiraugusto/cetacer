@@ -12,10 +12,12 @@ def pasar_estado(apps, schema_editor):
     publicadas = ["publicada", "en_curso"]
     Comision.objects.filter(estado__in=publicadas).update(visible=True)
     Comision.objects.exclude(estado__in=publicadas).update(visible=False)
-    # Un cupo en cero no cuenta como «llena»: es una fecha cargada a medias.
+    # Igual que la regla vieja (inscriptos >= cupo), cupo en cero incluido: la
+    # migración no cambia lo que la web le muestra hoy al público.
     llenas = (
-        Comision.objects.filter(cupo__gt=0)
-        .annotate(ocupados=Count("inscripciones", filter=~Q(inscripciones__estado="cancelada")))
+        Comision.objects.annotate(
+            ocupados=Count("inscripciones", filter=~Q(inscripciones__estado="cancelada"))
+        )
         .filter(ocupados__gte=F("cupo"))
         .values_list("pk", flat=True)
     )

@@ -1,7 +1,7 @@
 """Carga el catálogo real de CETACER y, opcionalmente, datos de ejemplo.
 
     python manage.py cargar_datos            # catálogo + usuarios de cada rol
-    python manage.py cargar_datos --demo     # además, comisiones e inscriptos falsos
+    python manage.py cargar_datos --demo     # además, fechas de prueba
 """
 import random
 from datetime import date, time, timedelta
